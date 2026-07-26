@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-spacing",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "a11y-now plugin: line, letter, word and paragraph spacing presets per WCAG 1.4.12",
   "keywords": [
     "a11y",

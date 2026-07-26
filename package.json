@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/monorepo",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "Accessibility toolbar for any website: pluggable, themeable, framework-agnostic",
   "keywords": [

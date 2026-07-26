@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-speech",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "a11y-now plugin: self-voicing with hover point-reading and segmented continuous reading",
   "keywords": [
     "a11y",
