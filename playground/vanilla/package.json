@@ -1,0 +1,16 @@
+{
+  "name": "playground-vanilla",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "a11y-now": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:"
+  }
+}

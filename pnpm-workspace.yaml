@@ -1,0 +1,31 @@
+packages:
+  - docs
+  - packages/*
+  - packages-frameworks/*
+  - packages-plugins/*
+  - packages-themes/*
+  - playground/*
+
+catalog:
+  '@vitejs/plugin-vue': ^6.0.8
+  vite: ^8.1.5
+  '@types/react': ^19.2.17
+  '@types/react-dom': ^19.2.3
+  '@vitest/coverage-v8': ^4.1.10
+  happy-dom: ^20.11.1
+  react: ^19.2.8
+  react-dom: ^19.2.8
+  solid-js: ^1.9.14
+  svelte: ^5.56.8
+  tsdown: ^0.22.14
+  vitepress: ^2.0.0-alpha.18
+  vitest: ^4.1.10
+  vue: ^3.5.40
+
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAge: 0
+ignoreWorkspaceRootCheck: true
+packageManagerStrict: false
+shellEmulator: true

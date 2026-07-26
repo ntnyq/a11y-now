@@ -1,0 +1,62 @@
+{
+  "extends": "@ntnyq/tsconfig/strict.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "paths": {
+      "@a11y-now/types": ["./packages/types/src/index.ts"],
+      "@a11y-now/shared": ["./packages/shared/src/index.ts"],
+      "@a11y-now/core": ["./packages/core/src/index.ts"],
+      "a11y-now": ["./packages/a11y-now/src/index.ts"],
+      "a11y-now/presets/*": ["./packages/a11y-now/src/presets/*.ts"],
+      "@a11y-now/plugin-region-nav": [
+        "./packages-plugins/region-nav/src/index.ts"
+      ],
+      "@a11y-now/plugin-speech": ["./packages-plugins/speech/src/index.ts"],
+      "@a11y-now/plugin-screen-reader": [
+        "./packages-plugins/screen-reader/src/index.ts"
+      ],
+      "@a11y-now/plugin-theme": ["./packages-plugins/theme/src/index.ts"],
+      "@a11y-now/plugin-zoom": ["./packages-plugins/zoom/src/index.ts"],
+      "@a11y-now/plugin-big-cursor": [
+        "./packages-plugins/big-cursor/src/index.ts"
+      ],
+      "@a11y-now/plugin-crosshair": [
+        "./packages-plugins/crosshair/src/index.ts"
+      ],
+      "@a11y-now/plugin-caption": ["./packages-plugins/caption/src/index.ts"],
+      "@a11y-now/plugin-reset": ["./packages-plugins/reset/src/index.ts"],
+      "@a11y-now/plugin-pin": ["./packages-plugins/pin/src/index.ts"],
+      "@a11y-now/plugin-help": ["./packages-plugins/help/src/index.ts"],
+      "@a11y-now/plugin-exit": ["./packages-plugins/exit/src/index.ts"],
+      "@a11y-now/theme-default": ["./packages-themes/default/src/index.ts"],
+      "@a11y-now/theme-deep-blue": ["./packages-themes/deep-blue/src/index.ts"],
+      "@a11y-now/theme-chocolate": ["./packages-themes/chocolate/src/index.ts"],
+      "@a11y-now/theme-high-contrast": [
+        "./packages-themes/high-contrast/src/index.ts"
+      ],
+      "@a11y-now/theme-forest": ["./packages-themes/forest/src/index.ts"],
+      "@a11y-now/vue": ["./packages-frameworks/vue/src/index.ts"],
+      "@a11y-now/react": ["./packages-frameworks/react/src/index.ts"],
+      "@a11y-now/svelte": ["./packages-frameworks/svelte/src/index.ts"],
+      "@a11y-now/solid": ["./packages-frameworks/solid/src/index.ts"],
+      "@a11y-now/element": ["./packages-frameworks/element/src/index.ts"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "packages/*/src",
+    "packages/*/tests",
+    "packages-plugins/*/src",
+    "packages-plugins/*/tests",
+    "packages-themes/*/src",
+    "packages-themes/*/tests",
+    "packages-frameworks/*/src",
+    "packages-frameworks/*/tests",
+    "tests",
+    "*.ts"
+  ]
+}

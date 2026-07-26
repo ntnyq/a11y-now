@@ -1,0 +1,79 @@
+import { defineConfig } from 'vitepress'
+
+export default defineConfig({
+  description: '插件化、可主题化、多框架的网页无障碍工具栏',
+  lang: 'zh-CN',
+  themeConfig: {
+    nav: [
+      { link: '/guide/getting-started', text: '指南' },
+      { link: '/plugins/', text: '插件' },
+      { link: '/themes/', text: '主题' },
+      { link: '/frameworks/vue', text: '框架' },
+      { link: '/design', text: '设计资料' },
+    ],
+    sidebar: {
+      '/design': [
+        {
+          items: [
+            { link: '/design', text: '源页面审查报告' },
+            { link: '/plan', text: '实现计划与代码设计' },
+          ],
+          text: '设计资料',
+        },
+      ],
+      '/frameworks/': [
+        {
+          items: [
+            { link: '/frameworks/vue', text: 'Vue' },
+            { link: '/frameworks/react', text: 'React' },
+            { link: '/frameworks/svelte', text: 'Svelte' },
+            { link: '/frameworks/solid', text: 'Solid' },
+            { link: '/frameworks/element', text: 'Web Component' },
+          ],
+          text: '框架接入',
+        },
+      ],
+      '/guide/': [
+        {
+          items: [
+            { link: '/guide/getting-started', text: '快速开始' },
+            { link: '/guide/concepts', text: '核心概念' },
+            { link: '/guide/write-a-plugin', text: '编写插件' },
+            { link: '/guide/write-a-theme', text: '编写主题' },
+          ],
+          text: '指南',
+        },
+      ],
+      '/plugins/': [
+        {
+          items: [
+            { link: '/plugins/', text: '总览' },
+            { link: '/plugins/region-nav', text: '区域导航' },
+            { link: '/plugins/speech', text: '语音朗读' },
+            { link: '/plugins/screen-reader', text: '读屏专用' },
+            { link: '/plugins/theme', text: '配色切换' },
+            { link: '/plugins/zoom', text: '页面缩放' },
+            { link: '/plugins/big-cursor', text: '大鼠标' },
+            { link: '/plugins/crosshair', text: '十字线' },
+            { link: '/plugins/caption', text: '大字幕' },
+            { link: '/plugins/reset', text: '重置' },
+            { link: '/plugins/pin', text: '固定' },
+            { link: '/plugins/help', text: '操作说明' },
+            { link: '/plugins/exit', text: '退出服务' },
+          ],
+          text: '内置插件',
+        },
+      ],
+      '/themes/': [
+        {
+          items: [{ link: '/themes/', text: '主题与 Token 参考' }],
+          text: '主题',
+        },
+      ],
+    },
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/ntnyq/a11y-now' },
+    ],
+  },
+  title: 'a11y-now',
+})

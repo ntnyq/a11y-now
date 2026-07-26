@@ -1,0 +1,63 @@
+{
+  "name": "@a11y-now/monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Accessibility toolbar for any website: pluggable, themeable, framework-agnostic",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "toolbar",
+    "wcag"
+  ],
+  "homepage": "https://github.com/ntnyq/a11y-now#readme",
+  "bugs": {
+    "url": "https://github.com/ntnyq/a11y-now/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "ntnyq",
+    "email": "ntnyq13@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ntnyq/a11y-now.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' --filter './packages-plugins/*' --filter './packages-themes/*' --filter './packages-frameworks/*' run build",
+    "dev": "pnpm --filter @a11y-now/core run build --watch",
+    "docs:build": "pnpm -C docs run build",
+    "docs:dev": "pnpm -C docs run dev",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "prepare": "husky",
+    "release": "run-s release:check release:version",
+    "release:check": "run-s format:check lint typecheck build test",
+    "release:version": "bumpp -r",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "typecheck": "tsgo --noEmit"
+  },
+  "devDependencies": {
+    "@ntnyq/tsconfig": "^3.1.0",
+    "@types/node": "^26.1.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
+    "@vitest/coverage-v8": "catalog:",
+    "bumpp": "^12.0.0",
+    "happy-dom": "catalog:",
+    "husky": "^9.1.7",
+    "nano-staged": "^1.0.2",
+    "npm-run-all2": "^9.0.2",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
+    "tsdown": "catalog:",
+    "typescript": "^6.0.3",
+    "vitest": "catalog:"
+  },
+  "nano-staged": {
+    "*.{js,ts,mjs,tsx}": "oxlint --fix --no-error-on-unmatched-pattern",
+    "*": "oxfmt --no-error-on-unmatched-pattern"
+  },
+  "packageManager": "pnpm@11.17.0"
+}
