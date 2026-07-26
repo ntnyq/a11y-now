@@ -15,7 +15,7 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 ### 3. 文档站首次构建与部署 ✅（2026-07-26）
 
-已上线：<https://ntnyq.github.io/a11y-now/>。仓库转 public 后经 API 启用 Pages（build_type=workflow），`docs.yml` 端到端通过；VitePress 配置补了 `base: '/a11y-now/'`（改用自定义域名时需改回 `'/'`）。真实浏览器验证：首页/指南/typedoc API 页渲染正常、资源 200、控制台零报错，自举工具栏挂载且分区计数随页面联动。
+已上线：仓库转 public 后经 API 启用 Pages（build_type=workflow），`docs.yml` 端到端通过。真实浏览器验证：首页/指南/typedoc API 页渲染正常、资源 200、控制台零报错，自举工具栏挂载且分区计数随页面联动。（首发在 `ntnyq.github.io/a11y-now/` 子路径，`base: '/a11y-now/'`；同日切换自定义域名 <https://a11y-now.ntnyq.dev/>，base 还原为根路径。）
 
 ### 4. Playground 真机体验 QA
 

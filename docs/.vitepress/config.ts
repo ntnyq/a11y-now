@@ -3,8 +3,7 @@ import { defineConfig } from 'vitepress'
 import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
-  // Served as a GitHub Pages project site; switch to '/' on a custom domain.
-  base: '/a11y-now/',
+  // Served at the custom domain a11y-now.ntnyq.dev, so the default '/' base.
   locales: {
     en: {
       description:
