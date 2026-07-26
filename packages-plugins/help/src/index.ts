@@ -1,4 +1,4 @@
-import { configurePlugin, definePlugin } from '@a11y-now/core'
+import { configurePlugin, css, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface HelpApi {
@@ -10,10 +10,124 @@ export interface HelpApi {
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v2h2v-2Zm-1-11a4 4 0 0 1 4 4c0 1.5-.8 2.2-1.7 3-.8.7-1.3 1.2-1.3 2.5h-2c0-2 1-2.9 1.9-3.7.7-.6 1.1-1 1.1-1.8a2 2 0 1 0-4 0H8a4 4 0 0 1 4-4Z"/></svg>'
 
+/** Render `Ctrl+Alt+T` as a row of keycap chips. */
+const keycaps = (formatted: string): HTMLElement => {
+  const keys = document.createElement('dt')
+  keys.className = 'help-keys'
+  for (const segment of formatted.split('+')) {
+    const kbd = document.createElement('kbd')
+    kbd.textContent = segment
+    keys.append(kbd)
+  }
+  return keys
+}
+
+/** Dialog styles, injected into the shadow root next to the toolbar's. */
+const HELP_CSS = css`
+  .help-backdrop {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--a11y-color-fg) 45%, transparent);
+    z-index: var(--a11y-z-index);
+  }
+
+  .help-dialog {
+    position: fixed;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    inline-size: min(560px, 92vw);
+    max-block-size: min(72vh, 640px);
+    background: var(--a11y-color-bg);
+    color: var(--a11y-color-fg);
+    border: 1px solid var(--a11y-color-border);
+    border-radius: calc(var(--a11y-radius) * 2);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 0.24);
+    z-index: var(--a11y-z-index);
+    font-size: var(--a11y-font-size);
+  }
+
+  .help-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-block-end: 1px solid var(--a11y-color-border);
+  }
+
+  .help-head h2 {
+    margin: 0;
+    font-size: calc(var(--a11y-font-size) + 2px);
+  }
+
+  .help-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border: 1px solid transparent;
+    border-radius: var(--a11y-radius);
+    background: transparent;
+    color: inherit;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--a11y-transition);
+  }
+
+  .help-close:hover {
+    background: var(--a11y-color-btn-hover-bg);
+  }
+
+  .help-close:focus-visible {
+    outline: var(--a11y-outline-width) solid var(--a11y-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .help-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 20px;
+    row-gap: 10px;
+    align-items: center;
+    overflow: auto;
+    margin: 0;
+    padding: 14px 20px 20px;
+  }
+
+  .help-keys {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .help-keys kbd {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 1px solid var(--a11y-color-border);
+    border-block-end-width: 2px;
+    border-radius: var(--a11y-radius);
+    background: var(--a11y-color-btn-hover-bg);
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: calc(var(--a11y-font-size) - 2px);
+    line-height: 1.5;
+  }
+
+  .help-desc {
+    margin: 0;
+  }
+`
+
 /**
- * Help panel: a visible dialog listing every registered shortcut.
- * The audited reference only voices its instructions; a visual panel with
- * optional speech is friendlier to everyone.
+ * Help panel: a visible dialog listing every registered shortcut with
+ * keycap-style chips. The audited reference only voices its instructions;
+ * a visual panel with optional speech is friendlier to everyone.
  */
 const helpPlugin = definePlugin<undefined, HelpApi>({
   messages: {
@@ -33,13 +147,19 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
   name: 'help',
   setup: ctx => {
     let dialog: HTMLElement | null = null
+    let backdrop: HTMLElement | null = null
     let previousFocus: HTMLElement | null = null
 
     const shadow = document.querySelector('a11y-now-host')?.shadowRoot ?? null
+    const styleEl = document.createElement('style')
+    styleEl.textContent = HELP_CSS
+    shadow?.append(styleEl)
 
     const close = (): void => {
       dialog?.remove()
       dialog = null
+      backdrop?.remove()
+      backdrop = null
       previousFocus?.focus()
       previousFocus = null
     }
@@ -58,52 +178,43 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
       previousFocus =
         (shadow.activeElement as HTMLElement | null) ??
         (document.activeElement as HTMLElement | null)
+
+      backdrop = document.createElement('div')
+      backdrop.className = 'help-backdrop'
+      backdrop.addEventListener('click', close)
+
       dialog = document.createElement('div')
+      dialog.className = 'help-dialog'
       dialog.setAttribute('role', 'dialog')
       dialog.setAttribute('aria-modal', 'true')
       dialog.setAttribute('aria-label', ctx.i18n.t('help.title'))
       dialog.dataset['a11yHelp'] = 'true'
-      const { style } = dialog
-      style.position = 'fixed'
-      style.insetBlockStart = '50%'
-      style.insetInlineStart = '50%'
-      style.transform = 'translate(-50%, -50%)'
-      style.maxBlockSize = '70vh'
-      style.overflow = 'auto'
-      style.minInlineSize = '320px'
-      style.padding = '24px'
-      style.background = 'var(--a11y-color-bg)'
-      style.color = 'var(--a11y-color-fg)'
-      style.border = '1px solid var(--a11y-color-border)'
-      style.borderRadius = 'var(--a11y-radius)'
-      style.zIndex = 'var(--a11y-z-index)'
-      style.fontSize = 'var(--a11y-font-size)'
 
+      const head = document.createElement('div')
+      head.className = 'help-head'
       const title = document.createElement('h2')
       title.textContent = ctx.i18n.t('help.title')
-      title.style.marginBlockStart = '0'
-      dialog.append(title)
+      const closeBtn = document.createElement('button')
+      closeBtn.type = 'button'
+      closeBtn.className = 'help-close'
+      closeBtn.textContent = '✕'
+      closeBtn.title = ctx.i18n.t('help.close')
+      closeBtn.setAttribute('aria-label', ctx.i18n.t('help.close'))
+      closeBtn.addEventListener('click', close)
+      head.append(title, closeBtn)
+      dialog.append(head)
 
       const list = document.createElement('dl')
+      list.className = 'help-list'
       for (const info of ctx.shortcuts.list()) {
-        const dt = document.createElement('dt')
-        dt.textContent = ctx.shortcuts.format(info)
-        dt.style.fontWeight = 'bold'
         const dd = document.createElement('dd')
+        dd.className = 'help-desc'
         dd.textContent = info.description
-        dd.style.marginBlockEnd = '8px'
-        list.append(dt, dd)
+        list.append(keycaps(ctx.shortcuts.format(info)), dd)
       }
       dialog.append(list)
 
-      const closeBtn = document.createElement('button')
-      closeBtn.type = 'button'
-      closeBtn.className = 'btn'
-      closeBtn.textContent = ctx.i18n.t('help.close')
-      closeBtn.addEventListener('click', close)
-      dialog.append(closeBtn)
-
-      shadow.append(dialog)
+      shadow.append(backdrop, dialog)
       closeBtn.focus()
       ctx.ui.announce(ctx.i18n.t('help.title'))
     }
@@ -143,6 +254,7 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
         close()
         unregister()
         button.remove()
+        styleEl.remove()
       },
     }
   },

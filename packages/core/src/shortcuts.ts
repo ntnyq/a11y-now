@@ -24,11 +24,53 @@ export interface ShortcutCenter extends ShortcutService {
 /**
  * Central keyboard shortcut registry with conflict detection.
  * Listens on `window` in the capture phase so page handlers cannot
- * swallow accessibility shortcuts.
+ * swallow accessibility shortcuts. Per-id overrides remap or disable
+ * bindings without touching the owning plugin.
  */
-export const createShortcutCenter = (): ShortcutCenter => {
+export const createShortcutCenter = (
+  initialOverrides?: Record<string, Partial<ShortcutDef> | null>,
+): ShortcutCenter => {
+  /** Active bindings keyed by normalized combo. */
   const registrations = new Map<string, Registration>()
+  /** Original definitions per shortcut id, for re-binding on override. */
+  const defaults = new Map<string, Registration>()
+  const overrides = new Map<string, Partial<ShortcutDef> | null>(
+    Object.entries(initialOverrides ?? {}),
+  )
   let enabled = true
+
+  const comboOf = (id: string): string | null => {
+    for (const [combo, registration] of registrations) {
+      if (registration.id === id) {
+        return combo
+      }
+    }
+    return null
+  }
+
+  const bind = (def: Registration): void => {
+    const override = overrides.get(def.id)
+    if (override === null) {
+      return
+    }
+    const effective: Registration = { ...def, ...override }
+    const combo = normalizeShortcut(effective)
+    const existing = registrations.get(combo)
+    if (existing && existing.id !== effective.id) {
+      throw new Error(
+        `[a11y-now] shortcut conflict: "${formatShortcut(effective)}" is ` +
+          `registered by both "${existing.id}" and "${effective.id}"`,
+      )
+    }
+    registrations.set(combo, effective)
+  }
+
+  const unbind = (id: string): void => {
+    const combo = comboOf(id)
+    if (combo !== null) {
+      registrations.delete(combo)
+    }
+  }
 
   const onKeydown = (event: KeyboardEvent): void => {
     if (!enabled) {
@@ -51,6 +93,7 @@ export const createShortcutCenter = (): ShortcutCenter => {
   return {
     destroy: () => {
       registrations.clear()
+      defaults.clear()
       if (isBrowser()) {
         window.removeEventListener('keydown', onKeydown, true)
       }
@@ -69,23 +112,23 @@ export const createShortcutCenter = (): ShortcutCenter => {
       return infos
     },
     register: def => {
-      const key = normalizeShortcut(def)
-      const existing = registrations.get(key)
-      if (existing && existing.id !== def.id) {
-        throw new Error(
-          `[a11y-now] shortcut conflict: "${formatShortcut(def)}" is ` +
-            `registered by both "${existing.id}" and "${def.id}"`,
-        )
-      }
-      registrations.set(key, def)
+      defaults.set(def.id, def)
+      bind(def)
       return () => {
-        if (registrations.get(key)?.id === def.id) {
-          registrations.delete(key)
-        }
+        unbind(def.id)
+        defaults.delete(def.id)
       }
     },
     setEnabled: value => {
       enabled = value
+    },
+    setOverride: (id, override) => {
+      overrides.set(id, override)
+      const def = defaults.get(id)
+      if (def) {
+        unbind(id)
+        bind(def)
+      }
     },
   }
 }

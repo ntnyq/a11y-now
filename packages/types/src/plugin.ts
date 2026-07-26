@@ -5,6 +5,7 @@ import type {
   I18nService,
   LocaleCode,
   ScopedState,
+  ShortcutDef,
   ShortcutService,
   SpeechEngine,
   SpeechService,
@@ -157,6 +158,12 @@ export interface A11yNowOptions {
   /** Extra message tables merged over the built-ins. */
   messages?: Partial<Record<LocaleCode, A11yMessages>>
   plugins?: A11yPluginInput[]
+  /**
+   * Per-id keyboard shortcut overrides, e.g.
+   * `{ 'zoom-in': { key: '9' }, help: null }` — a partial def merges over
+   * the plugin default, `null` disables that shortcut.
+   */
+  shortcutOverrides?: Record<string, Partial<ShortcutDef> | null>
   /** Custom speech backend. Defaults to the Web Speech API engine. */
   speechEngine?: SpeechEngine
   /** Persistence backend. `null` disables persistence. */

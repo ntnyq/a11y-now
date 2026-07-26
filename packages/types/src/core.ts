@@ -51,6 +51,13 @@ export interface ShortcutService {
       id: string
     },
   ) => () => void
+  /**
+   * Override the binding registered under `id`: a partial def merges over
+   * the plugin's default (`{}` restores it), `null` disables the shortcut.
+   * Applies to the current registration and any future one with that id;
+   * throws if the resulting combo collides with another registration.
+   */
+  setOverride: (id: string, override: Partial<ShortcutDef> | null) => void
 }
 
 /** Toolbar button groups, rendered left to right. */

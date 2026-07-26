@@ -41,7 +41,7 @@ export const createA11yNow = (
 
   const events = createEventBus()
   const i18n = createI18n(locale, options.messages)
-  const shortcuts = createShortcutCenter()
+  const shortcuts = createShortcutCenter(options.shortcutOverrides)
   const engine =
     options.speechEngine ??
     (isBrowser() ? createWebSpeechEngine() : createSilentEngine())

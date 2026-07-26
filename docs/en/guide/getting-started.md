@@ -78,6 +78,27 @@ trigger.addEventListener('click', () => {
 })
 ```
 
+## Customize shortcuts
+
+Every shortcut registers through the central shortcut center and can be
+overridden or disabled by id (ids match the features listed in the Help
+panel, e.g. `zoom-in` / `help` / `spacing`):
+
+```ts
+createA11yNow({
+  shortcutOverrides: {
+    'zoom-in': { key: '9' }, // Ctrl+Alt+= → Ctrl+Alt+9
+    help: null, // disable the shortcut (the button still works)
+  },
+}).mount()
+
+// Rebind at runtime: a partial def merges over the default, {} restores it
+instance.shortcuts.setOverride('zoom-in', { key: '0' })
+```
+
+Overridden combos show up in the Help panel automatically; a collision
+with another shortcut throws immediately.
+
 ## UI language
 
 The toolbar ships English and Simplified Chinese out of the box and follows

@@ -75,7 +75,8 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
   - `@a11y-now/plugin-pause-motion` 停止动画（`Ctrl+Alt+X`，强制 reduced-motion 样式 + 暂停 autoplay 视频 + 同源 GIF 尽力冻结首帧，关闭全量还原）；
   - `@a11y-now/plugin-spacing` 间距调节（`Ctrl+Alt+S`，关闭→舒适→宽松三档循环，「舒适」即 WCAG 1.4.12 测试指标，支持自定义阶梯，发 `spacing:change` 事件）。
   - 配套：各 4 组测试（含 GIF 冻结路径打桩）、90% 覆盖门禁、en/zh 消息 key 对齐守护（19 插件）、双语文档页 + typedoc 入口、playground 演示。
-- ⬜ 快捷键自定义 API（shortcut center 补用户级 override）。
+- ✅ **快捷键自定义 API**（2026-07-27）：`createA11yNow({ shortcutOverrides })` 按 id 覆写（partial 合并）或 `null` 禁用任意快捷键，`instance.shortcuts.setOverride(id, def)` 运行时改绑（`{}` 还原默认）；覆写结果自动进「操作说明」面板，冲突走既有检测立即抛错。
+- ✅ **help 弹框样式重做**（2026-07-27）：backdrop 压暗（`color-mix` 基于 fg token）+ 卡片化对话框（560px、圆角阴影）+ 头部标题栏与 ✕ 关闭（点击 backdrop / Esc / ✕ 均可关）+ 键帽风格 `<kbd>` 胶囊两列网格；样式集中于 shadow 内 `<style>`，全部引用 `--a11y-*` token，主题可完整重着色。
 
 ## 已知风险备忘
 

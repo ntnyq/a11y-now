@@ -76,6 +76,25 @@ trigger.addEventListener('click', () => {
 })
 ```
 
+## 自定义快捷键
+
+所有快捷键都在 shortcut center 集中注册,可按 id 覆写或禁用
+(id 见「操作说明」面板对应功能,如 `zoom-in` / `help` / `spacing`):
+
+```ts
+createA11yNow({
+  shortcutOverrides: {
+    'zoom-in': { key: '9' }, // Ctrl+Alt+= → Ctrl+Alt+9
+    help: null, // 禁用该快捷键(按钮仍可点击)
+  },
+}).mount()
+
+// 运行时改绑:局部覆写合并到默认值上,{} 还原默认
+instance.shortcuts.setOverride('zoom-in', { key: '0' })
+```
+
+覆写后的组合会自动出现在「操作说明」面板;与其他快捷键冲突时立即抛错。
+
 ## 界面语言
 
 工具栏内置简体中文与英文文案,默认跟随 `<html lang>`(`en*` 匹配英文、

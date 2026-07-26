@@ -3,6 +3,7 @@ import {
   createDomService,
   createEventBus,
   createShortcutCenter,
+  definePlugin,
   defineTheme,
 } from '@a11y-now/core'
 import { beforeEach, expect, it, vi } from 'vitest'
@@ -175,5 +176,93 @@ it('toolbar renders items with aria-pressed and roving tabindex', () => {
   expect(button.getAttribute('aria-pressed')).toBe('true')
   expect(button.tabIndex).toBe(0)
 
+  a11y.unmount()
+})
+
+const press = (key: string): void => {
+  window.dispatchEvent(
+    new KeyboardEvent('keydown', { altKey: true, ctrlKey: true, key }),
+  )
+}
+
+it('shortcut overrides remap, disable and rebind at runtime', () => {
+  const center = createShortcutCenter({
+    disabled: null,
+    remapped: { key: 'y' },
+  })
+  let fired = ''
+  const make = (id: string, key: string) => ({
+    alt: true,
+    ctrl: true,
+    description: id,
+    handler: () => {
+      fired = id
+    },
+    id,
+    key,
+  })
+  center.register(make('remapped', 't'))
+  center.register(make('disabled', 'd'))
+
+  // The default combo is dead, the override combo fires.
+  press('t')
+  expect(fired).toBe('')
+  press('y')
+  expect(fired).toBe('remapped')
+  expect(center.list().map(info => info.key)).toStrictEqual(['y'])
+
+  // Disabled ids never bind and stay out of the help listing.
+  press('d')
+  expect(fired).toBe('remapped')
+
+  // Runtime rebinding: enable the disabled one, restore the remapped one.
+  center.setOverride('disabled', {})
+  center.setOverride('remapped', {})
+  press('d')
+  expect(fired).toBe('disabled')
+  press('t')
+  expect(fired).toBe('remapped')
+
+  // Colliding override throws via the existing conflict detection.
+  expect(() => center.setOverride('remapped', { key: 'd' })).toThrow(
+    /conflict/u,
+  )
+  center.destroy()
+})
+
+it('kernel wires shortcutOverrides through to plugin registrations', () => {
+  const plugin = definePlugin({
+    name: 'probe-shortcut',
+    setup: ctx => {
+      let count = 0
+      ctx.shortcuts.register({
+        alt: true,
+        ctrl: true,
+        description: 'probe',
+        handler: () => {
+          count += 1
+        },
+        id: 'probe-shortcut',
+        key: 'q',
+      })
+      return { api: { count: () => count }, dispose: () => {} }
+    },
+  })
+  const a11y = createA11yNow({
+    shortcutOverrides: { 'probe-shortcut': { key: '8' } },
+    storage: null,
+  }).use(plugin)
+  a11y.mount()
+
+  window.dispatchEvent(
+    new KeyboardEvent('keydown', { altKey: true, ctrlKey: true, key: 'q' }),
+  )
+  window.dispatchEvent(
+    new KeyboardEvent('keydown', { altKey: true, ctrlKey: true, key: '8' }),
+  )
+  const api = a11y.getPlugin('probe-shortcut' as never) as
+    | { count: () => number }
+    | undefined
+  expect(api?.count()).toBe(1)
   a11y.unmount()
 })

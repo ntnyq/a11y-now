@@ -18,7 +18,10 @@ it('opens a dialog listing registered shortcuts, Escape closes it', () => {
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
   const dialog = shadow?.querySelector('[role="dialog"]') as HTMLElement
   expect(dialog).not.toBeNull()
-  expect(dialog.textContent).toContain('Ctrl+Alt+=')
+  const rows = [...dialog.querySelectorAll('.help-keys')].map(row =>
+    [...row.querySelectorAll('kbd')].map(kbd => kbd.textContent).join('+'),
+  )
+  expect(rows).toContain('Ctrl+Alt+=')
 
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
   expect(api?.isOpen()).toBe(false)
@@ -35,4 +38,22 @@ it('Ctrl+Alt+? opens and unmount leaves no residue', () => {
   expect(a11y.getPlugin('help')?.isOpen()).toBe(true)
   a11y.unmount()
   expect(document.documentElement.outerHTML).toBe(before)
+})
+
+it('renders keycap chips and closes on backdrop click', () => {
+  const a11y = createA11yNow({ storage: null }).use(zoom()).use(help())
+  a11y.mount()
+  a11y.getPlugin('help')?.open()
+
+  const shadow = document.querySelector('a11y-now-host')?.shadowRoot
+  const chips = [...(shadow?.querySelectorAll('.help-keys kbd') ?? [])]
+  expect(chips.length).toBeGreaterThan(0)
+  expect(chips.map(el => el.textContent)).toContain('Ctrl')
+
+  const backdrop = shadow?.querySelector('.help-backdrop') as HTMLElement
+  expect(backdrop).not.toBeNull()
+  backdrop.click()
+  expect(a11y.getPlugin('help')?.isOpen()).toBe(false)
+  expect(shadow?.querySelector('.help-backdrop')).toBeNull()
+  a11y.unmount()
 })
