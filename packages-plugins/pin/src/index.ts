@@ -42,8 +42,8 @@ const pinPlugin = definePlugin<undefined, PinApi, PinState>({
         const height = ctx.theme.getToken('toolbar-height')
         disposeStyle = ctx.dom.injectStyle(
           'pin',
-          `body { padding-block-start: ${height} !important; } `
-          + `html { scroll-padding-block-start: ${height}; }`,
+          `body { padding-block-start: ${height} !important; } ` +
+            `html { scroll-padding-block-start: ${height}; }`,
         )
       } else {
         disposeStyle?.()
@@ -97,7 +97,7 @@ const pinPlugin = definePlugin<undefined, PinApi, PinState>({
 
 /** Toolbar pin plugin: reserve page space for the toolbar. `Ctrl+Alt+L`. */
 export const pin = (): ConfiguredPlugin<undefined, PinApi, PinState> =>
-  configurePlugin(pinPlugin, undefined)
+  configurePlugin(pinPlugin)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

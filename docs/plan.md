@@ -18,15 +18,15 @@ createA11yNow().mount()
 
 对标源页面（知乎/世纪大家工具条）的能力，但以现代方案重新实现：
 
-| 能力 | 源页面做法 | a11y-now 方案 |
-| --- | --- | --- |
-| 样式隔离 | 自定义标签（`<ariaul>` 等）+ 全量 `ariaskiptheme` 标记 | **Shadow DOM**，天然隔离，双向不污染 |
-| 挂载位置 | `<html>` 直接子节点，`.noscale` 反缩放 | 同样挂 `<html>` 下（躲开 body 的 transform/zoom），宿主为自定义元素 `<a11y-now-host>` |
-| 换肤 | 动态生成百 KB 级覆盖式 `<style>` | **CSS 变量（Design Tokens）**，切主题只改变量值，不重建样式表 |
-| 语音 | 服务端 TTS（service.govwza.cn） | 默认 Web Speech API（零依赖、离线），`SpeechEngine` 接口可替换为远端 TTS |
-| 区域导航 | 私有六区分类 | 基于 ARIA landmark + 启发式扫描，输出同样的「区域 + 计数 + 快捷键循环」交互 |
-| 状态持久化 | 每功能一个 Cookie + localStorage 缓存配置 | 统一 `StorageAdapter`（默认 localStorage，版本化 schema，跨 Tab 同步） |
-| 功能组织 | 单体脚本 | **插件系统**，每个功能一个插件包，核心零内置业务 |
+| 能力       | 源页面做法                                             | a11y-now 方案                                                                         |
+| ---------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| 样式隔离   | 自定义标签（`<ariaul>` 等）+ 全量 `ariaskiptheme` 标记 | **Shadow DOM**，天然隔离，双向不污染                                                  |
+| 挂载位置   | `<html>` 直接子节点，`.noscale` 反缩放                 | 同样挂 `<html>` 下（躲开 body 的 transform/zoom），宿主为自定义元素 `<a11y-now-host>` |
+| 换肤       | 动态生成百 KB 级覆盖式 `<style>`                       | **CSS 变量（Design Tokens）**，切主题只改变量值，不重建样式表                         |
+| 语音       | 服务端 TTS（service.govwza.cn）                        | 默认 Web Speech API（零依赖、离线），`SpeechEngine` 接口可替换为远端 TTS              |
+| 区域导航   | 私有六区分类                                           | 基于 ARIA landmark + 启发式扫描，输出同样的「区域 + 计数 + 快捷键循环」交互           |
+| 状态持久化 | 每功能一个 Cookie + localStorage 缓存配置              | 统一 `StorageAdapter`（默认 localStorage，版本化 schema，跨 Tab 同步）                |
+| 功能组织   | 单体脚本                                               | **插件系统**，每个功能一个插件包，核心零内置业务                                      |
 
 ## 2. Monorepo 结构
 
@@ -125,14 +125,14 @@ export interface A11yPlugin<Options = void, Api = unknown> {
 /** setup 收到的内核服务集合 —— 插件与内核交互的全部界面 */
 export interface PluginContext<Options> {
   options: Options
-  ui: ToolbarUI            // 注册按钮/更新状态文案（同步 title 与 aria-label）
-  state: ScopedState       // 本插件的响应式持久化状态
-  events: EventBus         // 类型化事件总线
-  speech: SpeechService    // speak/stop/rate，读屏模式下自动静默
-  i18n: I18nService        // t(key)，随语言切换
+  ui: ToolbarUI // 注册按钮/更新状态文案（同步 title 与 aria-label）
+  state: ScopedState // 本插件的响应式持久化状态
+  events: EventBus // 类型化事件总线
+  speech: SpeechService // speak/stop/rate，读屏模式下自动静默
+  i18n: I18nService // t(key)，随语言切换
   shortcuts: ShortcutService
-  dom: DomService          // 对页面的安全操作：注入样式、扫描区域、标记高亮
-  theme: ThemeService      // 读取/设置 CSS 变量 token（见 §4）
+  dom: DomService // 对页面的安全操作：注入样式、扫描区域、标记高亮
+  theme: ThemeService // 读取/设置 CSS 变量 token（见 §4）
   storage: StorageAdapter
 }
 
@@ -194,20 +194,20 @@ export interface A11yNowInstance {
 
 与审查报告逐项对应，一插件一包，独立测试、独立文档：
 
-| 包 | 对应源功能 | 说明 |
-| --- | --- | --- |
-| `plugin-region-nav` | 六区导航 ALT+1~6 | landmark + 启发式扫描、计数、置灰、循环访问、高亮描边（描边色走 `--a11y-page-region-outline` token） |
-| `plugin-speech` | 声音开关/语速/阅读方式 | 指读（hover 朗读）与连读两种模式，语速 1~3 档 |
-| `plugin-screen-reader` | 读屏专用 | 静默自朗读、隐藏视觉辅助类插件（插件可声明 `hideInScreenReaderMode`） |
-| `plugin-theme` | 配色 | 切换器本体：注入主题循环按钮，消费 `useTheme()` 注册的主题包；`dependsOn` 无，主题为空时按钮置灰 |
-| `plugin-zoom` | 放大/缩小 | 可配置区间与步长（默认 1.0~1.3 / 0.1） |
-| `plugin-big-cursor` | 鼠标样式 | 内置 SVG data-URL 大光标，颜色取 `--a11y-cursor-color` |
-| `plugin-crosshair` | 十字线 | 阅读定位线，requestAnimationFrame 跟随，颜色/线宽走 token |
-| `plugin-caption` | 大字幕 | 底部字幕条，联动 speech 的朗读文本，字号/配色走 token |
-| `plugin-reset` | 重置 | 调用内核 state 全量重置 |
-| `plugin-pin` | 固定 | 工具栏固定/悬浮 |
-| `plugin-help` | 说明 | 可视化快捷键面板 + 可选语音播报（比源页面「纯语音无反馈」更友好） |
-| `plugin-exit` | 退出服务 | unmount + 持久化关闭标记 |
+| 包                     | 对应源功能             | 说明                                                                                                 |
+| ---------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `plugin-region-nav`    | 六区导航 ALT+1~6       | landmark + 启发式扫描、计数、置灰、循环访问、高亮描边（描边色走 `--a11y-page-region-outline` token） |
+| `plugin-speech`        | 声音开关/语速/阅读方式 | 指读（hover 朗读）与连读两种模式，语速 1~3 档                                                        |
+| `plugin-screen-reader` | 读屏专用               | 静默自朗读、隐藏视觉辅助类插件（插件可声明 `hideInScreenReaderMode`）                                |
+| `plugin-theme`         | 配色                   | 切换器本体：注入主题循环按钮，消费 `useTheme()` 注册的主题包；`dependsOn` 无，主题为空时按钮置灰     |
+| `plugin-zoom`          | 放大/缩小              | 可配置区间与步长（默认 1.0~1.3 / 0.1）                                                               |
+| `plugin-big-cursor`    | 鼠标样式               | 内置 SVG data-URL 大光标，颜色取 `--a11y-cursor-color`                                               |
+| `plugin-crosshair`     | 十字线                 | 阅读定位线，requestAnimationFrame 跟随，颜色/线宽走 token                                            |
+| `plugin-caption`       | 大字幕                 | 底部字幕条，联动 speech 的朗读文本，字号/配色走 token                                                |
+| `plugin-reset`         | 重置                   | 调用内核 state 全量重置                                                                              |
+| `plugin-pin`           | 固定                   | 工具栏固定/悬浮                                                                                      |
+| `plugin-help`          | 说明                   | 可视化快捷键面板 + 可选语音播报（比源页面「纯语音无反馈」更友好）                                    |
+| `plugin-exit`          | 退出服务               | unmount + 持久化关闭标记                                                                             |
 
 预设放在聚合包 `a11y-now` 内：`presets/full`（全插件 + 全主题，默认）、`presets/reading`（低视力阅读向）、`presets/screen-reader`（读屏向）。
 
@@ -245,10 +245,10 @@ primitive（原始值，仅主题包内出现）
 
 两个作用域，互不混用：
 
-| 作用域 | 写在哪 | 前缀 | 用途 |
-| --- | --- | --- | --- |
-| 工具栏 UI | shadow root 内 `:host` | `--a11y-*` | 工具栏自身外观（不受页面影响） |
-| 页面改色 | `documentElement` 内联 style | `--a11y-page-*` | 换肤时页面的背景/文字/链接/描边 |
+| 作用域    | 写在哪                       | 前缀            | 用途                            |
+| --------- | ---------------------------- | --------------- | ------------------------------- |
+| 工具栏 UI | shadow root 内 `:host`       | `--a11y-*`      | 工具栏自身外观（不受页面影响）  |
+| 页面改色  | `documentElement` 内联 style | `--a11y-page-*` | 换肤时页面的背景/文字/链接/描边 |
 
 ### 4.2 语义层 token 清单（`ToolbarTokens` / `PageTokens` 的类型来源）
 
@@ -264,12 +264,12 @@ primitive（原始值，仅主题包内出现）
   --a11y-color-btn-active-bg: #e8f3ff;
   --a11y-color-btn-active-fg: var(--a11y-color-accent);
   --a11y-color-disabled-fg: #a8abb0;
-  --a11y-color-focus-ring: #fcff00;      /* 对齐源页面焦点描边 */
+  --a11y-color-focus-ring: #fcff00; /* 对齐源页面焦点描边 */
   /* 尺寸/排版 */
   --a11y-toolbar-height: 84px;
   --a11y-btn-size: 56px;
   --a11y-font-size: 14px;
-  --a11y-font-size-caption: 42px;        /* 大字幕 */
+  --a11y-font-size-caption: 42px; /* 大字幕 */
   --a11y-radius: 6px;
   --a11y-outline-width: 3px;
   --a11y-z-index: 2147483000;
@@ -282,9 +282,9 @@ primitive（原始值，仅主题包内出现）
   --a11y-page-bg: initial;
   --a11y-page-fg: initial;
   --a11y-page-link: initial;
-  --a11y-page-region-outline: 2px solid #ff6c00;   /* 区域高亮，对齐源页面 */
-  --a11y-page-focus-outline: 3px solid #fcff00;    /* 焦点描边，对齐源页面 */
-  --a11y-cursor-color: #ffd700;                    /* 大鼠标/十字线主色 */
+  --a11y-page-region-outline: 2px solid #ff6c00; /* 区域高亮，对齐源页面 */
+  --a11y-page-focus-outline: 3px solid #fcff00; /* 焦点描边，对齐源页面 */
+  --a11y-cursor-color: #ffd700; /* 大鼠标/十字线主色 */
 }
 ```
 
@@ -298,9 +298,15 @@ const buttonStyle = css`
     border-radius: var(--a11y-radius);
     transition: background-color var(--a11y-transition);
   }
-  .btn:hover { background: var(--a11y-color-btn-hover-bg); }
-  .btn[aria-pressed='true'] { color: var(--a11y-color-btn-active-fg); }
-  .btn:focus-visible { outline: var(--a11y-outline-width) solid var(--a11y-color-focus-ring); }
+  .btn:hover {
+    background: var(--a11y-color-btn-hover-bg);
+  }
+  .btn[aria-pressed='true'] {
+    color: var(--a11y-color-btn-active-fg);
+  }
+  .btn:focus-visible {
+    outline: var(--a11y-outline-width) solid var(--a11y-color-focus-ring);
+  }
 `
 ```
 
@@ -381,17 +387,17 @@ packages-plugins/zoom/
 
 ## 6. 里程碑
 
-| 阶段 | 内容 | 验收标准 |
-| --- | --- | --- |
-| **M0 基建**（0.5 周） | §5.4 清单全量落地；types/shared/core 空实现打通四目录的构建-测试-发布链路 | CI 全绿；`pnpm -r build` 产物通过 publint/attw |
-| **M1 内核**（1~2 周） | 挂载/卸载、插件系统、store + 持久化、快捷键、i18n、SpeechService(WebSpeech)、**ThemeService + token 体系（§4）** | core 覆盖率 ≥ 90%；demo 插件与 demo 主题可注册/切换/卸载无残留 |
-| **M2 插件与主题**（2~3 周） | 12 个插件包 + 5 个主题包 + 3 个预设；`a11y-now` 聚合包（含 IIFE） | 每包测试模板全过；playground/vanilla 手测对齐 design.md 功能清单；换肤零样式表重建 |
-| **M3 框架适配**（1~2 周） | vue / react 正式实现，svelte / solid / element 补全 | 各适配包 Testing Library 用例通过；playground 三框架联调 |
-| **M4 文档与发布**（1 周） | VitePress 站点 + token 参考 + live demo 自举；0.1.0 发布 | docs 构建部署成功；`npm i a11y-now` 一行接入可用 |
-| **M5 生态**（持续） | 拼音/简繁可选插件包、暗色/自动对比度主题包、远端 TTS 引擎、关怀版（老年模式）、Nuxt/Next 集成、第三方插件与主题指南 | 按需排期 |
+| 阶段                        | 内容                                                                                                                | 验收标准                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **M0 基建**（0.5 周）       | §5.4 清单全量落地；types/shared/core 空实现打通四目录的构建-测试-发布链路                                           | CI 全绿；`pnpm -r build` 产物通过 publint/attw                                     |
+| **M1 内核**（1~2 周）       | 挂载/卸载、插件系统、store + 持久化、快捷键、i18n、SpeechService(WebSpeech)、**ThemeService + token 体系（§4）**    | core 覆盖率 ≥ 90%；demo 插件与 demo 主题可注册/切换/卸载无残留                     |
+| **M2 插件与主题**（2~3 周） | 12 个插件包 + 5 个主题包 + 3 个预设；`a11y-now` 聚合包（含 IIFE）                                                   | 每包测试模板全过；playground/vanilla 手测对齐 design.md 功能清单；换肤零样式表重建 |
+| **M3 框架适配**（1~2 周）   | vue / react 正式实现，svelte / solid / element 补全                                                                 | 各适配包 Testing Library 用例通过；playground 三框架联调                           |
+| **M4 文档与发布**（1 周）   | VitePress 站点 + token 参考 + live demo 自举；0.1.0 发布                                                            | docs 构建部署成功；`npm i a11y-now` 一行接入可用                                   |
+| **M5 生态**（持续）         | 拼音/简繁可选插件包、暗色/自动对比度主题包、远端 TTS 引擎、关怀版（老年模式）、Nuxt/Next 集成、第三方插件与主题指南 | 按需排期                                                                           |
 
 风险与预案：Web Speech API 在部分浏览器的中文音色质量不稳 → SpeechEngine 接口从 M1 就抽象好，必要时提供远端引擎包；区域自动分类的准确率依赖页面语义化程度 → region-nav 提供手动标注逃生舱（`data-a11y-region` 属性优先）；页面改色对非语义化站点的覆盖率有限 → `data-a11y-skip` + 主题 `skipSelectors` 双白名单兜底。
 
 ---
 
-*本计划的功能范围以 [design.md](./design.md) 的 15 项功能审查为基准；实现顺序上先保证「内核可插拔 + 卸载无残留 + 变量化换肤」这三个工程性质，再逐个还原功能。*
+_本计划的功能范围以 [design.md](./design.md) 的 15 项功能审查为基准；实现顺序上先保证「内核可插拔 + 卸载无残留 + 变量化换肤」这三个工程性质，再逐个还原功能。_

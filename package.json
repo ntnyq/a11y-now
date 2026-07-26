@@ -26,8 +26,9 @@
   "scripts": {
     "build": "pnpm -r --filter './packages/*' --filter './packages-plugins/*' --filter './packages-themes/*' --filter './packages-frameworks/*' run build",
     "dev": "pnpm --filter @a11y-now/core run build --watch",
-    "docs:build": "pnpm -C docs run build",
-    "docs:dev": "pnpm -C docs run dev",
+    "docs:build": "pnpm --filter docs run build",
+    "docs:dev": "pnpm --filter docs run dev",
+    "docs:preview": "pnpm --filter docs run preview",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "lint": "oxlint",
@@ -37,12 +38,11 @@
     "release:version": "bumpp -r",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@ntnyq/tsconfig": "^3.1.0",
     "@types/node": "^26.1.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "@vitest/coverage-v8": "catalog:",
     "bumpp": "^12.0.0",
     "happy-dom": "catalog:",
@@ -52,7 +52,7 @@
     "oxfmt": "^0.60.0",
     "oxlint": "^1.75.0",
     "tsdown": "catalog:",
-    "typescript": "^6.0.3",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "nano-staged": {

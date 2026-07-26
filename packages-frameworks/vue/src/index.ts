@@ -1,12 +1,7 @@
 import { createA11yNow } from '@a11y-now/core'
-import {
-  type App,
-  inject,
-  type InjectionKey,
-  onScopeDispose,
-  type Plugin,
-} from 'vue'
 import type { A11yNowInstance, A11yNowOptions } from '@a11y-now/types'
+import { inject, onScopeDispose } from 'vue'
+import type { App, InjectionKey, Plugin } from 'vue'
 
 export const A11Y_NOW_KEY: InjectionKey<A11yNowInstance> =
   Symbol.for('a11y-now')

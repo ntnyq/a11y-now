@@ -2,19 +2,19 @@
   "name": "@a11y-now/plugin-zoom",
   "version": "0.0.0",
   "description": "a11y-now plugin: zoom",
+  "homepage": "https://github.com/ntnyq/a11y-now#readme",
+  "bugs": {
+    "url": "https://github.com/ntnyq/a11y-now/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "ntnyq",
     "email": "ntnyq13@gmail.com"
   },
-  "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ntnyq/a11y-now.git",
     "directory": "packages-plugins/zoom"
-  },
-  "bugs": {
-    "url": "https://github.com/ntnyq/a11y-now/issues"
   },
   "files": [
     "dist"

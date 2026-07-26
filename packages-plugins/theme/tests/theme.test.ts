@@ -24,7 +24,7 @@ it('cycles registered themes and applies CSS variables', () => {
   expect(
     document.documentElement.style.getPropertyValue('--a11y-page-bg'),
   ).toBe('rgb(0, 51, 92)')
-  expect(document.documentElement.dataset.a11yTheme).toBe('deep-blue')
+  expect(document.documentElement.dataset['a11yTheme']).toBe('deep-blue')
   a11y.unmount()
 })
 

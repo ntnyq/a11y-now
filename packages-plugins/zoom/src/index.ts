@@ -27,7 +27,7 @@ const ICON_IN =
 const ICON_OUT =
   '<svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM7 9v2h6V9H7Z"/></svg>'
 
-const zoomPlugin = definePlugin<ZoomOptions | undefined, ZoomApi, ZoomState>({
+const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
   messages: {
     'en-US': {
       'zoom.current': 'Current page zoom {scale}x',
@@ -50,9 +50,9 @@ const zoomPlugin = definePlugin<ZoomOptions | undefined, ZoomApi, ZoomState>({
   },
   name: 'zoom',
   setup: ctx => {
-    const min = ctx.options?.min ?? 1
-    const max = ctx.options?.max ?? 1.3
-    const step = ctx.options?.step ?? 0.1
+    const min = ctx.options.min ?? 1
+    const max = ctx.options.max ?? 1.3
+    const step = ctx.options.step ?? 0.1
     let disposeStyle: (() => void) | null = null
 
     const apply = (scale: number): void => {
@@ -176,8 +176,8 @@ const zoomPlugin = definePlugin<ZoomOptions | undefined, ZoomApi, ZoomState>({
 
 /** Page zoom plugin. `Ctrl+Alt+=` / `Ctrl+Alt+-`. */
 export const zoom = (
-  options?: ZoomOptions,
-): ConfiguredPlugin<ZoomOptions | undefined, ZoomApi, ZoomState> =>
+  options: ZoomOptions = {},
+): ConfiguredPlugin<ZoomOptions, ZoomApi, ZoomState> =>
   configurePlugin(zoomPlugin, options)
 
 declare module '@a11y-now/types' {

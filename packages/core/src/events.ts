@@ -29,7 +29,13 @@ export const createEventBus = (): EventBus => {
     event: E,
     payload: A11yEventMap[E],
   ): void => {
-    for (const fn of [...(handlers.get(event) ?? [])]) {
+    const set = handlers.get(event)
+    if (!set) {
+      return
+    }
+    // Snapshot: handlers may unsubscribe while we iterate.
+    const snapshot = [...set]
+    for (const fn of snapshot) {
       ;(fn as (payload: A11yEventMap[E]) => void)(payload)
     }
   }

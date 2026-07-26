@@ -16,13 +16,13 @@ it('adds two crosshair lines inside the shadow root when enabled', () => {
   const lines = [...(shadow?.querySelectorAll('div') ?? [])].filter(
     el => el.style.pointerEvents === 'none',
   )
-  expect(lines.length).toBe(2)
+  expect(lines).toHaveLength(2)
 
   api?.toggle()
   const after = [...(shadow?.querySelectorAll('div') ?? [])].filter(
     el => el.style.pointerEvents === 'none',
   )
-  expect(after.length).toBe(0)
+  expect(after).toHaveLength(0)
   a11y.unmount()
 })
 

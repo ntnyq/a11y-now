@@ -56,13 +56,13 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
         return
       }
       previousFocus =
-        (shadow.activeElement as HTMLElement | null)
-        ?? (document.activeElement as HTMLElement | null)
+        (shadow.activeElement as HTMLElement | null) ??
+        (document.activeElement as HTMLElement | null)
       dialog = document.createElement('div')
       dialog.setAttribute('role', 'dialog')
       dialog.setAttribute('aria-modal', 'true')
       dialog.setAttribute('aria-label', ctx.i18n.t('help.title'))
-      dialog.dataset.a11yHelp = 'true'
+      dialog.dataset['a11yHelp'] = 'true'
       const { style } = dialog
       style.position = 'fixed'
       style.insetBlockStart = '50%'
@@ -135,7 +135,7 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
     return {
       api: {
         close,
-        isOpen: () => dialog != null,
+        isOpen: () => dialog !== null,
         open,
       },
       dispose: () => {
@@ -150,7 +150,7 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
 
 /** Help panel plugin. `Ctrl+Alt+?`. */
 export const help = (): ConfiguredPlugin<undefined, HelpApi> =>
-  configurePlugin(helpPlugin, undefined)
+  configurePlugin(helpPlugin)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

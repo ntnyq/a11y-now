@@ -3,10 +3,10 @@ import { expect, it } from 'vitest'
 
 it('exposes a valid theme definition', () => {
   expect(chocolate.name).toBe('chocolate')
-  expect(chocolate.displayName['zh-CN']).toBeTruthy()
-  expect(chocolate.displayName['en-US']).toBeTruthy()
+  expect(chocolate.displayName['zh-CN']).toBe('巧克力色')
+  expect(chocolate.displayName['en-US']).toBe('Chocolate')
 })
 
-it('is pure data (no functions, JSON-safe)', () => {
-  expect(JSON.parse(JSON.stringify(chocolate))).toEqual(chocolate)
+it('is pure data (structured-clone safe)', () => {
+  expect(structuredClone(chocolate)).toStrictEqual(chocolate)
 })

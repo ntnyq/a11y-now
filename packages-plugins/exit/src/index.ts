@@ -71,7 +71,7 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
 
 /** Exit plugin: unmounts the toolbar and remembers the choice. `Ctrl+Alt+E`. */
 export const exit = (): ConfiguredPlugin<undefined, ExitApi, ExitState> =>
-  configurePlugin(exitPlugin, undefined)
+  configurePlugin(exitPlugin)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

@@ -26,19 +26,21 @@ Or via CDN:
 
 ```html
 <script src="https://unpkg.com/a11y-now/dist/a11y-now.iife.js"></script>
-<script>A11yNow.createA11yNow().mount()</script>
+<script>
+  A11yNow.createA11yNow().mount()
+</script>
 ```
 
 ## Packages
 
-| 目录 | 内容 |
-| --- | --- |
-| `packages/` | `@a11y-now/types` · `@a11y-now/shared` · `@a11y-now/core` · `a11y-now`（聚合） |
-| `packages-plugins/` | 12 个官方插件 `@a11y-now/plugin-*`（一插件一包） |
-| `packages-themes/` | 5 套官方主题 `@a11y-now/theme-*`（零运行时纯数据包） |
-| `packages-frameworks/` | `@a11y-now/vue` · `react` · `svelte` · `solid` · `element` |
-| `docs/` | VitePress 文档站（含设计资料 design.md / plan.md） |
-| `playground/` | vanilla / vue / react 演示应用 |
+| 目录                   | 内容                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `packages/`            | `@a11y-now/types` · `@a11y-now/shared` · `@a11y-now/core` · `a11y-now`（聚合） |
+| `packages-plugins/`    | 12 个官方插件 `@a11y-now/plugin-*`（一插件一包）                               |
+| `packages-themes/`     | 5 套官方主题 `@a11y-now/theme-*`（零运行时纯数据包）                           |
+| `packages-frameworks/` | `@a11y-now/vue` · `react` · `svelte` · `solid` · `element`                     |
+| `docs/`                | VitePress 文档站（含设计资料 design.md / plan.md）                             |
+| `playground/`          | vanilla / vue / react 演示应用                                                 |
 
 ## Development
 

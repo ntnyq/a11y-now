@@ -1,6 +1,6 @@
 import { A11yNowPlugin, useA11yNow } from '@a11y-now/vue'
-import { createApp } from 'vue'
 import { beforeEach, expect, it } from 'vitest'
+import { createApp } from 'vue'
 
 beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
@@ -31,7 +31,5 @@ it('autoMount: false defers mounting', () => {
 
 it('useA11yNow throws outside an app with the plugin', () => {
   const app = createApp({ render: () => null })
-  expect(() => app.runWithContext(() => useA11yNow())).toThrowError(
-    /A11yNowPlugin/,
-  )
+  expect(() => app.runWithContext(() => useA11yNow())).toThrow(/A11yNowPlugin/u)
 })

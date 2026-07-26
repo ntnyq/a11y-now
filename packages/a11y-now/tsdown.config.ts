@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig([
   {
     clean: true,
-    dts: { tsgo: true },
+    dts: { tsgo: false },
     entry: [
       'src/index.ts',
       'src/presets/full.ts',

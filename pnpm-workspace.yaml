@@ -18,6 +18,7 @@ catalog:
   solid-js: ^1.9.14
   svelte: ^5.56.8
   tsdown: ^0.22.14
+  typescript: ^5.9.0
   vitepress: ^2.0.0-alpha.18
   vitest: ^4.1.10
   vue: ^3.5.40

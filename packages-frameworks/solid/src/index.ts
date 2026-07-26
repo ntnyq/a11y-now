@@ -1,17 +1,12 @@
 import { createA11yNow } from '@a11y-now/core'
-import {
-  createContext,
-  createSignal,
-  onCleanup,
-  useContext,
-  type Accessor,
-} from 'solid-js'
 import type {
   A11yEventMap,
   A11yEventName,
   A11yNowInstance,
   A11yNowOptions,
 } from '@a11y-now/types'
+import { createContext, createSignal, onCleanup, useContext } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
 export const A11yNowContext = createContext<A11yNowInstance>()
 

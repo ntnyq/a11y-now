@@ -21,13 +21,14 @@ const ICON =
   '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.2 0-1.1.9-2 2-2h2.5A4.5 4.5 0 0 0 22 11 9 9 0 0 0 12 2Zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>'
 
 const themeSwitcherPlugin = definePlugin<
-  ThemeSwitcherOptions | undefined,
+  ThemeSwitcherOptions,
   ThemeSwitcherApi,
   ThemeState
 >({
   messages: {
     'en-US': {
-      'theme.desc': 'Switch color scheme {shortcut}. Current: {current}, next: {next}',
+      'theme.desc':
+        'Switch color scheme {shortcut}. Current: {current}, next: {next}',
       'theme.label': 'Colors',
       'theme.none': 'No themes registered',
       'theme.switched': 'Color scheme switched to {name}',
@@ -43,9 +44,9 @@ const themeSwitcherPlugin = definePlugin<
   setup: ctx => {
     const displayName = (theme: A11yTheme | null): string =>
       theme
-        ? (theme.displayName[ctx.i18n.getLocale()]
-          ?? theme.displayName['zh-CN']
-          ?? theme.name)
+        ? (theme.displayName[ctx.i18n.getLocale()] ??
+          theme.displayName['zh-CN'] ??
+          theme.name)
         : '-'
 
     const describe = (): string =>
@@ -108,7 +109,7 @@ const themeSwitcherPlugin = definePlugin<
     })
 
     // Restore the persisted (or configured initial) theme.
-    const persisted = ctx.state.get('theme') || ctx.options?.initial || ''
+    const persisted = ctx.state.get('theme') || ctx.options.initial || ''
     if (persisted && ctx.theme.list().some(t => t.name === persisted)) {
       ctx.theme.apply(persisted)
     }
@@ -131,12 +132,9 @@ const themeSwitcherPlugin = definePlugin<
 
 /** Color scheme switcher plugin. `Ctrl+Alt+T` cycles registered themes. */
 export const themeSwitcher = (
-  options?: ThemeSwitcherOptions,
-): ConfiguredPlugin<
-  ThemeSwitcherOptions | undefined,
-  ThemeSwitcherApi,
-  ThemeState
-> => configurePlugin(themeSwitcherPlugin, options)
+  options: ThemeSwitcherOptions = {},
+): ConfiguredPlugin<ThemeSwitcherOptions, ThemeSwitcherApi, ThemeState> =>
+  configurePlugin(themeSwitcherPlugin, options)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

@@ -26,14 +26,14 @@ export interface A11yNowElementConfig {
  * The aggregate `a11y-now` package pre-wires this with the full preset.
  */
 export class A11yNowElement extends HTMLElement {
-  static defaults: A11yNowElementConfig = {}
+  public static defaults: A11yNowElementConfig = {}
 
-  instance: A11yNowInstance | null = null
+  public instance: A11yNowInstance | null = null
   /** Per-element overrides, assignable before connection. */
-  plugins: A11yPluginInput[] | null = null
-  themes: A11yTheme[] | null = null
+  public plugins: A11yPluginInput[] | null = null
+  public themes: A11yTheme[] | null = null
 
-  connectedCallback(): void {
+  public connectedCallback(): void {
     if (this.instance) {
       return
     }
@@ -52,7 +52,7 @@ export class A11yNowElement extends HTMLElement {
     this.instance.mount()
   }
 
-  disconnectedCallback(): void {
+  public disconnectedCallback(): void {
     this.instance?.destroy()
     this.instance = null
   }

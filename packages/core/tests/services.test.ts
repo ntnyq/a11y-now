@@ -10,24 +10,23 @@ import { beforeEach, expect, it, vi } from 'vitest'
 beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
   document.documentElement.removeAttribute('style')
-  document.documentElement.removeAttribute('data-a11y-theme')
+  delete document.documentElement.dataset['a11yTheme']
   localStorage.clear()
 })
 
 it('event bus delivers typed payloads and unsubscribes', () => {
   const bus = createEventBus()
-  const fn = vi.fn()
+  const fn = vi.fn<(payload: { theme: string }) => void>()
   const stop = bus.on('theme:change', fn)
   bus.emit('theme:change', { theme: 'x' })
   stop()
   bus.emit('theme:change', { theme: 'y' })
-  expect(fn).toHaveBeenCalledTimes(1)
-  expect(fn).toHaveBeenCalledWith({ theme: 'x' })
+  expect(fn).toHaveBeenCalledExactlyOnceWith({ theme: 'x' })
 })
 
 it('shortcut center matches key combos and detects conflicts', () => {
   const center = createShortcutCenter()
-  const handler = vi.fn()
+  const handler = vi.fn<() => void>()
   center.register({
     alt: true,
     ctrl: true,
@@ -52,7 +51,7 @@ it('shortcut center matches key combos and detects conflicts', () => {
       id: 'other',
       key: 'T',
     }),
-  ).toThrowError(/conflict/)
+  ).toThrow(/conflict/u)
 
   expect(center.format({ alt: true, ctrl: true, key: 't' })).toBe('Ctrl+Alt+T')
   expect(center.list()).toHaveLength(1)
@@ -99,7 +98,7 @@ it('theme service applies tokens as CSS variables and cycles', () => {
   expect(
     document.documentElement.style.getPropertyValue('--a11y-page-bg'),
   ).toBe('rgb(0, 0, 0)')
-  expect(document.documentElement.dataset.a11yTheme).toBe('dark')
+  expect(document.documentElement.dataset['a11yTheme']).toBe('dark')
   expect(
     document.head.querySelector('[data-a11y-now="theme-page"]'),
   ).not.toBeNull()
@@ -108,14 +107,15 @@ it('theme service applies tokens as CSS variables and cycles', () => {
   const next = a11y.themes.cycle()
   expect(next?.name).toBe('light')
   expect(host.style.getPropertyValue('--a11y-color-bg')).toBe('')
-  expect(document.documentElement.dataset.a11yTheme).toBeUndefined()
+  expect(document.documentElement.dataset['a11yTheme']).toBeUndefined()
   expect(document.head.querySelector('[data-a11y-now="theme-page"]')).toBeNull()
 
   a11y.unmount()
 })
 
 it('speech service respects enabled and muted flags', () => {
-  const speak = vi.fn()
+  const speak =
+    vi.fn<(text: string, options: { locale: string; rate: number }) => void>()
   const a11y = createA11yNow({
     speechEngine: { available: true, cancel: () => {}, speak },
     storage: null,
@@ -123,7 +123,8 @@ it('speech service respects enabled and muted flags', () => {
   a11y.mount()
 
   a11y.speech.speak('hello')
-  expect(speak).toHaveBeenCalledTimes(2) // mount announcement + hello
+  // Two calls so far: the mount announcement, then 'hello'.
+  expect(speak).toHaveBeenCalledTimes(2)
 
   a11y.speech.setEnabled(false)
   a11y.speech.speak('ignored')

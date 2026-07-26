@@ -43,7 +43,7 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
     const apply = (enabled: boolean): void => {
       if (enabled && shadow) {
         bar = document.createElement('div')
-        bar.dataset.a11yCaption = 'true'
+        bar.dataset['a11yCaption'] = 'true'
         bar.setAttribute('role', 'status')
         const { style } = bar
         style.position = 'fixed'
@@ -115,8 +115,11 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
 })
 
 /** Big caption bar plugin: mirrors spoken text at the bottom. `Ctrl+Alt+B`. */
-export const caption = (): ConfiguredPlugin<undefined, CaptionApi, CaptionState> =>
-  configurePlugin(captionPlugin, undefined)
+export const caption = (): ConfiguredPlugin<
+  undefined,
+  CaptionApi,
+  CaptionState
+> => configurePlugin(captionPlugin)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

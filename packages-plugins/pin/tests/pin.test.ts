@@ -6,19 +6,19 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
+const pinStyle = () =>
+  document.head.querySelector('[data-a11y-now="pin"]')?.textContent ?? ''
+
 it('reserves page space by default and releases it when unpinned', () => {
   const a11y = createA11yNow({ storage: null }).use(pin())
   a11y.mount()
-
-  const style = () =>
-    document.head.querySelector('[data-a11y-now="pin"]')?.textContent ?? ''
-  expect(style()).toContain('padding-block-start: 84px')
+  expect(pinStyle()).toContain('padding-block-start: 84px')
 
   a11y.getPlugin('pin')?.toggle()
-  expect(style()).toBe('')
+  expect(pinStyle()).toBe('')
 
   a11y.getPlugin('pin')?.toggle()
-  expect(style()).toContain('84px')
+  expect(pinStyle()).toContain('84px')
   a11y.unmount()
 })
 

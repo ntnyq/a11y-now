@@ -16,8 +16,8 @@ it('a11yEventStore reflects the latest event payload', () => {
     seen.push(value)
   })
   instance.events.emit('theme:change', { theme: 'deep-blue' })
-  expect(get(store)).toEqual({ theme: 'deep-blue' })
-  expect(seen).toEqual([undefined, { theme: 'deep-blue' }])
+  expect(get(store)).toStrictEqual({ theme: 'deep-blue' })
+  expect(seen).toStrictEqual([undefined, { theme: 'deep-blue' }])
 
   stop()
   instance.destroy()

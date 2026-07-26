@@ -50,7 +50,7 @@ export const createToolbar = (
   for (const group of GROUP_ORDER) {
     const el = doc.createElement('div')
     el.className = 'group'
-    el.dataset.group = group
+    el.dataset['group'] = group
     el.setAttribute('role', 'group')
     el.setAttribute('aria-label', i18n.t(groupLabelKey[group]))
     el.hidden = true
@@ -130,7 +130,10 @@ export const createToolbar = (
     const description = resolveLabel(def.description)
     if (description) {
       button.title = description
-      button.setAttribute('aria-label', `${resolveLabel(def.label)}，${description}`)
+      button.setAttribute(
+        'aria-label',
+        `${resolveLabel(def.label)}，${description}`,
+      )
     }
   }
 
@@ -140,9 +143,9 @@ export const createToolbar = (
     const button = doc.createElement('button')
     button.type = 'button'
     button.className = 'btn'
-    button.dataset.itemId = def.id
+    button.dataset['itemId'] = def.id
     if (def.hideInScreenReaderMode) {
-      button.dataset.hideInSr = 'true'
+      button.dataset['hideInSr'] = 'true'
     }
     button.style.order = String(def.order ?? 0)
     if (def.pressed !== undefined) {
@@ -205,7 +208,7 @@ export const createToolbar = (
     el: root,
     setScreenReaderMode: enabled => {
       for (const entry of entries.values()) {
-        if (entry.el.dataset.hideInSr === 'true') {
+        if (entry.el.dataset['hideInSr'] === 'true') {
           entry.el.hidden = enabled
         }
       }

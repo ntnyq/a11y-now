@@ -1,14 +1,13 @@
 import { createA11yNow } from '@a11y-now/core'
+import type { A11yNowInstance, A11yNowOptions } from '@a11y-now/types'
 import {
   createContext,
   createElement,
   useContext,
   useEffect,
   useRef,
-  type ReactElement,
-  type ReactNode,
 } from 'react'
-import type { A11yNowInstance, A11yNowOptions } from '@a11y-now/types'
+import type { ReactElement, ReactNode } from 'react'
 
 const A11yNowContext = createContext<A11yNowInstance | null>(null)
 

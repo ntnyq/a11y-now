@@ -1,4 +1,8 @@
-import { configurePlugin, DEFAULT_PAGE_TOKENS, definePlugin } from '@a11y-now/core'
+import {
+  configurePlugin,
+  DEFAULT_PAGE_TOKENS,
+  definePlugin,
+} from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface BigCursorOptions {
@@ -23,14 +27,14 @@ const ICON =
 
 const cursorSvg = (color: string, size: number): string => {
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">`
-    + `<path d="M4 2l16 7.6-6.8 1.9 4.3 7.4-2.6 1.5-4.3-7.4L6 18.2 4 2Z" `
-    + `fill="${color}" stroke="#000" stroke-width="1"/></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">` +
+    `<path d="M4 2l16 7.6-6.8 1.9 4.3 7.4-2.6 1.5-4.3-7.4L6 18.2 4 2Z" ` +
+    `fill="${color}" stroke="#000" stroke-width="1"/></svg>`
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 4 2, auto`
 }
 
 const bigCursorPlugin = definePlugin<
-  BigCursorOptions | undefined,
+  BigCursorOptions,
   BigCursorApi,
   BigCursorState
 >({
@@ -48,8 +52,8 @@ const bigCursorPlugin = definePlugin<
   },
   name: 'big-cursor',
   setup: ctx => {
-    const size = ctx.options?.size ?? 48
-    const color = ctx.options?.color ?? DEFAULT_PAGE_TOKENS['cursor-color']
+    const size = ctx.options.size ?? 48
+    const color = ctx.options.color ?? DEFAULT_PAGE_TOKENS['cursor-color']
     let disposeStyle: (() => void) | null = null
 
     const isEnabled = (): boolean => ctx.state.get('enabled')
@@ -117,8 +121,8 @@ const bigCursorPlugin = definePlugin<
 
 /** Big mouse cursor plugin. `Ctrl+Alt+M`. */
 export const bigCursor = (
-  options?: BigCursorOptions,
-): ConfiguredPlugin<BigCursorOptions | undefined, BigCursorApi, BigCursorState> =>
+  options: BigCursorOptions = {},
+): ConfiguredPlugin<BigCursorOptions, BigCursorApi, BigCursorState> =>
   configurePlugin(bigCursorPlugin, options)
 
 declare module '@a11y-now/types' {

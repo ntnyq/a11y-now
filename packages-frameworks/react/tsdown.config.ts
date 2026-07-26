@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   clean: true,
   dts: {
-    tsgo: true,
+    tsgo: false,
   },
   entry: ['src/index.ts'],
   platform: 'neutral',

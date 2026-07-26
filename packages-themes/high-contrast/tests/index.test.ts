@@ -3,10 +3,10 @@ import { expect, it } from 'vitest'
 
 it('exposes a valid theme definition', () => {
   expect(highContrast.name).toBe('high-contrast')
-  expect(highContrast.displayName['zh-CN']).toBeTruthy()
-  expect(highContrast.displayName['en-US']).toBeTruthy()
+  expect(highContrast.displayName['zh-CN']).toBe('黑底白字')
+  expect(highContrast.displayName['en-US']).toBe('High Contrast')
 })
 
-it('is pure data (no functions, JSON-safe)', () => {
-  expect(JSON.parse(JSON.stringify(highContrast))).toEqual(highContrast)
+it('is pure data (structured-clone safe)', () => {
+  expect(structuredClone(highContrast)).toStrictEqual(highContrast)
 })

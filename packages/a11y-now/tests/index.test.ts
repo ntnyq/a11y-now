@@ -1,4 +1,10 @@
-import { createA11yNow, fullPreset, readingPreset, screenReaderPreset, wasExited } from 'a11y-now'
+import {
+  createA11yNow,
+  fullPreset,
+  readingPreset,
+  screenReaderPreset,
+  wasExited,
+} from 'a11y-now'
 import { beforeEach, expect, it } from 'vitest'
 
 beforeEach(() => {
@@ -16,17 +22,19 @@ it('one-liner mounts the full preset with all official plugins', () => {
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
   expect(shadow?.querySelector('[data-item-id="theme"]')).not.toBeNull()
   expect(shadow?.querySelector('[data-item-id="zoom-in"]')).not.toBeNull()
-  expect(shadow?.querySelector('[data-item-id="region-content"]')).not.toBeNull()
+  expect(
+    shadow?.querySelector('[data-item-id="region-content"]'),
+  ).not.toBeNull()
   expect(shadow?.querySelector('[data-item-id="exit"]')).not.toBeNull()
-  expect(a11y.themes.list().length).toBe(5)
+  expect(a11y.themes.list()).toHaveLength(5)
   a11y.unmount()
 })
 
 it('presets expose the documented plugin sets', () => {
-  expect(fullPreset().plugins.length).toBe(12)
-  expect(fullPreset().themes.length).toBe(5)
-  expect(readingPreset().plugins.length).toBe(9)
-  expect(screenReaderPreset().plugins.length).toBe(4)
+  expect(fullPreset().plugins).toHaveLength(12)
+  expect(fullPreset().themes).toHaveLength(5)
+  expect(readingPreset().plugins).toHaveLength(9)
+  expect(screenReaderPreset().plugins).toHaveLength(4)
 })
 
 it('wasExited reflects the exit plugin persistence', () => {

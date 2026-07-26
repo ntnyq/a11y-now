@@ -1,6 +1,6 @@
+import { A11yNowProvider, useA11yNow } from '@a11y-now/react'
 import { fullPreset } from 'a11y-now'
 import { createRoot } from 'react-dom/client'
-import { A11yNowProvider, useA11yNow } from '@a11y-now/react'
 
 const App = () => {
   const a11y = useA11yNow()

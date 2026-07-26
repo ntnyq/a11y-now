@@ -62,7 +62,7 @@ const resetPlugin = definePlugin<undefined, ResetApi>({
 
 /** Reset-everything plugin. `Ctrl+Alt+C`. */
 export const reset = (): ConfiguredPlugin<undefined, ResetApi> =>
-  configurePlugin(resetPlugin, undefined)
+  configurePlugin(resetPlugin)
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {

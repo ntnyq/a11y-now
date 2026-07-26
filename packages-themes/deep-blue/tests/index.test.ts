@@ -3,10 +3,10 @@ import { expect, it } from 'vitest'
 
 it('exposes a valid theme definition', () => {
   expect(deepBlue.name).toBe('deep-blue')
-  expect(deepBlue.displayName['zh-CN']).toBeTruthy()
-  expect(deepBlue.displayName['en-US']).toBeTruthy()
+  expect(deepBlue.displayName['zh-CN']).toBe('深蓝白')
+  expect(deepBlue.displayName['en-US']).toBe('Deep Blue')
 })
 
-it('is pure data (no functions, JSON-safe)', () => {
-  expect(JSON.parse(JSON.stringify(deepBlue))).toEqual(deepBlue)
+it('is pure data (structured-clone safe)', () => {
+  expect(structuredClone(deepBlue)).toStrictEqual(deepBlue)
 })

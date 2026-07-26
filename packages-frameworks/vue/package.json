@@ -2,19 +2,19 @@
   "name": "@a11y-now/vue",
   "version": "0.0.0",
   "description": "a11y-now vue integration",
+  "homepage": "https://github.com/ntnyq/a11y-now#readme",
+  "bugs": {
+    "url": "https://github.com/ntnyq/a11y-now/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "ntnyq",
     "email": "ntnyq13@gmail.com"
   },
-  "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ntnyq/a11y-now.git",
     "directory": "packages-frameworks/vue"
-  },
-  "bugs": {
-    "url": "https://github.com/ntnyq/a11y-now/issues"
   },
   "files": [
     "dist"
@@ -40,10 +40,10 @@
     "@a11y-now/core": "workspace:*",
     "@a11y-now/types": "workspace:*"
   },
-  "peerDependencies": {
-    "vue": "^3.5.0"
-  },
   "devDependencies": {
     "vue": "catalog:"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   }
 }

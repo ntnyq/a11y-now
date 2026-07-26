@@ -9,7 +9,7 @@ import { beforeEach, expect, it, vi } from 'vitest'
 const cleanDom = (): void => {
   document.querySelector('a11y-now-host')?.remove()
   document.documentElement.removeAttribute('style')
-  document.documentElement.removeAttribute('data-a11y-theme')
+  delete document.documentElement.dataset['a11yTheme']
 }
 
 beforeEach(() => {
@@ -35,8 +35,8 @@ it('mounts a shadow host under <html> and unmounts without residue', () => {
 })
 
 it('runs plugin setup on mount and dispose on unmount', () => {
-  const setup = vi.fn()
-  const dispose = vi.fn()
+  const setup = vi.fn<(ctx: unknown) => void>()
+  const dispose = vi.fn<() => void>()
   const plugin = definePlugin({
     name: 'probe',
     setup: ctx => {
@@ -57,7 +57,7 @@ it('orders plugins by dependsOn and rejects missing dependencies', () => {
   const order: string[] = []
   const make = (name: string, dependsOn?: string[]) =>
     definePlugin({
-      dependsOn,
+      ...(dependsOn ? { dependsOn } : {}),
       name,
       setup: () => {
         order.push(name)
@@ -69,15 +69,15 @@ it('orders plugins by dependsOn and rejects missing dependencies', () => {
     .use(make('b', ['a']))
     .use(make('a'))
   a11y.mount()
-  expect(order).toEqual(['a', 'b'])
+  expect(order).toStrictEqual(['a', 'b'])
   a11y.unmount()
 
   const broken = createA11yNow({ storage: null }).use(make('x', ['missing']))
-  expect(() => broken.mount()).toThrowError(/missing plugin/)
+  expect(() => broken.mount()).toThrow(/missing plugin/u)
 })
 
 it('exposes plugin apis via getPlugin', () => {
-  const plugin = definePlugin<void, { double: (n: number) => number }>({
+  const plugin = definePlugin<undefined, { double: (n: number) => number }>({
     name: 'math',
     setup: () => ({ api: { double: n => n * 2 }, dispose: () => {} }),
   })
@@ -109,7 +109,7 @@ it('persists plugin state and restores it on a fresh instance', () => {
   second.mount()
   const raw = storage.get('a11y-now:plugin:counter')
   expect(raw).not.toBeNull()
-  expect(JSON.parse(raw as string)).toEqual({ count: 2 })
+  expect(JSON.parse(raw as string)).toStrictEqual({ count: 2 })
   second.unmount()
 })
 
@@ -134,7 +134,7 @@ it('resetAll restores plugin state defaults and emits state:reset', () => {
 })
 
 it('accepts configured plugins with typed options', () => {
-  let received: unknown
+  let received: unknown = null
   const plugin = definePlugin<{ step: number }>({
     name: 'configured',
     setup: ctx => {
@@ -146,6 +146,6 @@ it('accepts configured plugins with typed options', () => {
     configurePlugin(plugin, { step: 5 }),
   )
   a11y.mount()
-  expect(received).toEqual({ step: 5 })
+  expect(received).toStrictEqual({ step: 5 })
   a11y.unmount()
 })

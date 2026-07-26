@@ -17,13 +17,13 @@ it('unmounts the toolbar and persists the exited flag', () => {
   expect(document.querySelector('a11y-now-host')).toBeNull()
 
   const raw = storage.get('a11y-now:plugin:exit')
-  expect(JSON.parse(raw as string)).toEqual({ disabled: true })
+  expect(JSON.parse(raw as string)).toStrictEqual({ disabled: true })
 
   // Remounting re-enables and clears the flag.
   a11y.mount()
-  expect(JSON.parse(storage.get('a11y-now:plugin:exit') as string)).toEqual({
-    disabled: false,
-  })
+  expect(
+    JSON.parse(storage.get('a11y-now:plugin:exit') as string),
+  ).toStrictEqual({ disabled: false })
   a11y.unmount()
 })
 

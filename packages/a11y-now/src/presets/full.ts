@@ -1,3 +1,4 @@
+/* eslint-disable import/max-dependencies -- presets aggregate by design */
 import { bigCursor } from '@a11y-now/plugin-big-cursor'
 import { caption } from '@a11y-now/plugin-caption'
 import { crosshair } from '@a11y-now/plugin-crosshair'

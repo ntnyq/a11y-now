@@ -1,12 +1,13 @@
 import { createA11yNow } from '@a11y-now/core'
-import { getContext, onDestroy, setContext } from 'svelte'
-import { readable, type Readable } from 'svelte/store'
 import type {
   A11yEventMap,
   A11yEventName,
   A11yNowInstance,
   A11yNowOptions,
 } from '@a11y-now/types'
+import { getContext, onDestroy, setContext } from 'svelte'
+import { readable } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 
 const KEY = Symbol.for('a11y-now')
 
@@ -61,6 +62,7 @@ export const a11yEventStore = <E extends A11yEventName>(
   readable<A11yEventMap[E] | undefined>(undefined, set =>
     instance.events.on(event, payload => {
       set(payload)
-    }))
+    }),
+  )
 
 export type { A11yNowInstance, A11yNowOptions } from '@a11y-now/types'

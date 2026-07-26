@@ -1,4 +1,14 @@
+/* eslint-disable import/max-dependencies -- the kernel wires every service */
 import { isBrowser, warn } from '@a11y-now/shared'
+import type {
+  A11yNowInstance,
+  A11yNowOptions,
+  A11yPlugin,
+  A11yPluginInput,
+  A11yPluginRegistry,
+  ScopedState,
+  StateDefaults,
+} from '@a11y-now/types'
 import { createDomService } from './dom'
 import { createEventBus } from './events'
 import { createI18n } from './i18n'
@@ -12,24 +22,15 @@ import { createLocalStorageAdapter, createScopedState } from './store'
 import { baseStyles } from './styles'
 import { createThemeService } from './theme'
 import { createToolbar } from './toolbar'
-import type {
-  A11yNowInstance,
-  A11yNowOptions,
-  A11yPlugin,
-  A11yPluginInput,
-  A11yPluginRegistry,
-  ScopedState,
-  StateDefaults,
-} from '@a11y-now/types'
 
 const HOST_TAG = 'a11y-now-host'
 
+/* eslint-disable typescript/no-explicit-any -- heterogeneous plugin registry */
 interface Registered {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   plugin: A11yPlugin<any, any, any>
 }
+/* eslint-enable typescript/no-explicit-any */
 
 const normalizeInput = (input: A11yPluginInput): Registered =>
   'plugin' in input
@@ -82,16 +83,16 @@ export const createA11yNow = (
       : options.storage
   const prefix = options.storagePrefix ?? 'a11y-now'
   const locale =
-    options.locale
-    ?? (doc?.documentElement.lang as string | undefined)
-    ?? 'zh-CN'
+    options.locale ??
+    (doc?.documentElement.lang as string | undefined) ??
+    'zh-CN'
 
   const events = createEventBus()
   const i18n = createI18n(locale, options.messages)
   const shortcuts = createShortcutCenter()
   const engine =
-    options.speechEngine
-    ?? (isBrowser() ? createWebSpeechEngine() : createSilentEngine())
+    options.speechEngine ??
+    (isBrowser() ? createWebSpeechEngine() : createSilentEngine())
   const speech = createSpeechService(engine, events, i18n, {
     enabled: true,
     rate: 1,
@@ -99,8 +100,8 @@ export const createA11yNow = (
 
   const registered: Registered[] = []
   const apis = new Map<string, unknown>()
-  const disposers: Array<() => void> = []
-  const kernelDisposers: Array<() => void> = []
+  const disposers: (() => void)[] = []
+  const kernelDisposers: (() => void)[] = []
   const scopedStates = new Map<string, ScopedState>()
 
   let mounted = false
@@ -231,7 +232,7 @@ export const createA11yNow = (
         dispose()
       }
       kernelDisposers.length = 0
-      for (const dispose of [...disposers].reverse()) {
+      for (const dispose of disposers.toReversed()) {
         try {
           dispose()
         } catch (error) {
@@ -267,8 +268,8 @@ export const createA11yNow = (
       registered.push(item)
       if (mounted) {
         warn(
-          `plugin "${item.plugin.name}" registered after mount; `
-          + 'remount to activate it',
+          `plugin "${item.plugin.name}" registered after mount; ` +
+            'remount to activate it',
         )
       }
       return instance

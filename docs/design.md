@@ -10,13 +10,13 @@
 
 该服务并非知乎自研，而是由信息无障碍服务商「世纪大家」提供（服务域名 `service.govwza.cn`），知乎将其脚本托管在自己的 CDN 上：
 
-| 项目 | 值 |
-| --- | --- |
+| 项目     | 值                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------- |
 | 核心脚本 | `https://static.zhihu.com/event/wza/4633_1/aria.js?appid=a3637ace...`（defer 加载，`id="ariascripts"`） |
-| 辅助脚本 | `pinyin.min.js`（拼音标注能力） |
-| 版本 | v4.6.33（资源 URL 的 `v` 参数） |
-| 服务端 | `https://service.govwza.cn`（配置、语音合成、文件服务共用此域名） |
-| appid | `a3637ace5dc3a347f6863b0bac487599`（绑定域名 www.zhihu.com） |
+| 辅助脚本 | `pinyin.min.js`（拼音标注能力）                                                                         |
+| 版本     | v4.6.33（资源 URL 的 `v` 参数）                                                                         |
+| 服务端   | `https://service.govwza.cn`（配置、语音合成、文件服务共用此域名）                                       |
+| appid    | `a3637ace5dc3a347f6863b0bac487599`（绑定域名 www.zhihu.com）                                            |
 
 激活状态通过 Cookie `ariaStatus=true` 持久化：刷新或再次访问知乎页面时，工具栏会自动恢复开启，直到用户点击「退出服务」。
 
@@ -55,9 +55,12 @@
 激活后在文档最前部注入一个 1×1 像素的隐形锚点，供读屏软件朗读进入引导：
 
 ```html
-<a id="ariaTipText" role="pagedescription"
-   aria-label="欢迎进入 知乎 - 有问题，就会有答案,盲人用户使用操作智能引导，
-   请按快捷键Ctrl+Alt+R；阅读详细操作说明请按快捷键Ctrl+Alt+问号键。">
+<a
+  id="ariaTipText"
+  role="pagedescription"
+  aria-label="欢迎进入 知乎 - 有问题，就会有答案,盲人用户使用操作智能引导，
+   请按快捷键Ctrl+Alt+R；阅读详细操作说明请按快捷键Ctrl+Alt+问号键。"
+></a>
 ```
 
 ## 3. #ariaToptoolbar 内部结构
@@ -98,14 +101,14 @@
 
 工具栏左半部是六个「区域」按钮，脚本自动扫描页面内容并把元素归类到六类区域，按钮上实时显示该区域的元素数量，数量为 0 的按钮加 `disable` 类置灰：
 
-| 按钮 | 快捷键 | 登录页实测数量 |
-| --- | --- | --- |
-| 视窗区 | ALT+1 | 0（置灰） |
-| 导航区 | ALT+2 | 0（置灰） |
-| 交互区 | ALT+3 | 1 |
-| 服务区 | ALT+4 | 1 |
-| 列表区 | ALT+5 | 0（置灰） |
-| 正文区 | ALT+6 | 0（置灰） |
+| 按钮   | 快捷键 | 登录页实测数量 |
+| ------ | ------ | -------------- |
+| 视窗区 | ALT+1  | 0（置灰）      |
+| 导航区 | ALT+2  | 0（置灰）      |
+| 交互区 | ALT+3  | 1              |
+| 服务区 | ALT+4  | 1              |
+| 列表区 | ALT+5  | 0（置灰）      |
+| 正文区 | ALT+6  | 0（置灰）      |
 
 DOM 特征：`<div id="acccross3" regiontype="3" class="readsrc ariaregionbutton">`，内含区域名、计数（`aria-label="交互区1"`）和快捷键说明三个 `arialabel`。
 
@@ -136,13 +139,13 @@ DOM 特征：`<div id="acccross3" regiontype="3" class="readsrc ariaregionbutton
 
 点击循环切换 5 套主题，Cookie `ariatheme=0..4` 持久化。**实测循环顺序与主题配置**（来自 localStorage 缓存的主题表）：
 
-| 序号 | 主题 | 背景色 | 文字色 | 链接色 |
-| --- | --- | --- | --- | --- |
-| 0 | 默认 | 原样 | 原样 | 原样 |
-| 1 | 深蓝白 | rgba(0,51,92,1) | 白 | 白 |
-| 2 | 巧克力色 | rgba(98,43,43,1) | 白 | 白 |
-| 3 | 黑底白字 | rgba(0,0,0,1) | 白 | rgba(255,184,0,1) |
-| 4 | 森林绿 | rgba(34,139,34,1) | 白 | 白 |
+| 序号 | 主题     | 背景色            | 文字色 | 链接色            |
+| ---- | -------- | ----------------- | ------ | ----------------- |
+| 0    | 默认     | 原样              | 原样   | 原样              |
+| 1    | 深蓝白   | rgba(0,51,92,1)   | 白     | 白                |
+| 2    | 巧克力色 | rgba(98,43,43,1)  | 白     | 白                |
+| 3    | 黑底白字 | rgba(0,0,0,1)     | 白     | rgba(255,184,0,1) |
+| 4    | 森林绿   | rgba(34,139,34,1) | 白     | 白                |
 
 每套主题还细分了 `mouseover`（悬停高亮）、`region`（区域描边，如 `2px solid #ff6c00`）、`focus`（焦点描边 `3px solid #fcff00`）、光标色、亮度/对比度/灰度等子配置。
 
@@ -165,14 +168,16 @@ DOM 特征：`<div id="acccross3" regiontype="3" class="readsrc ariaregionbutton
 **实测**：开启后底部 `#accscreen` 加 `expanded` 类展开为屏幕底部字幕条，朗读到的文字会以特大号字体（`aria-fontsize="huge"`）同步显示在 `#acctip` 内。字幕条自带工具组：
 
 ```html
-<div id="accscreen" class="noscale hidden930">
-  └── ariaul
-      ├── ariali#acctip                ← 大字幕文本区
-      └── ariali.acctool
-          ├── ariai#accscreen-close    ← 关闭大字幕
-          ├── ariai#accscreen-vol      ← 音量指示（title：Shift+A，默认隐藏）
-          ├── arialabel#accscreen-py   ← 拼音开关（「拼音已关闭/已启用」）
-          └── arialabel#accscreen-jt   ← 简体/繁体切换（「简体已启用」）
+<div
+  id="accscreen"
+  class="noscale hidden930"
+>
+  └── ariaul ├── ariali#acctip ← 大字幕文本区 └── ariali.acctool ├──
+  ariai#accscreen-close ← 关闭大字幕 ├── ariai#accscreen-vol ←
+  音量指示（title：Shift+A，默认隐藏） ├── arialabel#accscreen-py ←
+  拼音开关（「拼音已关闭/已启用」） └── arialabel#accscreen-jt ←
+  简体/繁体切换（「简体已启用」）
+</div>
 ```
 
 其中**拼音**（为字幕文字标注拼音，依赖 pinyin.min.js）和**简繁转换**是大字幕栏专属功能。状态存 Cookie `ariaBigsrc`。
@@ -199,47 +204,47 @@ DOM 特征：`<div id="acccross3" regiontype="3" class="readsrc ariaregionbutton
 
 ## 5. 全局快捷键汇总
 
-| 快捷键 | 功能 |
-| --- | --- |
-| ALT+1 ~ ALT+6 | 进入视窗/导航/交互/服务/列表/正文区，重复按循环访问区域内元素 |
-| Ctrl+Alt+R | 读屏专用模式 |
-| Ctrl+Alt+V | 声音开/关 |
-| Ctrl+Alt+K | 调节语速 |
-| Ctrl+Alt+F | 指读 / 连读切换 |
-| Ctrl+Alt+T | 循环切换配色主题 |
-| Ctrl+Alt+加号 / 减号 | 网页放大 / 缩小（1.0 ~ 1.3 倍） |
-| Ctrl+Alt+M | 大鼠标开/关 |
-| Ctrl+Alt+N | 十字线开/关 |
-| Ctrl+Alt+B | 大字幕开/关 |
-| Ctrl+Alt+C | 重置全部设置 |
-| Ctrl+Alt+L | 固定 / 取消固定工具栏 |
-| Ctrl+Alt+问号 | 语音操作说明 |
-| Ctrl+Alt+E | 退出无障碍服务 |
-| Ctrl+Alt+O | 关怀版（本页未启用按钮） |
-| Alt+9 | 放大查看本页所有图片 |
-| Alt+0 | 居中放大二维码 |
-| Ctrl+Enter | 进入下级内容 |
-| Ctrl+↓ | 进入浮动窗口（Tab 遍历，ESC 返回） |
-| Shift+A | 大字幕音量 |
-| ESC | 退出所有弹出窗口 / 当前区域 |
+| 快捷键               | 功能                                                          |
+| -------------------- | ------------------------------------------------------------- |
+| ALT+1 ~ ALT+6        | 进入视窗/导航/交互/服务/列表/正文区，重复按循环访问区域内元素 |
+| Ctrl+Alt+R           | 读屏专用模式                                                  |
+| Ctrl+Alt+V           | 声音开/关                                                     |
+| Ctrl+Alt+K           | 调节语速                                                      |
+| Ctrl+Alt+F           | 指读 / 连读切换                                               |
+| Ctrl+Alt+T           | 循环切换配色主题                                              |
+| Ctrl+Alt+加号 / 减号 | 网页放大 / 缩小（1.0 ~ 1.3 倍）                               |
+| Ctrl+Alt+M           | 大鼠标开/关                                                   |
+| Ctrl+Alt+N           | 十字线开/关                                                   |
+| Ctrl+Alt+B           | 大字幕开/关                                                   |
+| Ctrl+Alt+C           | 重置全部设置                                                  |
+| Ctrl+Alt+L           | 固定 / 取消固定工具栏                                         |
+| Ctrl+Alt+问号        | 语音操作说明                                                  |
+| Ctrl+Alt+E           | 退出无障碍服务                                                |
+| Ctrl+Alt+O           | 关怀版（本页未启用按钮）                                      |
+| Alt+9                | 放大查看本页所有图片                                          |
+| Alt+0                | 居中放大二维码                                                |
+| Ctrl+Enter           | 进入下级内容                                                  |
+| Ctrl+↓               | 进入浮动窗口（Tab 遍历，ESC 返回）                            |
+| Shift+A              | 大字幕音量                                                    |
+| ESC                  | 退出所有弹出窗口 / 当前区域                                   |
 
 ## 6. 状态持久化
 
 ### 6.1 Cookie（按功能开关逐项存储）
 
-| Cookie | 含义 | 实测值 |
-| --- | --- | --- |
-| `ariaStatus` | 无障碍模式总开关 | true |
-| `ariaFixed` | 工具栏固定 | true |
-| `ariavoiceEnable` | 声音开关 | true |
-| `ariatheme` | 主题序号（0~4） | 0 |
-| `ariaScale` | 网页缩放倍数 | 1 |
-| `ariaReadtype` | 阅读方式（1 指读 / 2 连读） | 1 |
-| `ariaMouseten` | 十字线 | false |
-| `ariaMousemode` | 鼠标样式 | null |
-| `ariaBigsrc` | 大字幕 | false |
-| `ariaoldFixedStatus` | 关怀版 | false |
-| `ariawapChangeViewPort` | 移动端视口调整 | false |
+| Cookie                  | 含义                        | 实测值 |
+| ----------------------- | --------------------------- | ------ |
+| `ariaStatus`            | 无障碍模式总开关            | true   |
+| `ariaFixed`             | 工具栏固定                  | true   |
+| `ariavoiceEnable`       | 声音开关                    | true   |
+| `ariatheme`             | 主题序号（0~4）             | 0      |
+| `ariaScale`             | 网页缩放倍数                | 1      |
+| `ariaReadtype`          | 阅读方式（1 指读 / 2 连读） | 1      |
+| `ariaMouseten`          | 十字线                      | false  |
+| `ariaMousemode`         | 鼠标样式                    | null   |
+| `ariaBigsrc`            | 大字幕                      | false  |
+| `ariaoldFixedStatus`    | 关怀版                      | false  |
+| `ariawapChangeViewPort` | 移动端视口调整              | false  |
 
 ### 6.2 localStorage（配置缓存）
 
@@ -262,4 +267,4 @@ DOM 特征：`<div id="acccross3" regiontype="3" class="readsrc ariaregionbutton
 
 ---
 
-*附：审查过程中实际验证过的操作 —— 声音开关切换、5 套主题循环切换、放大/缩小（1.0↔1.1）、十字线开关（元素注入/移除）、大鼠标开关、大字幕展开/收起、读屏专用模式切换、交互区（ALT+3）区域高亮与焦点、说明按钮；所有状态在审查结束后均已还原为默认值，无障碍模式保持开启（可按 Ctrl+Alt+E 退出）。*
+_附：审查过程中实际验证过的操作 —— 声音开关切换、5 套主题循环切换、放大/缩小（1.0↔1.1）、十字线开关（元素注入/移除）、大鼠标开关、大字幕展开/收起、读屏专用模式切换、交互区（ALT+3）区域高亮与焦点、说明按钮；所有状态在审查结束后均已还原为默认值，无障碍模式保持开启（可按 Ctrl+Alt+E 退出）。_

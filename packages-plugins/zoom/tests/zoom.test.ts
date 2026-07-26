@@ -1,9 +1,9 @@
 import { createA11yNow, createMemoryStorageAdapter } from '@a11y-now/core'
 import { zoom } from '@a11y-now/plugin-zoom'
-import { beforeEach, expect, it } from 'vitest'
 import type { A11yNowInstance } from '@a11y-now/types'
+import { beforeEach, expect, it } from 'vitest'
 
-let a11y: A11yNowInstance
+let a11y: A11yNowInstance = createA11yNow({ storage: null })
 
 const mountWith = (storage = createMemoryStorageAdapter()) => {
   a11y = createA11yNow({ storage }).use(zoom())
@@ -29,7 +29,8 @@ it('zooms in and out within bounds via api', () => {
 
   api?.zoomIn()
   api?.zoomIn()
-  api?.zoomIn() // hits max 1.3
+  // One step past max: clamps at 1.3.
+  api?.zoomIn()
   expect(api?.getScale()).toBe(1.3)
 
   api?.setScale(1)

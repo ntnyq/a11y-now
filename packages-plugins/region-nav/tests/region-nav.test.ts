@@ -30,7 +30,8 @@ it('scans regions, reports counts and disables empty ones', () => {
   expect(counts?.interactive).toBe(1)
   expect(counts?.service).toBe(2)
   expect(counts?.list).toBe(1)
-  expect(counts?.content).toBe(2) // main + article
+  // main + article both classify as content.
+  expect(counts?.content).toBe(2)
 
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
   const navBtn = shadow?.querySelector(
@@ -66,9 +67,7 @@ it('respects data-a11y-region override and Alt+N shortcuts', () => {
   a11y.mount()
   expect(a11y.getPlugin('region-nav')?.counts().content).toBe(1)
 
-  window.dispatchEvent(
-    new KeyboardEvent('keydown', { altKey: true, key: '6' }),
-  )
+  window.dispatchEvent(new KeyboardEvent('keydown', { altKey: true, key: '6' }))
   const tagged = document.querySelector('[data-a11y-region]') as HTMLElement
   expect(tagged.classList.contains('a11y-region-current')).toBe(true)
   a11y.unmount()

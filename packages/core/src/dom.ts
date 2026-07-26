@@ -53,7 +53,7 @@ export const createDomService = (doc: Document): DomService => {
       let el = styles.get(id)
       if (!el) {
         el = doc.createElement('style')
-        el.dataset.a11yNow = id
+        el.dataset['a11yNow'] = id
         doc.head.append(el)
         styles.set(id, el)
       }

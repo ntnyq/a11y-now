@@ -49,13 +49,15 @@ const DEFAULT_SELECTORS: Record<RegionType, string> = {
   window: 'header, [role="banner"]',
 }
 
+const isVisible = (el: Element): boolean => {
+  const rect = el.getBoundingClientRect()
+  return rect.width > 0 && rect.height > 0
+}
+
 const MARK_CLASS = 'a11y-region-current'
 const STYLE_ID = 'region-nav'
 
-const regionNavPlugin = definePlugin<
-  RegionNavOptions | undefined,
-  RegionNavApi
->({
+const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
   messages: {
     'en-US': {
       'region.content': 'Content',
@@ -82,7 +84,7 @@ const regionNavPlugin = definePlugin<
   },
   name: 'region-nav',
   setup: ctx => {
-    const selectors = { ...DEFAULT_SELECTORS, ...ctx.options?.selectors }
+    const selectors = { ...DEFAULT_SELECTORS, ...ctx.options.selectors }
     const found = new Map<RegionType, Element[]>()
     const indexes = new Map<RegionType, number>()
     const tempTabindex = new Set<Element>()
@@ -92,11 +94,6 @@ const regionNavPlugin = definePlugin<
       STYLE_ID,
       `.${MARK_CLASS} { outline: var(${pageVar('region-outline')}, 2px solid #ff6c00) !important; outline-offset: 2px; }`,
     )
-
-    const isVisible = (el: Element): boolean => {
-      const rect = el.getBoundingClientRect()
-      return rect.width > 0 && rect.height > 0
-    }
 
     const rescan = (): void => {
       found.clear()
@@ -115,11 +112,11 @@ const regionNavPlugin = definePlugin<
       for (const type of REGION_TYPES) {
         const matched = [...document.querySelectorAll(selectors[type])].filter(
           el =>
-            !host?.contains(el)
-            && !tagged.has(el)
-            && !el.hasAttribute('data-a11y-region')
-            && isVisible(el)
-            && (type !== 'list' || el.querySelectorAll(':scope > li').length >= 3),
+            !host?.contains(el) &&
+            !tagged.has(el) &&
+            !el.matches('[data-a11y-region]') &&
+            isVisible(el) &&
+            (type !== 'list' || el.querySelectorAll(':scope > li').length >= 3),
         )
         found.set(type, [...(found.get(type) ?? []), ...matched])
       }
@@ -251,8 +248,8 @@ const regionNavPlugin = definePlugin<
 
 /** Region navigation plugin. `Alt+1`..`Alt+6` enter and cycle regions. */
 export const regionNav = (
-  options?: RegionNavOptions,
-): ConfiguredPlugin<RegionNavOptions | undefined, RegionNavApi> =>
+  options: RegionNavOptions = {},
+): ConfiguredPlugin<RegionNavOptions, RegionNavApi> =>
   configurePlugin(regionNavPlugin, options)
 
 declare module '@a11y-now/types' {

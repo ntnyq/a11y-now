@@ -32,8 +32,12 @@ Shadow DOM。因此页面对 body 的缩放、主题、transform 永远影响不
 
 ```ts
 declare module '@a11y-now/types' {
-  interface A11yPluginRegistry { zoom: ZoomApi }
-  interface A11yEventMap { 'zoom:change': { scale: number } }
+  interface A11yPluginRegistry {
+    zoom: ZoomApi
+  }
+  interface A11yEventMap {
+    'zoom:change': { scale: number }
+  }
 }
 ```
 

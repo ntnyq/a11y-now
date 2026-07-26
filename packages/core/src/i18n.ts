@@ -52,10 +52,10 @@ export const createI18n = (
     },
     t: (key, params) => {
       const message =
-        tables.get(locale)?.[key]
-        ?? tables.get('zh-CN')?.[key]
-        ?? tables.get('en-US')?.[key]
-        ?? key
+        tables.get(locale)?.[key] ??
+        tables.get('zh-CN')?.[key] ??
+        tables.get('en-US')?.[key] ??
+        key
       return interpolate(message, params)
     },
   }

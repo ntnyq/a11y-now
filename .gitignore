@@ -18,3 +18,6 @@ lib-cov
 # pnpm
 .pnpm-debug.log*
 .pnpm-store
+
+# stray declaration output emitted next to sources by the dts step
+packages*/**/src/**/*.d.ts

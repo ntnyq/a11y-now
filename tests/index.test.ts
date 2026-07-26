@@ -23,7 +23,7 @@ it('full toolbar lifecycle: mount, interact across plugins, exit cleanly', () =>
   a11y.getPlugin('zoom')?.zoomIn()
   a11y.getPlugin('pin')?.toggle()
 
-  expect(document.documentElement.dataset.a11yTheme).toBe('high-contrast')
+  expect(document.documentElement.dataset['a11yTheme']).toBe('high-contrast')
   expect(a11y.getPlugin('zoom')?.getScale()).toBe(1.1)
 
   // reset restores every plugin at once
@@ -38,7 +38,7 @@ it('full toolbar lifecycle: mount, interact across plugins, exit cleanly', () =>
 
 it('shortcuts from all plugins coexist without conflicts', () => {
   const a11y = createA11yNow({ storage: null })
-  expect(() => a11y.mount()).not.toThrowError()
+  expect(() => a11y.mount()).not.toThrow()
   expect(a11y.shortcuts.list().length).toBeGreaterThan(12)
   a11y.unmount()
 })

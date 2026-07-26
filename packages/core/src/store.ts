@@ -5,6 +5,12 @@ import type {
   StorageAdapter,
 } from '@a11y-now/types'
 
+const isStateValue = (value: unknown): value is StateValue =>
+  value === null ||
+  typeof value === 'boolean' ||
+  typeof value === 'number' ||
+  typeof value === 'string'
+
 /**
  * Create the plugin-scoped reactive persisted state.
  *
@@ -20,40 +26,43 @@ export const createScopedState = <T extends StateDefaults>(
 ): ScopedState<T> => {
   const storageKey = `${prefix}:plugin:${name}`
   const values: Record<string, StateValue> = { ...defaults }
-  const subscribers = new Set<(key: keyof T & string, value: T[keyof T]) => void>()
+  const subscribers = new Set<
+    (key: keyof T & string, value: T[keyof T]) => void
+  >()
 
-  if (storage) {
-    const raw = storage.get(storageKey)
-    if (raw != null) {
-      try {
-        const parsed: unknown = JSON.parse(raw)
-        if (parsed && typeof parsed === 'object') {
-          for (const key of Object.keys(defaults)) {
-            if (key in (parsed as Record<string, unknown>)) {
-              const value = (parsed as Record<string, unknown>)[key]
-              if (
-                value === null
-                || typeof value === 'boolean'
-                || typeof value === 'number'
-                || typeof value === 'string'
-              ) {
-                values[key] = value
-              }
-            }
-          }
-        }
-      } catch {
-        // Corrupted storage: fall back to defaults.
+  const restore = (): void => {
+    const raw = storage?.get(storageKey)
+    if (raw === null || raw === undefined) {
+      return
+    }
+    let parsed: unknown = null
+    try {
+      parsed = JSON.parse(raw)
+    } catch {
+      // Corrupted storage: fall back to defaults.
+      return
+    }
+    if (!parsed || typeof parsed !== 'object') {
+      return
+    }
+    const record = parsed as Record<string, unknown>
+    for (const key of Object.keys(defaults)) {
+      const value = record[key]
+      if (key in record && isStateValue(value)) {
+        values[key] = value
       }
     }
   }
+  restore()
 
   const persist = (): void => {
     storage?.set(storageKey, JSON.stringify(values))
   }
 
   const notify = (key: keyof T & string): void => {
-    for (const fn of [...subscribers]) {
+    // Snapshot: subscribers may unsubscribe while we iterate.
+    const snapshot = [...subscribers]
+    for (const fn of snapshot) {
       fn(key, values[key] as T[keyof T])
     }
   }

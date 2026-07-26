@@ -20,7 +20,7 @@ const ICON =
   '<svg viewBox="0 0 24 24"><path d="M11 2h2v9h9v2h-9v9h-2v-9H2v-2h9V2Z"/></svg>'
 
 const crosshairPlugin = definePlugin<
-  CrosshairOptions | undefined,
+  CrosshairOptions,
   CrosshairApi,
   CrosshairState
 >({
@@ -38,7 +38,7 @@ const crosshairPlugin = definePlugin<
   },
   name: 'crosshair',
   setup: ctx => {
-    const thickness = ctx.options?.thickness ?? 2
+    const thickness = ctx.options.thickness ?? 2
     let horizontal: HTMLElement | null = null
     let vertical: HTMLElement | null = null
     let frame = 0
@@ -148,8 +148,8 @@ const crosshairPlugin = definePlugin<
 
 /** Reading crosshair plugin. `Ctrl+Alt+N`. */
 export const crosshair = (
-  options?: CrosshairOptions,
-): ConfiguredPlugin<CrosshairOptions | undefined, CrosshairApi, CrosshairState> =>
+  options: CrosshairOptions = {},
+): ConfiguredPlugin<CrosshairOptions, CrosshairApi, CrosshairState> =>
   configurePlugin(crosshairPlugin, options)
 
 declare module '@a11y-now/types' {

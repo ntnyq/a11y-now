@@ -4,7 +4,11 @@ import {
   matchShortcut,
   normalizeShortcut,
 } from '@a11y-now/shared'
-import type { ShortcutDef, ShortcutInfo, ShortcutService } from '@a11y-now/types'
+import type {
+  ShortcutDef,
+  ShortcutInfo,
+  ShortcutService,
+} from '@a11y-now/types'
 
 interface Registration extends ShortcutDef {
   description: string | (() => string)
@@ -52,19 +56,25 @@ export const createShortcutCenter = (): ShortcutCenter => {
       }
     },
     format: formatShortcut,
-    list: (): ShortcutInfo[] =>
-      [...registrations.values()].map(({ description, handler, ...def }) => ({
-        ...def,
-        description:
-          typeof description === 'function' ? description() : description,
-      })),
+    list: (): ShortcutInfo[] => {
+      const infos: ShortcutInfo[] = []
+      for (const registration of registrations.values()) {
+        const { description, handler: _handler, ...def } = registration
+        infos.push({
+          ...def,
+          description:
+            typeof description === 'function' ? description() : description,
+        })
+      }
+      return infos
+    },
     register: def => {
       const key = normalizeShortcut(def)
       const existing = registrations.get(key)
       if (existing && existing.id !== def.id) {
         throw new Error(
-          `[a11y-now] shortcut conflict: "${formatShortcut(def)}" is `
-          + `registered by both "${existing.id}" and "${def.id}"`,
+          `[a11y-now] shortcut conflict: "${formatShortcut(def)}" is ` +
+            `registered by both "${existing.id}" and "${def.id}"`,
         )
       }
       registrations.set(key, def)

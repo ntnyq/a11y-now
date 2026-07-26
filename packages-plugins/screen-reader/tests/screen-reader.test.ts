@@ -8,7 +8,8 @@ beforeEach(() => {
 })
 
 it('mutes speech, marks the page and hides visual-aid buttons', () => {
-  const speak = vi.fn()
+  const speak =
+    vi.fn<(text: string, options: { locale: string; rate: number }) => void>()
   const a11y = createA11yNow({
     speechEngine: { available: true, cancel: () => {}, speak },
     storage: null,
@@ -32,7 +33,7 @@ it('mutes speech, marks the page and hides visual-aid buttons', () => {
 
   const callsBefore = speak.mock.calls.length
   a11y.speech.speak('should be muted')
-  expect(speak.mock.calls.length).toBe(callsBefore)
+  expect(speak).toHaveBeenCalledTimes(callsBefore)
 
   api?.toggle()
   expect(zoomBtn.hidden).toBe(false)

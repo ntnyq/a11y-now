@@ -1,10 +1,4 @@
 import { css, warn } from '@a11y-now/shared'
-import {
-  DEFAULT_TOOLBAR_TOKENS,
-  GLOBAL_SKIP_SELECTORS,
-  pageVar,
-  toolbarVar,
-} from './tokens'
 import type {
   A11yTheme,
   DomService,
@@ -13,6 +7,12 @@ import type {
   ThemeService,
   ToolbarTokens,
 } from '@a11y-now/types'
+import {
+  DEFAULT_TOOLBAR_TOKENS,
+  GLOBAL_SKIP_SELECTORS,
+  pageVar,
+  toolbarVar,
+} from './tokens'
 
 export interface ThemeCenter extends ThemeService {
   /** Bind the shadow host once the toolbar is mounted. */
@@ -21,6 +21,23 @@ export interface ThemeCenter extends ThemeService {
 }
 
 const PAGE_STYLE_ID = 'theme-page'
+
+const buildPageStyle = (theme: A11yTheme): string => {
+  const skip = [...GLOBAL_SKIP_SELECTORS, ...(theme.skipSelectors ?? [])]
+  const not = skip.map(selector => `:not(${selector})`).join('')
+  return css`
+    html[data-a11y-theme] body,
+    html[data-a11y-theme] body *${not} {
+      background-color: var(${pageVar('bg')}) !important;
+      color: var(${pageVar('fg')}) !important;
+      border-color: var(${pageVar('fg')}) !important;
+    }
+    html[data-a11y-theme] a,
+    html[data-a11y-theme] a * {
+      color: var(${pageVar('link')}) !important;
+    }
+  `
+}
 
 /**
  * Theme switching is a pure CSS-variable operation:
@@ -55,24 +72,7 @@ export const createThemeService = (
     appliedPageKeys.clear()
     disposePageStyle?.()
     disposePageStyle = null
-    delete doc.documentElement.dataset.a11yTheme
-  }
-
-  const buildPageStyle = (theme: A11yTheme): string => {
-    const skip = [...GLOBAL_SKIP_SELECTORS, ...(theme.skipSelectors ?? [])]
-    const not = skip.map(selector => `:not(${selector})`).join('')
-    return css`
-      html[data-a11y-theme] body,
-      html[data-a11y-theme] body *${not} {
-        background-color: var(${pageVar('bg')}) !important;
-        color: var(${pageVar('fg')}) !important;
-        border-color: var(${pageVar('fg')}) !important;
-      }
-      html[data-a11y-theme] a,
-      html[data-a11y-theme] a * {
-        color: var(${pageVar('link')}) !important;
-      }
-    `
+    delete doc.documentElement.dataset['a11yTheme']
   }
 
   const apply = (name: string): void => {
@@ -95,7 +95,7 @@ export const createThemeService = (
         dom.setPageVar(pageVar(key as keyof PageTokens), value)
         appliedPageKeys.add(key as keyof PageTokens)
       }
-      doc.documentElement.dataset.a11yTheme = name
+      doc.documentElement.dataset['a11yTheme'] = name
       disposePageStyle = dom.injectStyle(PAGE_STYLE_ID, buildPageStyle(theme))
     }
     events.emit('theme:change', { theme: name })

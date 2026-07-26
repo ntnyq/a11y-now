@@ -6,7 +6,7 @@
 import { A11yNowProvider, useA11yNow } from '@a11y-now/react'
 import { fullPreset } from 'a11y-now'
 
-<A11yNowProvider options={{ ...fullPreset() }}>
+;<A11yNowProvider options={{ ...fullPreset() }}>
   <App />
 </A11yNowProvider>
 
