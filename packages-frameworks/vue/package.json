@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/vue",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a11y-now Vue 3 integration: app plugin and composables",
   "keywords": [
     "a11y",

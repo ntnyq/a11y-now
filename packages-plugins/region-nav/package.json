@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-region-nav",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a11y-now plugin: landmark region navigation via Alt+1~6",
   "keywords": [
     "a11y",

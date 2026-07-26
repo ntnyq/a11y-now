@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/shared",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Internal shared utilities for the a11y-now accessibility toolbar",
   "keywords": [
     "a11y",

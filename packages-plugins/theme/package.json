@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-theme",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a11y-now plugin: color scheme switcher cycling registered themes",
   "keywords": [
     "a11y",
