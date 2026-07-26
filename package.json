@@ -35,12 +35,14 @@
     "lint": "oxlint",
     "prepare": "husky",
     "publint": "pnpm -r --filter './packages/*' --filter './packages-plugins/*' --filter './packages-themes/*' --filter './packages-frameworks/*' exec publint --strict",
+    "publish:new": "node scripts/publish-new-packages.mjs",
     "release": "run-s release:check release:version",
     "release:check": "run-s format:check lint typecheck build test publint attw",
     "release:version": "bumpp -r",
     "test": "vitest",
     "test:browser": "vitest run --config vitest.browser.config.ts",
     "test:coverage": "vitest --coverage",
+    "trust:new": "node scripts/trust-new-packages.mjs",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
