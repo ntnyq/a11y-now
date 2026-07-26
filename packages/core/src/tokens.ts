@@ -22,6 +22,22 @@ export const DEFAULT_TOOLBAR_TOKENS: ToolbarTokens = {
   'z-index': '2147483000',
 }
 
+/**
+ * Dark-scheme overrides for the toolbar chrome, applied via
+ * `:host([data-a11y-scheme='dark'])`. Every text/background pair passes
+ * WCAG AA on `color-bg` (fg 13.3:1, accent 7.6:1, active 7.3:1).
+ */
+export const DARK_TOOLBAR_TOKENS: Partial<ToolbarTokens> = {
+  'color-accent': '#7ab8f5',
+  'color-bg': '#1e2227',
+  'color-border': '#3c434b',
+  'color-btn-active-bg': '#153a5e',
+  'color-btn-active-fg': '#a6d1fa',
+  'color-btn-hover-bg': '#2b3138',
+  'color-disabled-fg': '#7b828a',
+  'color-fg': '#e8eaed',
+}
+
 /** Page token defaults, aligned with the audited reference toolbar. */
 export const DEFAULT_PAGE_TOKENS: PageTokens = {
   bg: '',

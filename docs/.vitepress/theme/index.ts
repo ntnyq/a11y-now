@@ -31,10 +31,11 @@ export default {
       'inset-inline-end: 16px',
       'inline-size: 44px',
       'block-size: 44px',
-      'border: 1px solid #d0d3d6',
+      // Longhands on purpose: the `border` shorthand would reset
+      // border-color to currentcolor inline, beating the stylesheet below.
+      'border-width: 1px',
+      'border-style: solid',
       'border-radius: 50%',
-      'background: #ffffff',
-      'color: #1f2329',
       'font-size: 22px',
       'line-height: 1',
       'cursor: pointer',
@@ -42,6 +43,15 @@ export default {
       // Just below the toolbar itself so its dialogs stay on top.
       'z-index: 2147482999',
     ].join(';')
+
+    // Colors live in a stylesheet so the trigger follows VitePress dark
+    // mode, matching the toolbar's own scheme tokens.
+    const triggerStyle = document.createElement('style')
+    triggerStyle.textContent = [
+      `#${TRIGGER_ID} { border-color: #d0d3d6; background: #ffffff; color: #1f2329; }`,
+      `html.dark #${TRIGGER_ID} { border-color: #3c434b; background: #1e2227; color: #e8eaed; }`,
+    ].join('\n')
+    document.head.append(triggerStyle)
 
     const refresh = (): void => {
       const en = /^en\b/iu.test(document.documentElement.lang)

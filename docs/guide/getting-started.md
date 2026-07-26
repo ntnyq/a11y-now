@@ -95,6 +95,25 @@ instance.shortcuts.setOverride('zoom-in', { key: '0' })
 
 覆写后的组合会自动出现在「操作说明」面板;与其他快捷键冲突时立即抛错。
 
+## 明暗配色
+
+工具栏自身默认 `colorScheme: 'auto'`——跟随宿主页面的明暗:依次探测显式的
+`color-scheme` 计算值、`<html>`/`<body>` 上的 `dark`/`light` class 与
+`data-theme` / `data-color-mode` / `data-color-scheme` 标记、页面背景亮度,
+最后回退到系统 `prefers-color-scheme`。站点切换主题(如 VitePress 的
+`.dark` class)会实时跟随,零配置。也可固定或在运行时切换:
+
+```ts
+createA11yNow({ colorScheme: 'dark' }).mount() // 固定暗色
+
+instance.setColorScheme('light') // 'light' | 'dark' | 'auto'
+instance.resolvedColorScheme // 当前生效值:'light' | 'dark'
+instance.events.on('scheme:change', ({ scheme }) => console.log(scheme))
+```
+
+暗色工具栏的全部文本/背景对比度均通过 WCAG AA;应用任意无障碍主题
+(如深蓝白)时,主题 token 始终优先于明暗方案。
+
 ## 界面语言
 
 工具栏内置简体中文与英文文案,默认跟随 `<html lang>`(`en*` 匹配英文、

@@ -12,6 +12,7 @@ import { createEventBus } from './events'
 import { createI18n } from './i18n'
 import { normalizeInput, sortPlugins } from './plugin-order'
 import type { Registered } from './plugin-order'
+import { createSchemeController } from './scheme'
 import { createShortcutCenter } from './shortcuts'
 import {
   createSilentEngine,
@@ -41,6 +42,7 @@ export const createA11yNow = (
 
   const events = createEventBus()
   const i18n = createI18n(locale, options.messages)
+  const scheme = createSchemeController(doc, events, options.colorScheme)
   const shortcuts = createShortcutCenter(options.shortcutOverrides)
   const engine =
     options.speechEngine ??
@@ -76,8 +78,12 @@ export const createA11yNow = (
   }
 
   const instance: A11yNowInstance = {
+    get colorScheme() {
+      return scheme.preference()
+    },
     destroy: () => {
       instance.unmount()
+      scheme.destroy()
       shortcuts.destroy()
       speech.destroy()
     },
@@ -116,6 +122,7 @@ export const createA11yNow = (
 
       toolbar = createToolbar(shadow, i18n, speech)
       themes.attach(host)
+      scheme.attach(host)
 
       kernelDisposers.push(
         events.on('screen-reader:change', ({ enabled: srEnabled }) => {
@@ -155,6 +162,7 @@ export const createA11yNow = (
           events,
           i18n,
           options: pluginOptions,
+          scheme,
           shortcuts,
           speech,
           state: scoped as ScopedState<StateDefaults>,
@@ -181,6 +189,12 @@ export const createA11yNow = (
         scoped.reset()
       }
       events.emit('state:reset', {})
+    },
+    get resolvedColorScheme() {
+      return scheme.resolved()
+    },
+    setColorScheme: value => {
+      scheme.set(value)
     },
     setEnabled: value => {
       enabled = value
@@ -223,6 +237,7 @@ export const createA11yNow = (
       apis.clear()
       toolbar?.destroy()
       toolbar = null
+      scheme.attach(null)
       themes?.destroy()
       dom?.cleanup()
       host?.remove()

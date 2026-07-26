@@ -11,6 +11,8 @@ export { createEventBus } from './events'
 export { createA11yNow } from './kernel'
 export { createRemoteTTSEngine } from './remote-tts'
 export type { RemoteTTSContext, RemoteTTSEngineOptions } from './remote-tts'
+export { createSchemeController, SCHEME_ATTR } from './scheme'
+export type { SchemeController } from './scheme'
 export { createShortcutCenter } from './shortcuts'
 export {
   createSilentEngine,
@@ -25,6 +27,7 @@ export {
 } from './store'
 export { createThemeService } from './theme'
 export {
+  DARK_TOOLBAR_TOKENS,
   DEFAULT_PAGE_TOKENS,
   DEFAULT_TOOLBAR_TOKENS,
   GLOBAL_SKIP_SELECTORS,

@@ -1,9 +1,19 @@
 import { css } from '@a11y-now/shared'
-import { DEFAULT_TOOLBAR_TOKENS, toolbarVar } from './tokens'
+import type { ToolbarTokens } from '@a11y-now/types'
+import { SCHEME_ATTR } from './scheme'
+import {
+  DARK_TOOLBAR_TOKENS,
+  DEFAULT_TOOLBAR_TOKENS,
+  toolbarVar,
+} from './tokens'
 
-const tokenDefaults = Object.entries(DEFAULT_TOOLBAR_TOKENS)
-  .map(([key, value]) => `${toolbarVar(key as never)}: ${value};`)
-  .join('\n  ')
+const tokenLines = (tokens: Partial<ToolbarTokens>): string =>
+  Object.entries(tokens)
+    .map(([key, value]) => `${toolbarVar(key as never)}: ${value};`)
+    .join('\n  ')
+
+const tokenDefaults = tokenLines(DEFAULT_TOOLBAR_TOKENS)
+const darkTokenDefaults = tokenLines(DARK_TOOLBAR_TOKENS)
 
 /**
  * Toolbar base stylesheet. Hard rule: components reference semantic
@@ -21,6 +31,10 @@ export const baseStyles = (): string => css`
     z-index: var(--a11y-z-index);
     font-family: system-ui, sans-serif;
     font-size: var(--a11y-font-size);
+  }
+
+  :host([${SCHEME_ATTR}='dark']) {
+    ${darkTokenDefaults}
   }
 
   @media (prefers-reduced-motion: reduce) {

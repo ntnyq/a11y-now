@@ -24,3 +24,8 @@ if (!wasExited()) {
     themes: preset.themes,
   }).mount()
 }
+
+// Site dark-mode demo: the toolbar chrome follows the `dark` class live.
+document.querySelector('#mode-toggle')?.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark')
+})

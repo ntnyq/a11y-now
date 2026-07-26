@@ -8,6 +8,29 @@
 /** Locale codes. Extendable: any BCP 47 string is accepted. */
 export type LocaleCode = 'en-US' | 'zh-CN' | (string & Record<never, never>)
 
+/** Color scheme preference for the toolbar chrome. */
+export type ColorSchemePreference = 'auto' | 'dark' | 'light'
+
+/** The scheme actually in effect once `auto` is resolved. */
+export type ResolvedColorScheme = 'dark' | 'light'
+
+/**
+ * Toolbar chrome color scheme. `auto` (the default) follows the host page:
+ * an explicit `color-scheme`, a `dark`/`light` class or `data-theme` /
+ * `data-color-mode` / `data-color-scheme` marker on `<html>`/`<body>`, the
+ * page background luminance, then `prefers-color-scheme` — re-resolved live
+ * whenever those signals change. Applied a11y themes still override the
+ * scheme's toolbar tokens.
+ */
+export interface ColorSchemeService {
+  /** The configured preference (`auto` unless pinned). */
+  preference: () => ColorSchemePreference
+  /** The scheme currently in effect. */
+  resolved: () => ResolvedColorScheme
+  /** Change the preference; `auto` re-follows the host page and system. */
+  set: (scheme: ColorSchemePreference) => void
+}
+
 /** Flat message table for one locale. */
 export type A11yMessages = Record<string, string>
 
@@ -130,6 +153,8 @@ export interface A11yEventMap {
   /** Request the kernel to reset all plugin state (used by the reset plugin). */
   'a11y:reset': Record<string, never>
   'plugin:activated': { name: string }
+  /** The resolved toolbar color scheme changed (auto detection or API). */
+  'scheme:change': { scheme: ResolvedColorScheme }
   'screen-reader:change': { enabled: boolean }
   'speech:enabled': { enabled: boolean }
   'speech:speak': { text: string }

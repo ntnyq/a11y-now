@@ -4,9 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>a11y-now playground</title>
+    <style>
+      html.dark body {
+        background: #14181d;
+        color: #e6e8eb;
+      }
+      html.dark a {
+        color: #8ec3f2;
+      }
+    </style>
   </head>
   <body>
-    <header><h1>a11y-now Playground</h1></header>
+    <header>
+      <h1>a11y-now Playground</h1>
+      <button id="mode-toggle" type="button">🌓 切换站点明暗</button>
+    </header>
     <nav><a href="#features">功能</a> <a href="#docs">文档</a></nav>
     <main>
       <article id="features">

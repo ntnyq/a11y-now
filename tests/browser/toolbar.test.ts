@@ -5,7 +5,7 @@
  */
 import { createA11yNow } from 'a11y-now'
 import type { A11yNowInstance } from 'a11y-now'
-import { afterEach, beforeEach, expect, it } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 let a11y: A11yNowInstance | null = null
 
@@ -14,6 +14,8 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
   // The suite models a Chinese page; label queries below rely on it.
   document.documentElement.lang = 'zh-CN'
+  document.documentElement.className = ''
+  document.body.removeAttribute('style')
   document.body.innerHTML = '<main><h1>标题</h1><p>正文段落</p></main>'
 })
 
@@ -154,4 +156,38 @@ it('renders the English toolbar on an English page', () => {
   expect(toolbar?.getAttribute('aria-label')).toBe('Accessibility toolbar')
   expect(buttons().some(el => el.textContent?.includes('Help'))).toBe(true)
   expect(buttons().some(el => el.textContent?.includes('Exit'))).toBe(true)
+})
+
+it('follows the host dark switch with real computed chrome styles', async () => {
+  // Pin a light page first so the test is independent of the runner's OS.
+  document.body.style.backgroundColor = 'rgb(255, 255, 255)'
+  a11y = createA11yNow({ storage: null })
+  a11y.mount()
+  const toolbar = shadowRoot().querySelector('.toolbar') as HTMLElement
+  expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(255, 255, 255)')
+  expect(a11y.resolvedColorScheme).toBe('light')
+
+  document.documentElement.classList.add('dark')
+  await vi.waitFor(() => {
+    expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(30, 34, 39)')
+  })
+  expect(a11y.resolvedColorScheme).toBe('dark')
+  expect(getComputedStyle(toolbar).color).toBe('rgb(232, 234, 237)')
+
+  document.documentElement.classList.remove('dark')
+  await vi.waitFor(() => {
+    expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(255, 255, 255)')
+  })
+  expect(a11y.resolvedColorScheme).toBe('light')
+})
+
+it('setColorScheme pins the chrome regardless of the page', () => {
+  a11y = createA11yNow({ colorScheme: 'dark', storage: null })
+  a11y.mount()
+  const toolbar = shadowRoot().querySelector('.toolbar') as HTMLElement
+  expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(30, 34, 39)')
+  expect(a11y.colorScheme).toBe('dark')
+
+  a11y.setColorScheme('light')
+  expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(255, 255, 255)')
 })

@@ -99,6 +99,27 @@ instance.shortcuts.setOverride('zoom-in', { key: '0' })
 Overridden combos show up in the Help panel automatically; a collision
 with another shortcut throws immediately.
 
+## Light & dark scheme
+
+The toolbar chrome defaults to `colorScheme: 'auto'` and follows the host
+page: it probes an explicitly resolved `color-scheme`, `dark`/`light`
+class or `data-theme` / `data-color-mode` / `data-color-scheme` markers on
+`<html>`/`<body>`, the effective page background luminance, and finally
+falls back to `prefers-color-scheme`. When the site flips its theme (e.g.
+VitePress toggling the `.dark` class) the toolbar follows live — zero
+config. Pin it or switch at runtime:
+
+```ts
+createA11yNow({ colorScheme: 'dark' }).mount() // pin dark
+
+instance.setColorScheme('light') // 'light' | 'dark' | 'auto'
+instance.resolvedColorScheme // what is in effect: 'light' | 'dark'
+instance.events.on('scheme:change', ({ scheme }) => console.log(scheme))
+```
+
+Every text/background pair of the dark chrome passes WCAG AA; applying any
+a11y theme (deep-blue etc.) still overrides the scheme's toolbar tokens.
+
 ## UI language
 
 The toolbar ships English and Simplified Chinese out of the box and follows

@@ -4,7 +4,7 @@ layout: home
 hero:
   name: a11y-now
   text: 网页无障碍工具栏
-  tagline: 插件化 · 可主题化 · 多框架 · 类型安全 · 卸载零残留
+  tagline: 插件化 · 可主题化 · 明暗自适应 · 多框架 · 类型安全 · 卸载零残留
   actions:
     - theme: brand
       text: 快速开始
@@ -19,7 +19,7 @@ features:
   - title: 插件化内核
     details: 十二个官方功能全部以插件实现，内核零业务；第三方插件遵循同一契约。
   - title: CSS 变量主题
-    details: 换肤只改变量值、不重建样式表；主题是零运行时的纯数据包。
+    details: 换肤只改变量值、不重建样式表；主题是零运行时的纯数据包；工具栏明暗跟随宿主站点自动切换。
   - title: 多框架支持
     details: Vue / React / Svelte / Solid 适配包与 <a11y-now> Web Component。
   - title: 类型安全

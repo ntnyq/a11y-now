@@ -1,9 +1,12 @@
 import type {
   A11yMessages,
+  ColorSchemePreference,
+  ColorSchemeService,
   DomService,
   EventBus,
   I18nService,
   LocaleCode,
+  ResolvedColorScheme,
   ScopedState,
   ShortcutDef,
   ShortcutService,
@@ -100,6 +103,7 @@ export interface PluginContext<
   events: EventBus
   i18n: I18nService
   options: Options
+  scheme: ColorSchemeService
   shortcuts: ShortcutService
   speech: SpeechService
   state: ScopedState<State>
@@ -147,6 +151,15 @@ export type A11yPluginInput =
 
 export interface A11yNowOptions {
   /**
+   * Color scheme of the toolbar chrome (default `'auto'`): follow the host
+   * page — explicit `color-scheme`, `dark`/`light` class or `data-theme` /
+   * `data-color-mode` / `data-color-scheme` markers on `<html>`/`<body>`,
+   * then the page background luminance, then `prefers-color-scheme` — and
+   * re-resolve live when those signals change. `'light'` / `'dark'` pin the
+   * scheme. Applied a11y themes override the scheme's toolbar tokens.
+   */
+  colorScheme?: ColorSchemePreference
+  /**
    * Whether the toolbar starts enabled (default `true`). When `false`,
    * `mount()` only records the intent — the toolbar appears once
    * `setEnabled(true)` / `toggleEnabled()` is called. A choice the user made
@@ -174,6 +187,8 @@ export interface A11yNowOptions {
 }
 
 export interface A11yNowInstance {
+  /** The configured color scheme preference. */
+  readonly colorScheme: ColorSchemePreference
   destroy: () => void
   /** Effective enabled flag — the persisted user choice over the option. */
   readonly enabled: boolean
@@ -186,6 +201,13 @@ export interface A11yNowInstance {
   mount: (target?: Element) => void
   /** Reset all plugin state to defaults. */
   resetAll: () => void
+  /** The toolbar color scheme currently in effect. */
+  readonly resolvedColorScheme: ResolvedColorScheme
+  /**
+   * Change the color scheme preference; `'auto'` re-follows the host page
+   * and system. Emits `scheme:change` when the resolved scheme flips.
+   */
+  setColorScheme: (scheme: ColorSchemePreference) => void
   /** Enable or disable the toolbar and persist the choice. */
   setEnabled: (enabled: boolean) => void
   /**

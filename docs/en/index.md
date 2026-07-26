@@ -4,7 +4,7 @@ layout: home
 hero:
   name: a11y-now
   text: Web accessibility toolbar
-  tagline: Pluggable · Themeable · Framework-agnostic · Type-safe · Zero-residue unmount
+  tagline: Pluggable · Themeable · Auto light/dark · Framework-agnostic · Type-safe · Zero-residue unmount
   actions:
     - theme: brand
       text: Getting started
@@ -19,7 +19,7 @@ features:
   - title: Plugin kernel
     details: All twelve official features are plugins; the kernel carries zero feature code, and third-party plugins follow the same contract.
   - title: CSS-variable themes
-    details: Switching themes only rewrites variable values — no stylesheet rebuilds. A theme is a zero-runtime data package.
+    details: Switching themes only rewrites variable values — no stylesheet rebuilds. A theme is a zero-runtime data package, and the toolbar chrome follows the host site's light/dark mode.
   - title: Framework adapters
     details: Vue / React / Svelte / Solid adapters plus an <a11y-now> Web Component, with Nuxt and Next.js integrations.
   - title: Type safety

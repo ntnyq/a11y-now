@@ -5,10 +5,11 @@
 [![NPM DOWNLOADS](https://img.shields.io/npm/dy/a11y-now.svg)](https://www.npmjs.com/package/a11y-now)
 [![LICENSE](https://img.shields.io/github/license/ntnyq/a11y-now.svg)](https://github.com/ntnyq/a11y-now/blob/main/LICENSE)
 
-网页无障碍工具栏：插件化 · 可主题化 · 多框架 · 类型安全 · 卸载零残留。
+网页无障碍工具栏：插件化 · 可主题化 · 明暗自适应 · 多框架 · 类型安全 · 卸载零残留。
 
-Accessibility toolbar for any website — pluggable, themeable,
-framework-agnostic, type-safe, and it leaves no trace on unmount.
+Accessibility toolbar for any website — pluggable, themeable, auto
+light/dark, framework-agnostic, type-safe, and it leaves no trace on
+unmount.
 
 Docs: [简体中文](https://a11y-now.ntnyq.dev/) · [English](https://a11y-now.ntnyq.dev/en/)
 
