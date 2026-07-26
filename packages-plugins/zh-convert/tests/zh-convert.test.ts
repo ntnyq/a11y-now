@@ -14,6 +14,7 @@ beforeEach(() => {
  */
 const until = async (predicate: () => boolean): Promise<void> => {
   for (let i = 0; i < 100 && !predicate(); i++) {
+    // eslint-disable-next-line no-await-in-loop -- sequential polling by design
     await delay(5)
   }
 }
