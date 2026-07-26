@@ -58,6 +58,26 @@ if (!wasExited()) {
 }
 ```
 
+## Start disabled, toggle with a trigger
+
+With `enabled: false`, `mount()` only records the intent without attaching
+anything; pair it with `toggleEnabled()` for the "floating button expands
+the toolbar" integration (this docs site works exactly that way). The
+user's choice persists and takes precedence over the `enabled` default;
+the toolbar's own Exit button also persists the disabled state, and the
+trigger revives it:
+
+```ts
+import { createA11yNow } from 'a11y-now'
+
+const a11y = createA11yNow({ enabled: false })
+a11y.mount() // hidden on first visit; shown if the user enabled it before
+
+trigger.addEventListener('click', () => {
+  a11y.toggleEnabled() // show ⇄ hide, returns the new visibility
+})
+```
+
 ## UI language
 
 The toolbar ships English and Simplified Chinese out of the box and follows

@@ -33,6 +33,8 @@ export interface ToolbarTokens {
   radius: string
   'outline-width': string
   'toolbar-height': string
+  /** `justify-content` of the toolbar row, e.g. `center` / `flex-start`. */
+  'toolbar-justify': string
   transition: string
   'z-index': string
 }
@@ -143,6 +145,13 @@ export type A11yPluginInput =
 /* eslint-enable typescript/no-explicit-any */
 
 export interface A11yNowOptions {
+  /**
+   * Whether the toolbar starts enabled (default `true`). When `false`,
+   * `mount()` only records the intent — the toolbar appears once
+   * `setEnabled(true)` / `toggleEnabled()` is called. A choice the user made
+   * through those methods is persisted and takes precedence over this flag.
+   */
+  enabled?: boolean
   /** Initial locale, defaults to the document language or `zh-CN`. */
   locale?: LocaleCode
   /** Extra message tables merged over the built-ins. */
@@ -159,6 +168,8 @@ export interface A11yNowOptions {
 
 export interface A11yNowInstance {
   destroy: () => void
+  /** Effective enabled flag — the persisted user choice over the option. */
+  readonly enabled: boolean
   readonly events: EventBus
   getPlugin: <K extends keyof A11yPluginRegistry>(
     name: K,
@@ -168,6 +179,14 @@ export interface A11yNowInstance {
   mount: (target?: Element) => void
   /** Reset all plugin state to defaults. */
   resetAll: () => void
+  /** Enable or disable the toolbar and persist the choice. */
+  setEnabled: (enabled: boolean) => void
+  /**
+   * Show the toolbar if hidden, hide it if shown (based on the actual
+   * mounted state, so it also revives a toolbar closed via the exit
+   * plugin). Returns the new mounted state.
+   */
+  toggleEnabled: () => boolean
   readonly shortcuts: ShortcutService
   readonly speech: SpeechService
   readonly themes: ThemeService

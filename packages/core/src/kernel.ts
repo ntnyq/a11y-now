@@ -3,8 +3,6 @@ import { isBrowser, normalizeLocale, warn } from '@a11y-now/shared'
 import type {
   A11yNowInstance,
   A11yNowOptions,
-  A11yPlugin,
-  A11yPluginInput,
   A11yPluginRegistry,
   ScopedState,
   StateDefaults,
@@ -12,6 +10,8 @@ import type {
 import { createDomService } from './dom'
 import { createEventBus } from './events'
 import { createI18n } from './i18n'
+import { normalizeInput, sortPlugins } from './plugin-order'
+import type { Registered } from './plugin-order'
 import { createShortcutCenter } from './shortcuts'
 import {
   createSilentEngine,
@@ -24,54 +24,6 @@ import { createThemeService } from './theme'
 import { createToolbar } from './toolbar'
 
 const HOST_TAG = 'a11y-now-host'
-
-/* eslint-disable typescript/no-explicit-any -- heterogeneous plugin registry */
-interface Registered {
-  options: any
-  plugin: A11yPlugin<any, any, any>
-}
-/* eslint-enable typescript/no-explicit-any */
-
-const normalizeInput = (input: A11yPluginInput): Registered =>
-  'plugin' in input
-    ? { options: input.options, plugin: input.plugin }
-    : { options: undefined, plugin: input }
-
-/** Topological sort by `dependsOn`, keeping registration order otherwise. */
-const sortPlugins = (registered: Registered[]): Registered[] => {
-  const byName = new Map(registered.map(item => [item.plugin.name, item]))
-  const sorted: Registered[] = []
-  const visited = new Set<string>()
-  const visiting = new Set<string>()
-
-  const visit = (item: Registered): void => {
-    const { name } = item.plugin
-    if (visited.has(name)) {
-      return
-    }
-    if (visiting.has(name)) {
-      throw new Error(`[a11y-now] circular plugin dependency around "${name}"`)
-    }
-    visiting.add(name)
-    for (const dep of item.plugin.dependsOn ?? []) {
-      const found = byName.get(dep)
-      if (!found) {
-        throw new Error(
-          `[a11y-now] plugin "${name}" depends on missing plugin "${dep}"`,
-        )
-      }
-      visit(found)
-    }
-    visiting.delete(name)
-    visited.add(name)
-    sorted.push(item)
-  }
-
-  for (const item of registered) {
-    visit(item)
-  }
-  return sorted
-}
 
 export const createA11yNow = (
   options: A11yNowOptions = {},
@@ -104,6 +56,15 @@ export const createA11yNow = (
   const kernelDisposers: (() => void)[] = []
   const scopedStates = new Map<string, ScopedState>()
 
+  const enabledKey = `${prefix}:enabled`
+  const persistedEnabled = storage?.get(enabledKey)
+  let enabled =
+    persistedEnabled === null || persistedEnabled === undefined
+      ? (options.enabled ?? true)
+      : persistedEnabled === 'true'
+  /** Last requested mount target, replayed when the toolbar is re-enabled. */
+  let savedTarget: Element | null = null
+
   let mounted = false
   let host: HTMLElement | null = null
   let dom = doc ? createDomService(doc) : null
@@ -120,6 +81,9 @@ export const createA11yNow = (
       shortcuts.destroy()
       speech.destroy()
     },
+    get enabled() {
+      return enabled
+    },
     events,
     getPlugin: <K extends keyof A11yPluginRegistry>(name: K) =>
       apis.get(name as string) as A11yPluginRegistry[K] | undefined,
@@ -128,7 +92,8 @@ export const createA11yNow = (
       return mounted
     },
     mount: target => {
-      if (mounted) {
+      savedTarget = target ?? null
+      if (mounted || !enabled) {
         return
       }
       if (!doc || !dom || !themes) {
@@ -153,14 +118,16 @@ export const createA11yNow = (
       themes.attach(host)
 
       kernelDisposers.push(
-        events.on('screen-reader:change', ({ enabled }) => {
-          toolbar?.setScreenReaderMode(enabled)
+        events.on('screen-reader:change', ({ enabled: srEnabled }) => {
+          toolbar?.setScreenReaderMode(srEnabled)
         }),
         events.on('a11y:reset', () => {
           instance.resetAll()
         }),
         events.on('a11y:exit', () => {
-          instance.unmount()
+          // Exit persists the disabled choice so the toolbar stays hidden
+          // on later visits until explicitly re-enabled.
+          instance.setEnabled(false)
         }),
       )
 
@@ -215,6 +182,15 @@ export const createA11yNow = (
       }
       events.emit('state:reset', {})
     },
+    setEnabled: value => {
+      enabled = value
+      storage?.set(enabledKey, String(value))
+      if (value && !mounted) {
+        instance.mount(savedTarget ?? undefined)
+      } else if (!value && mounted) {
+        instance.unmount()
+      }
+    },
     shortcuts,
     speech,
     get themes() {
@@ -222,6 +198,10 @@ export const createA11yNow = (
         throw new Error('[a11y-now] theme service requires a DOM environment')
       }
       return themes
+    },
+    toggleEnabled: () => {
+      instance.setEnabled(!mounted)
+      return mounted
     },
     unmount: () => {
       if (!mounted) {

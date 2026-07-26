@@ -28,6 +28,7 @@ at build time and stay zero-runtime — see [write a theme](/en/guide/write-a-th
 | `color-disabled-fg`   | #a8abb0        | Disabled text                             |
 | `color-focus-ring`    | #fcff00        | Focus outline color                       |
 | `toolbar-height`      | 84px           | Toolbar height                            |
+| `toolbar-justify`     | center         | Toolbar row alignment (justify-content)   |
 | `btn-size`            | 56px           | Button size                               |
 | `font-size`           | 14px           | Font size                                 |
 | `font-size-caption`   | 42px           | Caption-bar font size                     |

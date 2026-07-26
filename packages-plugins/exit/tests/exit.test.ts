@@ -19,8 +19,14 @@ it('unmounts the toolbar and persists the exited flag', () => {
   const raw = storage.get('a11y-now:plugin:exit')
   expect(JSON.parse(raw as string)).toStrictEqual({ disabled: true })
 
-  // Remounting re-enables and clears the flag.
+  // Exit persists the kernel-level disable: a plain mount() stays hidden…
   a11y.mount()
+  expect(a11y.mounted).toBe(false)
+  expect(storage.get('a11y-now:enabled')).toBe('false')
+
+  // …while an explicit enable revives the toolbar and clears the flag.
+  a11y.setEnabled(true)
+  expect(a11y.mounted).toBe(true)
   expect(
     JSON.parse(storage.get('a11y-now:plugin:exit') as string),
   ).toStrictEqual({ disabled: false })

@@ -36,6 +36,7 @@ export const baseStyles = (): string => css`
   .toolbar {
     display: flex;
     align-items: stretch;
+    justify-content: var(--a11y-toolbar-justify);
     gap: 8px;
     padding: 8px 16px;
     min-block-size: var(--a11y-toolbar-height);

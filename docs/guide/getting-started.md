@@ -58,6 +58,24 @@ if (!wasExited()) {
 }
 ```
 
+## 默认禁用与触发按钮
+
+`enabled: false` 时 `mount()` 只记录意图、不实际挂载,配合
+`toggleEnabled()` 可以做出「点击悬浮按钮再展开工具栏」的接入形态
+(本文档站即此形态)。用户的开关选择会持久化,优先于 `enabled` 默认值;
+工具栏内的「退出服务」同样会持久化关闭,再次点击触发按钮即可复活:
+
+```ts
+import { createA11yNow } from 'a11y-now'
+
+const a11y = createA11yNow({ enabled: false })
+a11y.mount() // 首次不显示;若用户上次开过,则直接显示
+
+trigger.addEventListener('click', () => {
+  a11y.toggleEnabled() // 显示 ⇄ 隐藏,返回新的显示状态
+})
+```
+
 ## 界面语言
 
 工具栏内置简体中文与英文文案,默认跟随 `<html lang>`(`en*` 匹配英文、

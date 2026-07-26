@@ -39,6 +39,8 @@ it('mounts the full preset and unmounts byte-exact', () => {
   a11y = createA11yNow({ storage: null })
   a11y.mount()
   expect(buttons().length).toBeGreaterThan(10)
+  const toolbar = shadowRoot().querySelector('[role="toolbar"]')
+  expect(toolbar && getComputedStyle(toolbar).justifyContent).toBe('center')
 
   a11y.unmount()
   expect(document.documentElement.outerHTML).toBe(before)

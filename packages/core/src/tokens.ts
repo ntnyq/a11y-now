@@ -17,6 +17,7 @@ export const DEFAULT_TOOLBAR_TOKENS: ToolbarTokens = {
   radius: '6px',
   'outline-width': '3px',
   'toolbar-height': '84px',
+  'toolbar-justify': 'center',
   transition: '120ms ease-out',
   'z-index': '2147483000',
 }

@@ -27,6 +27,7 @@
 | `color-disabled-fg`   | #a8abb0        | 禁用文字                              |
 | `color-focus-ring`    | #fcff00        | 焦点描边色                            |
 | `toolbar-height`      | 84px           | 工具栏高度                            |
+| `toolbar-justify`     | center         | 工具栏内容对齐（justify-content）     |
 | `btn-size`            | 56px           | 按钮尺寸                              |
 | `font-size`           | 14px           | 字号                                  |
 | `font-size-caption`   | 42px           | 大字幕字号                            |

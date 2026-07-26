@@ -192,3 +192,54 @@ it('honors an explicit locale option over html lang', () => {
     }),
   ).toBe("Barre d'accessibilité")
 })
+
+it('enabled: false defers mount until toggled on and persists the choice', () => {
+  const storage = createMemoryStorageAdapter()
+  const a11y = createA11yNow({ enabled: false, storage })
+  a11y.mount()
+  expect(a11y.mounted).toBe(false)
+  expect(a11y.enabled).toBe(false)
+  expect(document.querySelector('a11y-now-host')).toBeNull()
+
+  expect(a11y.toggleEnabled()).toBe(true)
+  expect(document.querySelector('a11y-now-host')).not.toBeNull()
+  expect(storage.get('a11y-now:enabled')).toBe('true')
+  a11y.destroy()
+
+  // A fresh instance sees the persisted enable over the option default.
+  const revived = createA11yNow({ enabled: false, storage })
+  revived.mount()
+  expect(revived.mounted).toBe(true)
+  revived.destroy()
+})
+
+it('persisted disable overrides the option and exit persists it', () => {
+  const storage = createMemoryStorageAdapter()
+  storage.set('a11y-now:enabled', 'false')
+  const a11y = createA11yNow({ storage })
+  a11y.mount()
+  expect(a11y.mounted).toBe(false)
+  a11y.setEnabled(true)
+  expect(a11y.mounted).toBe(true)
+
+  a11y.events.emit('a11y:exit', {})
+  expect(a11y.mounted).toBe(false)
+  expect(storage.get('a11y-now:enabled')).toBe('false')
+
+  // The trigger flow revives a toolbar closed via exit.
+  expect(a11y.toggleEnabled()).toBe(true)
+  expect(a11y.mounted).toBe(true)
+  a11y.destroy()
+})
+
+it('toggleEnabled flips actual visibility even after a direct unmount', () => {
+  const a11y = createA11yNow({ storage: null })
+  a11y.mount()
+  expect(a11y.toggleEnabled()).toBe(false)
+  expect(document.querySelector('a11y-now-host')).toBeNull()
+  a11y.setEnabled(true)
+  a11y.unmount()
+  expect(a11y.toggleEnabled()).toBe(true)
+  expect(a11y.mounted).toBe(true)
+  a11y.destroy()
+})
