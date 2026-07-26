@@ -8,7 +8,15 @@ beforeEach(() => {
   document.body.innerHTML = '<main><p>汉语转换</p><code>汉</code></main>'
 })
 
-const flush = (): Promise<void> => delay(0)
+/**
+ * MutationObserver delivery goes through happy-dom's timer queue, which can
+ * lose the race against a single 0ms delay on slow runners — poll instead.
+ */
+const until = async (predicate: () => boolean): Promise<void> => {
+  for (let i = 0; i < 100 && !predicate(); i++) {
+    await delay(5)
+  }
+}
 
 it('converts visible text to traditional and restores it exactly', () => {
   const before = document.documentElement.outerHTML
@@ -35,12 +43,12 @@ it('watches dynamically inserted and changed text', async () => {
   const added = document.createElement('p')
   added.textContent = '简体'
   document.querySelector('main')?.append(added)
-  await flush()
+  await until(() => added.textContent === '簡體')
   expect(added.textContent).toBe('簡體')
 
   const existing = document.querySelector('p')?.firstChild as Text
   existing.data = '发现问题'
-  await flush()
+  await until(() => document.querySelector('p')?.textContent === '發現問題')
   expect(document.querySelector('p')?.textContent).toBe('發現問題')
 
   a11y.getPlugin('zh-convert')?.toggle()
