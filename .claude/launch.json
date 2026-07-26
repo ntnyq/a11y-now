@@ -8,6 +8,12 @@
       "port": 4173
     },
     {
+      "name": "docs-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["docs:dev", "--port", "5199"],
+      "port": 5199
+    },
+    {
       "name": "playground-vanilla",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "playground-vanilla", "dev"],
