@@ -21,23 +21,16 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 `pnpm --filter playground-vanilla dev` 在真实浏览器过一遍 12 个插件，重点关注自动化测试覆盖不到的体感项：Web Speech 中文音色（Chrome/Safari 差异）、指读 hover 的节奏、换肤在复杂 DOM 的覆盖效果与 `data-a11y-skip` 逃生舱、缩放后布局、帮助面板焦点管理。vue / react playground 各过一遍挂载与 HMR。
 
-### 5. npm 发布准备与 0.1.0 首发
+### 5. npm 发布准备与 0.1.0 首发 ✅（2026-07-26 发布完成）
 
-代码侧已就绪（2026-07-26）：
+代码侧准备（包名确认、description/keywords、release workflow 修复、IIFE 命名、publint 抽查）与发布均已完成。首发实录：
 
-- ✅ 包名确认：registry 查询 `a11y-now` 与 `@a11y-now/*` 均 404，名称可用；
-- ✅ 全部 32 个包 `description` / `keywords` 补齐；README 包表与徽章核对；
-- ✅ release workflow 修复：补上 `pnpm build` 步骤、`pnpm publish` 改为 `-r` 递归发布（根包 private，原命令会发不出任何包）；
-- ✅ IIFE 产物命名修复（原为 `a11y-now.iife.iife.js`），`unpkg` / `jsdelivr` 字段指向 `dist/a11y-now.iife.js`；
-- ✅ publint 抽查通过（a11y-now / core / next / nuxt / plugin-pinyin）。
+- `a11y-now` 组织创建后,release workflow 补了 NPM_TOKEN 认证通道（setup-node `registry-url` + 发布步骤 `NODE_AUTH_TOKEN`）；
+- `release:check` 七道门禁全绿后 `bumpp -r 0.1.0` 推 tag 触发发布；
+- 踩坑记录：granular token 只授 `@a11y-now` scope 时,无 scope 的新包 `a11y-now` 发布 403（不存在的无 scope 包需要 All packages 权限）——主包本地手动发布,重跑 workflow 补齐（`pnpm -r publish` 自动跳过已上架版本）；
+- 验收通过：32/32 包 0.1.0 上架；干净环境 `npm i a11y-now` 依赖解析正确、`createA11yNow` 可导入；unpkg IIFE 200（45.5 KB）；changelogithub 生成 [GitHub Release](https://github.com/ntnyq/a11y-now/releases/tag/v0.1.0)。
 
-剩余人工步骤：
-
-1. npm 创建 `a11y-now` 组织（scope `@a11y-now`）；
-2. 在 npm 侧为各包配置 Trusted Publishing（OIDC，workflow 已带 `id-token: write`）——首发包无法预先配置的话，先用 granular token 走一次 0.1.0，再切 OIDC；
-3. 本地跑 `pnpm release`（release:check 全绿 → bumpp -r 统一版本 → 推 tag 触发 workflow 发 32 个包 + changelogithub）。
-
-验收：`npm i a11y-now` 后 `createA11yNow().mount()` 一行可用；unpkg 能取到 IIFE 产物。
+发布后待办：在 npm 为 32 个包配置 Trusted Publishing（OIDC，指向 `release.yml`），完成后撤销引导 token 并删除 workflow 的 `registry-url` / `NODE_AUTH_TOKEN` 两处。
 
 ## P1 · 发布后加固(1~2 周)
 
