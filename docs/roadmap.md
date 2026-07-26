@@ -80,13 +80,12 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 ## P5 · 下一步工作(2026-07-27 计划)
 
-### 10. 0.2.0 发布(最高优先)
+### 10. 0.2.0 发布 ✅(2026-07-27 发布完成)
 
-main 已积累 4 个未发布 feature 提交(新插件三连、快捷键覆写 API、help 重做、工具栏居中 + 总开关),文档/测试/门禁齐备、CI 全绿,发布价值成熟。注意事项:
+main 曾积累 4 个未发布 feature 提交(新插件三连、快捷键覆写 API、help 重做、工具栏居中 + 总开关),随 0.2.0 一并发出。实录:
 
 - ✅ 新包首发(2026-07-27):reading-mask / pause-motion / spacing 三包已用 `pnpm publish:new` 以 0.1.0 手动首发,npm 上均可见;首发版无 provenance 属手动通道预期,0.2.0 走 OIDC 后补齐。配套脚本沉淀在 `scripts/`:`pnpm publish:new` 自动检测 404 新包并首发(默认 0.1.0,构建 + publint/attw 前置校验,version 临时改写、发布后原样还原);`pnpm trust:new` 免登录检测「未上架或最新版无 provenance」的待配包,逐包 `npm trust github --allow-publish` 并 `npm trust list` 核验(均支持 `--dry-run`,trust 另有 `--print`)。
-- ⬜ 发版前确认三个新包已 `pnpm trust:new` 配好 trust;**0.2.0 将是新包走 OIDC 的首次实测**。
-- 流程:`release:check` 七道门禁 → `bumpp -r 0.2.0` 推 tag;发完干净环境 `npm i` 抽查 + unpkg IIFE 探活 + 各新包 `npm trust list` 核验。
+- ✅ 0.2.0 发布(2026-07-27):`release:check` 七道门禁全绿 → `bumpp -r 0.2.0` 推 tag,Release workflow 3m10s 成功;35/35 包 0.2.0 上架,**三个新包首次经 OIDC 发布、SLSA provenance 齐备——`pnpm trust:new` 的 trust 配置实测通过,手动首发→补配 trust→OIDC 接管的新包发布链路自此闭环**;changelogithub 建好 GitHub Release;干净环境 `npm i a11y-now@0.2.0` 依赖解析正确、`createA11yNow` 可导入;unpkg 探活 200(重定向至 `a11y-now@0.2.0/dist/a11y-now.iife.js`)。
 
 ### 11. P1 尾巴清零
 
