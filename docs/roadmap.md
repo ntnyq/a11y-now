@@ -62,6 +62,12 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 - ✅ **主题生态**：`@a11y-now/plugin-auto-theme` 跟随 `prefers-color-scheme` 与 `prefers-contrast`，手动切换自动让位（`Ctrl+Alt+U`）；
 - ✅ **连读增强**：speech 连读升级为叶级块元素逐段队列 + `data-a11y-reading` 进度高亮 + `speech:reading` 进度事件，废弃 3000 字截断（`SpeechEngine` 新增可选 `onEnd` 完成回调）。
 
+## P3 · 国际化与触达（✅ 2026-07-26）
+
+- ✅ **英文语言包**：16 插件与内核的 en-US 文案本已齐备，真实缺口是 BCP 47 规范化——`lang="en"` / `"zh-Hant"` 匹配不上表键 `en-US` / `zh-CN`，英文页会错误回退中文。`@a11y-now/shared` 新增 `normalizeLocale`（`en*`→en-US、`zh*`→zh-CN、自定义 locale 放行、空值走 zh-CN 兜底），kernel 探测与显式 `locale` 皆经其规范化；新增 shared 单测、kernel 集成测试与「16 插件 en/zh key 对齐」长效守护测试；浏览器 e2e 补英文页用例（测试页 `lang` 钉为 zh-CN 后原中文断言不再依赖回退巧合）。
+- ✅ **文档站双语**：VitePress locales（根 zh-CN + `/en/`），30 个英文页面全量翻译（首页/指南 4/插件 17/主题/框架 7），内部资料（design/plan/roadmap）保持中文；`/en/` 页 `html lang="en-US"`，自举工具栏自动渲染英文（线上实测）；README 增双语文档入口；中英快速开始均补「界面语言」章节。
+- ✅ **0.1.1 发布 = OIDC 首次实弹**：32 包全部经 Trusted Publishing 发布（日志零 "Skipped OIDC"），SLSA v1 provenance attestations 自动附带，changelogithub 更新 GitHub Release。发布链路自此零 token。
+
 ## 已知风险备忘
 
 1. **依赖版本漂移**：happy-dom / vitepress alpha 升级曾引发行为变化，建议 Renovate 对二者单独分组、开 automerge 前先跑全量测试；
