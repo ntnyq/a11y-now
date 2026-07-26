@@ -54,3 +54,23 @@ Each plugin's state persists automatically according to its schema
 (localStorage by default — replaceable or disableable), under keys like
 `a11y-now:plugin:zoom`, synchronized across tabs. `resetAll()` restores
 every default in one step.
+
+## The toolbar's own accessibility
+
+An accessibility toolbar has to be accessible itself: a `role="toolbar"`
+/ `role="group"` structure, arrow-key roving tabindex, `aria-pressed`
+states, `aria-live` announcements, focus management plus a focusable
+scroll region in the help dialog, and WCAG AA contrast for every
+text/background pair in both color schemes.
+
+That claim is backed by a real-browser audit: the e2e suite
+(`tests/browser/axe.test.ts`, run in CI on every push) scans the whole
+page with **axe-core's default full rule set (WCAG A/AA + best
+practices, no rules disabled)** — a clean page stays at **zero
+violations** after mounting the toolbar, after switching to the dark
+scheme, and with the help dialog open. In other words: adopting a11y-now
+adds nothing to your own site's axe / Lighthouse findings.
+
+Automated scans only cover machine-checkable issue types; the real
+screen-reader experience (VoiceOver / NVDA) is verified manually, with
+conclusions updated release by release.

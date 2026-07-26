@@ -47,3 +47,20 @@ declare module '@a11y-now/types' {
 
 每个插件的状态按 schema 自动持久化（默认 localStorage，可替换或禁用），
 key 形如 `a11y-now:plugin:zoom`，跨标签页同步，`resetAll()` 一键还原。
+
+## 工具栏自身的无障碍
+
+无障碍工具栏首先得自己无障碍：`role="toolbar"` / `role="group"` 结构、
+方向键漫游焦点（roving tabindex）、`aria-pressed` 状态、`aria-live`
+操作播报、帮助对话框的焦点管理与可聚焦滚动区，明暗两套配色的全部
+文本/背景对比度均满足 WCAG AA。
+
+这不止是自我要求，也有实测背书：真实浏览器 e2e
+（`tests/browser/axe.test.ts`，CI 每次提交运行）用 **axe-core 默认全量
+规则集（WCAG A/AA + best-practice，未豁免任何规则）** 做整页扫描——
+一张干净页面在挂载工具栏后、切到暗色后、打开帮助对话框后，均保持
+**零违规**。也就是说：接入 a11y-now 不会让你自己站点的 axe /
+Lighthouse 审计多出任何问题。
+
+自动扫描只覆盖机器可判定的问题类型；读屏软件（VoiceOver / NVDA）的
+真实体验属人工实测范畴，结论会随版本持续更新。

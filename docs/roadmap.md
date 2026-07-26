@@ -91,7 +91,7 @@ main 曾积累 4 个未发布 feature 提交(新插件三连、快捷键覆写 A
 
 - ⬜ 插件页截图/动图(P1-8):用浏览器 e2e 截图自动生成,顺带沉淀视觉基线,避免手工维护 19 张图;
 - ⬜ 「站点接入清单」指南页(P1-8):`data-a11y-skip` / `data-a11y-region` / `data-a11y-reading` 标注指南 + SSR / CSP 注意事项,双语;
-- ⬜ axe-core 实测(P1-9 的可自动化半):接入 `tests/browser/` 对 shadow DOM 工具栏与 help 对话框扫描,结论公开进文档;VoiceOver 实测保留人工;
+- ✅ axe-core 实测(P1-9 的可自动化半,2026-07-27):`tests/browser/axe.test.ts` 用 axe-core 默认全量规则集(WCAG A/AA + best-practice,零豁免)整页扫描——干净基线页、挂载工具栏(明/暗两态)、打开 help 对话框均零违规,随 CI 每次提交把关;首扫即抓出一个真实 serious 违规(help 快捷键列表可滚动但键盘不可达,scrollable-region-focusable),已修(可聚焦滚动容器 + `role="group"` 命名 + 焦点环,保留 `dl` 语义)。结论已公开进双语文档(concepts「工具栏自身的无障碍」);VoiceOver 实测保留人工;
 - ⬜ Playground 预检(P0-4 的可自动化半):真实浏览器过一遍 vanilla / vue / react 的挂载、19 插件开关与控制台零报错;体感项(Web Speech 中文音色、Safari 差异、指读节奏)留人工清单。
 
 ### 12. 工程加固(候选,按需排期)
