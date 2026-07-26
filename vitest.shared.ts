@@ -20,6 +20,9 @@ export const PLUGINS = [
   'zh-convert',
   'elder-mode',
   'auto-theme',
+  'reading-mask',
+  'pause-motion',
+  'spacing',
 ]
 const THEMES = ['default', 'deep-blue', 'chocolate', 'high-contrast', 'forest']
 const FRAMEWORKS = ['vue', 'react', 'svelte', 'solid', 'element', 'next']

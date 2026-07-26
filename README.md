@@ -35,14 +35,14 @@ Or via CDN:
 
 ## Packages
 
-| 目录                   | 内容                                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------------------- |
-| `packages/`            | `@a11y-now/types` · `@a11y-now/shared` · `@a11y-now/core` · `a11y-now`（聚合）              |
-| `packages-plugins/`    | 12 个内置插件 + 4 个可选扩展（拼音/简繁/关怀版/自动配色）`@a11y-now/plugin-*`（一插件一包） |
-| `packages-themes/`     | 5 套官方主题 `@a11y-now/theme-*`（零运行时纯数据包）                                        |
-| `packages-frameworks/` | `@a11y-now/vue` · `react` · `svelte` · `solid` · `element` · `nuxt` · `next`                |
-| `docs/`                | VitePress 文档站（含设计资料 design.md / plan.md / roadmap.md）                             |
-| `playground/`          | vanilla / vue / react 演示应用                                                              |
+| 目录                   | 内容                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `packages/`            | `@a11y-now/types` · `@a11y-now/shared` · `@a11y-now/core` · `a11y-now`（聚合）                       |
+| `packages-plugins/`    | 12 个内置插件 + 7 个可选扩展（拼音/简繁/关怀版/自动配色/阅读遮罩/停止动画/间距）`@a11y-now/plugin-*` |
+| `packages-themes/`     | 5 套官方主题 `@a11y-now/theme-*`（零运行时纯数据包）                                                 |
+| `packages-frameworks/` | `@a11y-now/vue` · `react` · `svelte` · `solid` · `element` · `nuxt` · `next`                         |
+| `docs/`                | VitePress 文档站（含设计资料 design.md / plan.md / roadmap.md）                                      |
+| `playground/`          | vanilla / vue / react 演示应用                                                                       |
 
 ## Development
 

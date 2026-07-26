@@ -305,6 +305,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
 
+  packages-plugins/pause-motion:
+    dependencies:
+      '@a11y-now/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@a11y-now/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+
   packages-plugins/pin:
     dependencies:
       '@a11y-now/core':
@@ -326,6 +335,15 @@ importers:
         specifier: ^3.28.2
         version: 3.28.2
 
+  packages-plugins/reading-mask:
+    dependencies:
+      '@a11y-now/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@a11y-now/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+
   packages-plugins/region-nav:
     dependencies:
       '@a11y-now/core':
@@ -345,6 +363,15 @@ importers:
         version: link:../../packages/types
 
   packages-plugins/screen-reader:
+    dependencies:
+      '@a11y-now/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@a11y-now/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+
+  packages-plugins/spacing:
     dependencies:
       '@a11y-now/core':
         specifier: workspace:*
@@ -532,9 +559,18 @@ importers:
       '@a11y-now/plugin-elder-mode':
         specifier: workspace:*
         version: link:../../packages-plugins/elder-mode
+      '@a11y-now/plugin-pause-motion':
+        specifier: workspace:*
+        version: link:../../packages-plugins/pause-motion
       '@a11y-now/plugin-pinyin':
         specifier: workspace:*
         version: link:../../packages-plugins/pinyin
+      '@a11y-now/plugin-reading-mask':
+        specifier: workspace:*
+        version: link:../../packages-plugins/reading-mask
+      '@a11y-now/plugin-spacing':
+        specifier: workspace:*
+        version: link:../../packages-plugins/spacing
       '@a11y-now/plugin-zh-convert':
         specifier: workspace:*
         version: link:../../packages-plugins/zh-convert

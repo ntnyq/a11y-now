@@ -68,6 +68,15 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 - ✅ **文档站双语**：VitePress locales（根 zh-CN + `/en/`），30 个英文页面全量翻译（首页/指南 4/插件 17/主题/框架 7），内部资料（design/plan/roadmap）保持中文；`/en/` 页 `html lang="en-US"`，自举工具栏自动渲染英文（线上实测）；README 增双语文档入口；中英快速开始均补「界面语言」章节。
 - ✅ **0.1.1 发布 = OIDC 首次实弹**：32 包全部经 Trusted Publishing 发布（日志零 "Skipped OIDC"），SLSA v1 provenance attestations 自动附带，changelogithub 更新 GitHub Release。发布链路自此零 token。
 
+## P4 · 产品深化
+
+- ✅ **新插件三连**（2026-07-27，均为可选扩展包、不动内核）：
+  - `@a11y-now/plugin-reading-mask` 阅读遮罩（`Ctrl+Alt+G`，水平聚焦条随鼠标，遮罩渲染在 shadow DOM、pointer-events 无遮挡）；
+  - `@a11y-now/plugin-pause-motion` 停止动画（`Ctrl+Alt+X`，强制 reduced-motion 样式 + 暂停 autoplay 视频 + 同源 GIF 尽力冻结首帧，关闭全量还原）；
+  - `@a11y-now/plugin-spacing` 间距调节（`Ctrl+Alt+S`，关闭→舒适→宽松三档循环，「舒适」即 WCAG 1.4.12 测试指标，支持自定义阶梯，发 `spacing:change` 事件）。
+  - 配套：各 4 组测试（含 GIF 冻结路径打桩）、90% 覆盖门禁、en/zh 消息 key 对齐守护（19 插件）、双语文档页 + typedoc 入口、playground 演示。
+- ⬜ 快捷键自定义 API（shortcut center 补用户级 override）。
+
 ## 已知风险备忘
 
 1. **依赖版本漂移**：happy-dom / vitepress alpha 升级曾引发行为变化，建议 Renovate 对二者单独分组、开 automerge 前先跑全量测试；

@@ -24,12 +24,15 @@ The following plugins are not part of the `a11y-now` aggregate package or
 the full preset (they carry third-party dependencies, or change the page's
 appearance by default) — install them individually as needed:
 
-| Package                                                 | Feature                              | Shortcut     |
-| ------------------------------------------------------- | ------------------------------------ | ------------ |
-| [`@a11y-now/plugin-pinyin`](/en/plugins/pinyin)         | Pinyin annotation (pinyin-pro)       | `Ctrl+Alt+P` |
-| [`@a11y-now/plugin-zh-convert`](/en/plugins/zh-convert) | Simplified ⇄ Traditional (opencc-js) | `Ctrl+Alt+J` |
-| [`@a11y-now/plugin-elder-mode`](/en/plugins/elder-mode) | Elder mode                           | `Ctrl+Alt+O` |
-| [`@a11y-now/plugin-auto-theme`](/en/plugins/auto-theme) | Auto theme (follows the system)      | `Ctrl+Alt+U` |
+| Package                                                     | Feature                              | Shortcut     |
+| ----------------------------------------------------------- | ------------------------------------ | ------------ |
+| [`@a11y-now/plugin-pinyin`](/en/plugins/pinyin)             | Pinyin annotation (pinyin-pro)       | `Ctrl+Alt+P` |
+| [`@a11y-now/plugin-zh-convert`](/en/plugins/zh-convert)     | Simplified ⇄ Traditional (opencc-js) | `Ctrl+Alt+J` |
+| [`@a11y-now/plugin-elder-mode`](/en/plugins/elder-mode)     | Elder mode                           | `Ctrl+Alt+O` |
+| [`@a11y-now/plugin-auto-theme`](/en/plugins/auto-theme)     | Auto theme (follows the system)      | `Ctrl+Alt+U` |
+| [`@a11y-now/plugin-reading-mask`](/en/plugins/reading-mask) | Reading mask                         | `Ctrl+Alt+G` |
+| [`@a11y-now/plugin-pause-motion`](/en/plugins/pause-motion) | Pause motion                         | `Ctrl+Alt+X` |
+| [`@a11y-now/plugin-spacing`](/en/plugins/spacing)           | Text spacing (WCAG 1.4.12)           | `Ctrl+Alt+S` |
 
 All plugins follow the same contract and test template — see
 [write a plugin](/en/guide/write-a-plugin).

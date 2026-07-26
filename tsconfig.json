@@ -41,6 +41,13 @@
       "@a11y-now/plugin-auto-theme": [
         "./packages-plugins/auto-theme/src/index.ts"
       ],
+      "@a11y-now/plugin-reading-mask": [
+        "./packages-plugins/reading-mask/src/index.ts"
+      ],
+      "@a11y-now/plugin-pause-motion": [
+        "./packages-plugins/pause-motion/src/index.ts"
+      ],
+      "@a11y-now/plugin-spacing": ["./packages-plugins/spacing/src/index.ts"],
       "@a11y-now/theme-default": ["./packages-themes/default/src/index.ts"],
       "@a11y-now/theme-deep-blue": ["./packages-themes/deep-blue/src/index.ts"],
       "@a11y-now/theme-chocolate": ["./packages-themes/chocolate/src/index.ts"],

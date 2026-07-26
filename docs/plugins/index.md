@@ -22,11 +22,14 @@
 以下插件不包含在 `a11y-now` 聚合包与 full preset 中（或带第三方依赖，
 或行为默认改变页面外观），按需单独安装：
 
-| 插件包                                               | 功能                   | 快捷键       |
-| ---------------------------------------------------- | ---------------------- | ------------ |
-| [`@a11y-now/plugin-pinyin`](/plugins/pinyin)         | 拼音标注（pinyin-pro） | `Ctrl+Alt+P` |
-| [`@a11y-now/plugin-zh-convert`](/plugins/zh-convert) | 简繁转换（opencc-js）  | `Ctrl+Alt+J` |
-| [`@a11y-now/plugin-elder-mode`](/plugins/elder-mode) | 关怀版/老年模式        | `Ctrl+Alt+O` |
-| [`@a11y-now/plugin-auto-theme`](/plugins/auto-theme) | 自动配色（跟随系统）   | `Ctrl+Alt+U` |
+| 插件包                                                   | 功能                    | 快捷键       |
+| -------------------------------------------------------- | ----------------------- | ------------ |
+| [`@a11y-now/plugin-pinyin`](/plugins/pinyin)             | 拼音标注（pinyin-pro）  | `Ctrl+Alt+P` |
+| [`@a11y-now/plugin-zh-convert`](/plugins/zh-convert)     | 简繁转换（opencc-js）   | `Ctrl+Alt+J` |
+| [`@a11y-now/plugin-elder-mode`](/plugins/elder-mode)     | 关怀版/老年模式         | `Ctrl+Alt+O` |
+| [`@a11y-now/plugin-auto-theme`](/plugins/auto-theme)     | 自动配色（跟随系统）    | `Ctrl+Alt+U` |
+| [`@a11y-now/plugin-reading-mask`](/plugins/reading-mask) | 阅读遮罩                | `Ctrl+Alt+G` |
+| [`@a11y-now/plugin-pause-motion`](/plugins/pause-motion) | 停止动画                | `Ctrl+Alt+X` |
+| [`@a11y-now/plugin-spacing`](/plugins/spacing)           | 间距调节（WCAG 1.4.12） | `Ctrl+Alt+S` |
 
 所有插件遵循同一契约与测试模板，详见[编写插件](/guide/write-a-plugin)。

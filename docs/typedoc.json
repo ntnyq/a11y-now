@@ -7,7 +7,10 @@
     "../packages-plugins/pinyin/src/index.ts",
     "../packages-plugins/zh-convert/src/index.ts",
     "../packages-plugins/elder-mode/src/index.ts",
-    "../packages-plugins/auto-theme/src/index.ts"
+    "../packages-plugins/auto-theme/src/index.ts",
+    "../packages-plugins/reading-mask/src/index.ts",
+    "../packages-plugins/pause-motion/src/index.ts",
+    "../packages-plugins/spacing/src/index.ts"
   ],
   "excludeExternals": false,
   "hideGenerator": true,
