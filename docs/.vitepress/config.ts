@@ -3,6 +3,8 @@ import { defineConfig } from 'vitepress'
 import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
+  // Served as a GitHub Pages project site; switch to '/' on a custom domain.
+  base: '/a11y-now/',
   description: '插件化、可主题化、多框架的网页无障碍工具栏',
   lang: 'zh-CN',
   themeConfig: {
