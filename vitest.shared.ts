@@ -65,5 +65,6 @@ export const defineProject = (environment: 'node' | 'happy-dom') =>
     test: {
       environment,
       include: ['tests/**/*.test.ts'],
+      setupFiles: [r('./vitest.setup.ts')],
     },
   })

@@ -37,6 +37,7 @@ export default defineConfig({
           // vitest.browser.config.ts project.
           include: ['tests/*.test.ts'],
           name: 'integration',
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
     ],
