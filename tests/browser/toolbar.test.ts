@@ -12,6 +12,8 @@ let a11y: A11yNowInstance | null = null
 beforeEach(() => {
   localStorage.clear()
   document.querySelector('a11y-now-host')?.remove()
+  // The suite models a Chinese page; label queries below rely on it.
+  document.documentElement.lang = 'zh-CN'
   document.body.innerHTML = '<main><h1>标题</h1><p>正文段落</p></main>'
 })
 
@@ -139,4 +141,15 @@ it('exit removes the toolbar and remembers the choice', () => {
   expect(document.querySelector('a11y-now-host')).toBeNull()
   const raw = localStorage.getItem('a11y-now:plugin:exit') ?? '{}'
   expect((JSON.parse(raw) as { disabled?: boolean }).disabled).toBe(true)
+})
+
+it('renders the English toolbar on an English page', () => {
+  document.documentElement.lang = 'en'
+  a11y = createA11yNow({ storage: null })
+  a11y.mount()
+
+  const toolbar = shadowRoot().querySelector('[role="toolbar"]')
+  expect(toolbar?.getAttribute('aria-label')).toBe('Accessibility toolbar')
+  expect(buttons().some(el => el.textContent?.includes('Help'))).toBe(true)
+  expect(buttons().some(el => el.textContent?.includes('Exit'))).toBe(true)
 })
