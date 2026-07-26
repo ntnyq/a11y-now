@@ -57,7 +57,10 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 ### 8. 文档补全
 
-每个插件页补交互截图/动图；docs 站自举接入 `a11y-now`（产品即演示）；`typedoc-plugin-markdown` 从 d.ts 生成 API 参考；补一篇「站点接入清单」（`data-a11y-skip`、`data-a11y-region` 标注指南）。
+- ✅ docs 站自举接入 `a11y-now`（2026-07-26）：`.vitepress/theme/index.ts` 客户端挂载全预设工具栏，尊重 `wasExited`——产品即演示；
+- ✅ `typedoc` + `typedoc-plugin-markdown` + `typedoc-vitepress-theme` 生成 API 参考（聚合包 + 4 个可选插件入口），`docs:dev` / `docs:build` 前自动生成，产物 gitignore，侧栏/导航已接入；
+- ✅ 主题参考页补视觉色板；
+- ⬜ 每个插件页补交互截图/动图；补一篇「站点接入清单」（`data-a11y-skip`、`data-a11y-region` 标注指南）。
 
 ### 9. 工具栏自身无障碍实测
 

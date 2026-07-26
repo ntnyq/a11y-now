@@ -5,13 +5,13 @@
 
 ## 官方主题（对齐源页面五套配色）
 
-| 主题包                          | 显示名   | 页面背景       | 文字   | 链接           |
-| ------------------------------- | -------- | -------------- | ------ | -------------- |
-| `@a11y-now/theme-default`       | 默认     | 不改动         | 不改动 | 不改动         |
-| `@a11y-now/theme-deep-blue`     | 深蓝白   | rgb(0,51,92)   | 白     | 白             |
-| `@a11y-now/theme-chocolate`     | 巧克力色 | rgb(98,43,43)  | 白     | 白             |
-| `@a11y-now/theme-high-contrast` | 黑底白字 | rgb(0,0,0)     | 白     | rgb(255,184,0) |
-| `@a11y-now/theme-forest`        | 森林绿   | rgb(34,139,34) | 白     | 白             |
+| 主题包                          | 显示名   | 色板（背景/文字/链接）                                                                                                                                                                                                                                                                                                                                              | 页面背景       | 文字   | 链接           |
+| ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------ | -------------- |
+| `@a11y-now/theme-default`       | 默认     | —                                                                                                                                                                                                                                                                                                                                                                   | 不改动         | 不改动 | 不改动         |
+| `@a11y-now/theme-deep-blue`     | 深蓝白   | <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgb(0,51,92)"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span>   | rgb(0,51,92)   | 白     | 白             |
+| `@a11y-now/theme-chocolate`     | 巧克力色 | <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgb(98,43,43)"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span>  | rgb(98,43,43)  | 白     | 白             |
+| `@a11y-now/theme-high-contrast` | 黑底白字 | <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgb(0,0,0)"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgb(255,184,0)"></span>                  | rgb(0,0,0)     | 白     | rgb(255,184,0) |
+| `@a11y-now/theme-forest`        | 森林绿   | <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgb(34,139,34)"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span> <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid #8886"></span> | rgb(34,139,34) | 白     | 白             |
 
 ## 工具栏 Token（`--a11y-*`，作用于 shadow :host）
 

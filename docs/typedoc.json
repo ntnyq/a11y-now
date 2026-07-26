@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "cleanOutputDir": true,
+  "docsRoot": ".",
+  "entryPoints": [
+    "../packages/a11y-now/src/index.ts",
+    "../packages-plugins/pinyin/src/index.ts",
+    "../packages-plugins/zh-convert/src/index.ts",
+    "../packages-plugins/elder-mode/src/index.ts",
+    "../packages-plugins/auto-theme/src/index.ts"
+  ],
+  "excludeExternals": false,
+  "hideGenerator": true,
+  "name": "a11y-now API",
+  "out": "api",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "readme": "none",
+  "tsconfig": "../tsconfig.json",
+  "disableSources": true
+}

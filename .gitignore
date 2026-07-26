@@ -21,3 +21,5 @@ lib-cov
 
 # stray declaration output emitted next to sources by the dts step
 packages*/**/src/**/*.d.ts
+# generated API reference (typedoc)
+docs/api/
