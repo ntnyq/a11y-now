@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/plugin-screen-reader",
   "version": "0.0.0",
-  "description": "a11y-now plugin: screen-reader",
+  "description": "a11y-now plugin: screen reader mode muting self-voicing and hiding visual aids",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "nvda",
+    "screen-reader",
+    "toolbar",
+    "voiceover",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

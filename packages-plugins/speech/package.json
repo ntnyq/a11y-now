@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/plugin-speech",
   "version": "0.0.0",
-  "description": "a11y-now plugin: speech",
+  "description": "a11y-now plugin: self-voicing with hover point-reading and segmented continuous reading",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "speech",
+    "text-to-speech",
+    "toolbar",
+    "tts",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/shared",
   "version": "0.0.0",
-  "description": "Internal shared utilities for a11y-now",
+  "description": "Internal shared utilities for the a11y-now accessibility toolbar",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "toolbar",
+    "utils",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

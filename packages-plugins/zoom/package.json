@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-zoom",
   "version": "0.0.0",
-  "description": "a11y-now plugin: zoom",
+  "description": "a11y-now plugin: page zoom within safe bounds",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "toolbar",
+    "wcag",
+    "zoom"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

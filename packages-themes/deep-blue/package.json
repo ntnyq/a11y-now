@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/theme-deep-blue",
   "version": "0.0.0",
-  "description": "a11y-now theme: deep-blue",
+  "description": "a11y-now theme: deep blue background with white text",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "theme",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

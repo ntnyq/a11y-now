@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/types",
   "version": "0.0.0",
-  "description": "Type contracts for a11y-now",
+  "description": "Type contracts for the a11y-now accessibility toolbar",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "toolbar",
+    "types",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

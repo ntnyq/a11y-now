@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/plugin-elder-mode",
   "version": "0.0.0",
-  "description": "a11y-now plugin: elder care reading mode",
+  "description": "a11y-now plugin: elder care reading mode with font floor and relaxed spacing",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "elder",
+    "font-size",
+    "senior",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

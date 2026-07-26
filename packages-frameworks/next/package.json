@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/next",
   "version": "0.0.0",
-  "description": "a11y-now next.js integration",
+  "description": "a11y-now Next.js integration: 'use client' drop-in component",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "next",
+    "nextjs",
+    "react",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-caption",
   "version": "0.0.0",
-  "description": "a11y-now plugin: caption",
+  "description": "a11y-now plugin: big caption bar mirroring spoken text",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "caption",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

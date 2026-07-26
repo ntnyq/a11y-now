@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-exit",
   "version": "0.0.0",
-  "description": "a11y-now plugin: exit",
+  "description": "a11y-now plugin: exit the toolbar and remember the choice",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "exit",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

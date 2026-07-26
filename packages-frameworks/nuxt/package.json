@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/nuxt",
   "version": "0.0.0",
-  "description": "a11y-now nuxt module",
+  "description": "a11y-now Nuxt module: client plugin with presets and $a11yNow",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "nuxt",
+    "nuxt-module",
+    "toolbar",
+    "vue",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

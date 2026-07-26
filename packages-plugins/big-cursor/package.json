@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-big-cursor",
   "version": "0.0.0",
-  "description": "a11y-now plugin: big-cursor",
+  "description": "a11y-now plugin: enlarged high-visibility mouse cursor",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "cursor",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

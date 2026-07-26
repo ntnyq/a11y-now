@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/react",
   "version": "0.0.0",
-  "description": "a11y-now react integration",
+  "description": "a11y-now React integration: provider and hooks",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "react",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

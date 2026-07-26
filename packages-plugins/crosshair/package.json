@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-crosshair",
   "version": "0.0.0",
-  "description": "a11y-now plugin: crosshair",
+  "description": "a11y-now plugin: reading crosshair guides following the pointer",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "reading-guide",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

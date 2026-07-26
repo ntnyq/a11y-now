@@ -27,5 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: npm install -g npm@latest
-      - run: pnpm publish --no-git-checks
+      # -r: publish every public workspace package (the root is private).
+      - run: pnpm -r publish --no-git-checks

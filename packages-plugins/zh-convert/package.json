@@ -1,7 +1,17 @@
 {
   "name": "@a11y-now/plugin-zh-convert",
   "version": "0.0.0",
-  "description": "a11y-now plugin: simplified/traditional Chinese conversion",
+  "description": "a11y-now plugin: simplified/traditional Chinese conversion, powered by opencc-js",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "chinese",
+    "opencc",
+    "simplified",
+    "toolbar",
+    "traditional",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

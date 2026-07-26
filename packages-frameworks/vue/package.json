@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/vue",
   "version": "0.0.0",
-  "description": "a11y-now vue integration",
+  "description": "a11y-now Vue 3 integration: app plugin and composables",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "toolbar",
+    "vue",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

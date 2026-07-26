@@ -1,7 +1,15 @@
 {
   "name": "@a11y-now/plugin-theme",
   "version": "0.0.0",
-  "description": "a11y-now plugin: theme",
+  "description": "a11y-now plugin: color scheme switcher cycling registered themes",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "color-scheme",
+    "theme",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

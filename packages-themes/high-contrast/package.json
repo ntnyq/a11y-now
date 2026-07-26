@@ -1,7 +1,15 @@
 {
   "name": "@a11y-now/theme-high-contrast",
   "version": "0.0.0",
-  "description": "a11y-now theme: high-contrast",
+  "description": "a11y-now theme: black background, white text, amber links",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "high-contrast",
+    "theme",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-reset",
   "version": "0.0.0",
-  "description": "a11y-now plugin: reset",
+  "description": "a11y-now plugin: one-click reset of all toolbar state",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "reset",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

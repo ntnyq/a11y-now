@@ -15,7 +15,8 @@ export default defineConfig([
   {
     clean: false,
     dts: false,
-    entry: { 'a11y-now.iife': 'src/iife.ts' },
+    // The iife format appends `.iife.js`, yielding dist/a11y-now.iife.js.
+    entry: { 'a11y-now': 'src/iife.ts' },
     format: 'iife',
     globalName: 'A11yNow',
     minify: true,

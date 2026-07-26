@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/plugin-auto-theme",
   "version": "0.0.0",
-  "description": "a11y-now plugin: auto theme following system color scheme and contrast preferences",
+  "description": "a11y-now plugin: auto theme following prefers-color-scheme and prefers-contrast",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "dark-mode",
+    "prefers-color-scheme",
+    "prefers-contrast",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

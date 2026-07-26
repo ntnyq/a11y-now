@@ -1,7 +1,16 @@
 {
   "name": "@a11y-now/plugin-pinyin",
   "version": "0.0.0",
-  "description": "a11y-now plugin: pinyin ruby annotation",
+  "description": "a11y-now plugin: pinyin ruby annotation for Han text, powered by pinyin-pro",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "chinese",
+    "pinyin",
+    "ruby",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

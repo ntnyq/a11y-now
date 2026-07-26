@@ -1,7 +1,15 @@
 {
   "name": "@a11y-now/plugin-region-nav",
   "version": "0.0.0",
-  "description": "a11y-now plugin: region-nav",
+  "description": "a11y-now plugin: landmark region navigation via Alt+1~6",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "landmarks",
+    "navigation",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

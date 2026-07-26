@@ -2,6 +2,16 @@
   "name": "@a11y-now/core",
   "version": "0.0.0",
   "description": "Framework-agnostic accessibility toolbar kernel",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "kernel",
+    "plugin-system",
+    "screen-reader",
+    "toolbar",
+    "tts",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

@@ -28,10 +28,19 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 ### 5. npm 发布准备与 0.1.0 首发
 
-- npm 上创建 `a11y-now` 组织（scope `@a11y-now`），确认非 scope 包名 `a11y-now` 可用；
-- release workflow 配置发布凭据（推荐 npm Trusted Publishing/OIDC，workflow 已带 `id-token: write`）；
-- 各包 `package.json` 补齐 `description` / `keywords`（目前多数为占位）；README 徽章核对；
-- `pnpm release`（bumpp -r 统一版本 → tag → workflow 发 26 个包 + changelogithub）。
+代码侧已就绪（2026-07-26）：
+
+- ✅ 包名确认：registry 查询 `a11y-now` 与 `@a11y-now/*` 均 404，名称可用；
+- ✅ 全部 32 个包 `description` / `keywords` 补齐；README 包表与徽章核对；
+- ✅ release workflow 修复：补上 `pnpm build` 步骤、`pnpm publish` 改为 `-r` 递归发布（根包 private，原命令会发不出任何包）；
+- ✅ IIFE 产物命名修复（原为 `a11y-now.iife.iife.js`），`unpkg` / `jsdelivr` 字段指向 `dist/a11y-now.iife.js`；
+- ✅ publint 抽查通过（a11y-now / core / next / nuxt / plugin-pinyin）。
+
+剩余人工步骤：
+
+1. npm 创建 `a11y-now` 组织（scope `@a11y-now`）；
+2. 在 npm 侧为各包配置 Trusted Publishing（OIDC，workflow 已带 `id-token: write`）——首发包无法预先配置的话，先用 granular token 走一次 0.1.0，再切 OIDC；
+3. 本地跑 `pnpm release`（release:check 全绿 → bumpp -r 统一版本 → 推 tag 触发 workflow 发 32 个包 + changelogithub）。
 
 验收：`npm i a11y-now` 后 `createA11yNow().mount()` 一行可用；unpkg 能取到 IIFE 产物。
 

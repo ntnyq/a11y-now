@@ -1,7 +1,14 @@
 {
   "name": "@a11y-now/plugin-pin",
   "version": "0.0.0",
-  "description": "a11y-now plugin: pin",
+  "description": "a11y-now plugin: reserve page space so the toolbar never covers content",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "pin",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

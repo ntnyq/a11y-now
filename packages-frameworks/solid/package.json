@@ -1,7 +1,15 @@
 {
   "name": "@a11y-now/solid",
   "version": "0.0.0",
-  "description": "a11y-now solid integration",
+  "description": "a11y-now Solid integration",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "solid",
+    "solid-js",
+    "toolbar",
+    "wcag"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"

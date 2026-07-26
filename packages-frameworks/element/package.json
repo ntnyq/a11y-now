@@ -1,7 +1,15 @@
 {
   "name": "@a11y-now/element",
   "version": "0.0.0",
-  "description": "a11y-now element integration",
+  "description": "a11y-now as a custom element (Web Component)",
+  "keywords": [
+    "a11y",
+    "accessibility",
+    "custom-element",
+    "toolbar",
+    "wcag",
+    "web-component"
+  ],
   "homepage": "https://github.com/ntnyq/a11y-now#readme",
   "bugs": {
     "url": "https://github.com/ntnyq/a11y-now/issues"
