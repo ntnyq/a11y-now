@@ -9,7 +9,22 @@ import { beforeEach, expect, it, vi } from 'vitest'
 const cleanDom = (): void => {
   document.querySelector('a11y-now-host')?.remove()
   document.documentElement.removeAttribute('style')
+  document.documentElement.removeAttribute('lang')
   delete document.documentElement.dataset['a11yTheme']
+}
+
+/** Mount with the given options and read the toolbar's aria-label. */
+const mountedToolbarLabel = (
+  options: Parameters<typeof createA11yNow>[0] = {},
+): string | null | undefined => {
+  const a11y = createA11yNow({ storage: null, ...options })
+  a11y.mount()
+  const label = document
+    .querySelector('a11y-now-host')
+    ?.shadowRoot?.querySelector('[role="toolbar"]')
+    ?.getAttribute('aria-label')
+  a11y.unmount()
+  return label
 }
 
 beforeEach(() => {
@@ -148,4 +163,32 @@ it('accepts configured plugins with typed options', () => {
   a11y.mount()
   expect(received).toStrictEqual({ step: 5 })
   a11y.unmount()
+})
+
+it('resolves the UI locale from html lang with en/zh normalization', () => {
+  document.documentElement.lang = 'en'
+  expect(mountedToolbarLabel()).toBe('Accessibility toolbar')
+
+  document.documentElement.lang = 'en-GB'
+  expect(mountedToolbarLabel()).toBe('Accessibility toolbar')
+
+  document.documentElement.lang = 'zh-Hant'
+  expect(mountedToolbarLabel()).toBe('无障碍工具栏')
+
+  // Unknown and missing tags fall back to the zh-CN table.
+  document.documentElement.lang = 'de'
+  expect(mountedToolbarLabel()).toBe('无障碍工具栏')
+  document.documentElement.removeAttribute('lang')
+  expect(mountedToolbarLabel()).toBe('无障碍工具栏')
+})
+
+it('honors an explicit locale option over html lang', () => {
+  document.documentElement.lang = 'zh-CN'
+  expect(mountedToolbarLabel({ locale: 'en' })).toBe('Accessibility toolbar')
+  expect(
+    mountedToolbarLabel({
+      locale: 'fr-FR',
+      messages: { 'fr-FR': { 'toolbar.label': "Barre d'accessibilité" } },
+    }),
+  ).toBe("Barre d'accessibilité")
 })

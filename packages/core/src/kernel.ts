@@ -1,5 +1,5 @@
 /* eslint-disable import/max-dependencies -- the kernel wires every service */
-import { isBrowser, warn } from '@a11y-now/shared'
+import { isBrowser, normalizeLocale, warn } from '@a11y-now/shared'
 import type {
   A11yNowInstance,
   A11yNowOptions,
@@ -83,8 +83,8 @@ export const createA11yNow = (
       : options.storage
   const prefix = options.storagePrefix ?? 'a11y-now'
   const locale =
-    options.locale ??
-    (doc?.documentElement.lang as string | undefined) ??
+    normalizeLocale(options.locale) ??
+    normalizeLocale(doc?.documentElement.lang) ??
     'zh-CN'
 
   const events = createEventBus()

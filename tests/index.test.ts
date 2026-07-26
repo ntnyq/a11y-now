@@ -2,7 +2,11 @@
  * Cross-package integration: aggregate entry + themes + plugins together.
  * Per-package behavior lives in each package's own tests/ folder.
  */
-import { createA11yNow } from 'a11y-now'
+import { autoTheme } from '@a11y-now/plugin-auto-theme'
+import { elderMode } from '@a11y-now/plugin-elder-mode'
+import { pinyinAnnotation } from '@a11y-now/plugin-pinyin'
+import { zhConvert } from '@a11y-now/plugin-zh-convert'
+import { createA11yNow, fullPreset } from 'a11y-now'
 import { beforeEach, expect, it } from 'vitest'
 
 beforeEach(() => {
@@ -41,4 +45,22 @@ it('shortcuts from all plugins coexist without conflicts', () => {
   expect(() => a11y.mount()).not.toThrow()
   expect(a11y.shortcuts.list().length).toBeGreaterThan(12)
   a11y.unmount()
+})
+
+it('every official plugin ships en-US and zh-CN messages in lockstep', () => {
+  const plugins = [
+    ...fullPreset().plugins,
+    pinyinAnnotation(),
+    zhConvert(),
+    elderMode(),
+    autoTheme(),
+  ]
+  expect(plugins).toHaveLength(16)
+  for (const input of plugins) {
+    const plugin = 'plugin' in input ? input.plugin : input
+    const en = Object.keys(plugin.messages?.['en-US'] ?? {}).toSorted()
+    const zh = Object.keys(plugin.messages?.['zh-CN'] ?? {}).toSorted()
+    expect(en.length, `${plugin.name} has messages`).toBeGreaterThan(0)
+    expect(en, `${plugin.name} en/zh keys`).toStrictEqual(zh)
+  }
 })

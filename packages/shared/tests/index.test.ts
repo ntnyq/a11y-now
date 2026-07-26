@@ -3,6 +3,7 @@ import {
   formatShortcut,
   interpolate,
   matchShortcut,
+  normalizeLocale,
   normalizeShortcut,
   resolveLabel,
   round2,
@@ -44,4 +45,16 @@ it('resolveLabel handles both forms', () => {
   expect(resolveLabel('x')).toBe('x')
   expect(resolveLabel(() => 'y')).toBe('y')
   expect(resolveLabel()).toBe('')
+})
+
+it('normalizeLocale maps en*/zh* tags and passes custom ones through', () => {
+  expect(normalizeLocale('en')).toBe('en-US')
+  expect(normalizeLocale('EN-gb')).toBe('en-US')
+  expect(normalizeLocale('zh')).toBe('zh-CN')
+  expect(normalizeLocale('zh-Hant-TW')).toBe('zh-CN')
+  expect(normalizeLocale('fr-FR')).toBe('fr-FR')
+  expect(normalizeLocale('')).toBeUndefined()
+  expect(normalizeLocale('  ')).toBeUndefined()
+  expect(normalizeLocale(null)).toBeUndefined()
+  expect(normalizeLocale()).toBeUndefined()
 })
