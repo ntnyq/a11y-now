@@ -9,14 +9,9 @@
 
 当前工作区全部变更尚未提交（仓库仅有 init commit）。先 `git diff` 审阅一遍，然后连同重新生成的 `pnpm-lock.yaml` 一起提交——CI 的 `--frozen-lockfile` 依赖它。建议拆成 2~3 个 commit（monorepo 骨架 / 各包实现 / 文档）。
 
-### 2. 修复 Node 26 兼容（CI 会挂的已知问题）
+### 2. 修复 Node 26 兼容 ✅（2026-07-26）
 
-Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file` 时为 `undefined`），会遮蔽 happy-dom 注入的实现——本地 fnm node 24 通过的测试，在 CI 的 26.x 矩阵上会失败。修法（选一）：
-
-- 在 `vitest.shared.ts` 增加 `setupFiles`，setup 里当检测到 node 自带的 undefined `localStorage` 时 `Object.defineProperty` 回 happy-dom window 的实现；
-- 或临时把 CI 矩阵收敛到 22/24，待 vitest/happy-dom 上游适配后再放开。
-
-验收：CI 三 OS × 全 Node 矩阵绿。
+Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file` 时为 `undefined`），会遮蔽 happy-dom 注入的实现——vitest 的 happy-dom 环境看到 `globalThis` 已有同名 key 就不再覆盖，且 `window` 与 `document.defaultView` 均被重映射回打补丁后的 global，setup 里拿不到真实 happy-dom window。落地修法：根级 `vitest.setup.ts`（经 `vitest.shared.ts` 与根配置 `setupFiles` 注入），对值为 `undefined` 的 `localStorage` / `sessionStorage` 按测试文件粒度安装内存版 Storage。已在本机 node 26.2.0 验证：修复前 26 用例挂，修复后 117/117 全过（含覆盖率门禁）。
 
 ### 3. 文档站首次构建与部署
 
@@ -49,7 +44,7 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 ### 6. CI 质量门禁补齐
 
 - ✅ 覆盖率（2026-07-26）：CI test job 改跑 `test:coverage`，core 与 16 个插件包各设 90% 行覆盖率阈值（vitest.config.ts thresholds，逐包 glob 独立断言），当前 core 94.8%、全插件达标；
-- ⬜ 每包 `publint` + `arethetypeswrong`（发布产物/类型双校验）仍待接入 CI（发布前已本地抽查 5 包通过）。
+- ✅ 每包 `publint --strict` + `attw --pack --profile esm-only`（发布产物/类型双校验，2026-07-26）：根脚本 `publint` / `attw` 覆盖全部 32 个包本地通过，接入 CI `publish-check` job，并纳入 `release:check`。
 
 ### 7. 浏览器端 e2e 固化 ✅（2026-07-26）
 
