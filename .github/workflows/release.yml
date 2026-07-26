@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
 
       - run: pnpm dlx changelogithub
         env:
@@ -30,4 +31,9 @@ jobs:
       - run: pnpm build
       - run: npm install -g npm@latest
       # -r: publish every public workspace package (the root is private).
+      # First release authenticates with the NPM_TOKEN secret; once every
+      # package exists on npm, switch them to Trusted Publishing (OIDC) and
+      # drop the token env + registry-url.
       - run: pnpm -r publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
