@@ -3,7 +3,7 @@ import type { ShortcutDef } from '@a11y-now/types'
 /** Tagged template for CSS-in-TS. Exists for editor highlighting only. */
 export const css = (
   strings: TemplateStringsArray,
-  ...values: Array<number | string>
+  ...values: (number | string)[]
 ): string =>
   strings.reduce(
     (acc, str, i) => acc + str + (i < values.length ? String(values[i]) : ''),
@@ -56,16 +56,15 @@ export const matchShortcut = (
   event: KeyboardEvent,
   def: ShortcutDef,
 ): boolean =>
-  event.key.toLowerCase() === def.key.toLowerCase()
-  && event.ctrlKey === Boolean(def.ctrl)
-  && event.altKey === Boolean(def.alt)
-  && event.shiftKey === Boolean(def.shift)
-  && event.metaKey === Boolean(def.meta)
+  event.key.toLowerCase() === def.key.toLowerCase() &&
+  event.ctrlKey === Boolean(def.ctrl) &&
+  event.altKey === Boolean(def.alt) &&
+  event.shiftKey === Boolean(def.shift) &&
+  event.metaKey === Boolean(def.meta)
 
 /** Resolve a `string | (() => string)` label. */
-export const resolveLabel = (
-  label: string | (() => string) | undefined,
-): string => (typeof label === 'function' ? label() : (label ?? ''))
+export const resolveLabel = (label?: string | (() => string)): string =>
+  typeof label === 'function' ? label() : (label ?? '')
 
 /** Interpolate `{name}` placeholders. */
 export const interpolate = (
@@ -73,8 +72,9 @@ export const interpolate = (
   params?: Record<string, number | string>,
 ): string =>
   params
-    ? template.replaceAll(/\{(\w+)\}/g, (match, name: string) =>
-        name in params ? String(params[name]) : match)
+    ? template.replaceAll(/\{(?<name>\w+)\}/gu, (match, name: string) =>
+        name in params ? String(params[name]) : match,
+      )
     : template
 
 /** Readable text of an element for speech, trimmed and collapsed. */
@@ -88,6 +88,15 @@ export const speakableText = (el: Element): string => {
     return alt.trim()
   }
   const title = el.getAttribute('title')
-  const text = (el.textContent ?? '').replaceAll(/\s+/g, ' ').trim()
+  // Ruby annotations (e.g. pinyin) would otherwise be read twice.
+  let source = el
+  if (el.querySelector('rt, rp')) {
+    const clone = el.cloneNode(true) as Element
+    for (const annotation of clone.querySelectorAll('rt, rp')) {
+      annotation.remove()
+    }
+    source = clone
+  }
+  const text = (source.textContent ?? '').replaceAll(/\s+/gu, ' ').trim()
   return text || (title ?? '').trim()
 }

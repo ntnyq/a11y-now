@@ -8,6 +8,10 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@a11y-now/plugin-auto-theme": "workspace:*",
+    "@a11y-now/plugin-elder-mode": "workspace:*",
+    "@a11y-now/plugin-pinyin": "workspace:*",
+    "@a11y-now/plugin-zh-convert": "workspace:*",
     "a11y-now": "workspace:*"
   },
   "devDependencies": {

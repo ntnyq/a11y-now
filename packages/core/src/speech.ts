@@ -15,7 +15,7 @@ export const createWebSpeechEngine = (): SpeechEngine => {
       ? globalThis.speechSynthesis
       : null
   return {
-    available: synth != null,
+    available: synth !== null,
     cancel: () => {
       synth?.cancel()
     },
@@ -27,16 +27,39 @@ export const createWebSpeechEngine = (): SpeechEngine => {
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = options.locale
       utterance.rate = options.rate
+      const { onEnd } = options
+      if (onEnd) {
+        // Fire exactly once — browsers emit `end` on completion and `error`
+        // on cancellation/interruption, and some emit both.
+        let done = false
+        const finish = (): void => {
+          if (!done) {
+            done = true
+            onEnd()
+          }
+        }
+        utterance.addEventListener('end', finish)
+        utterance.addEventListener('error', finish)
+      }
       synth.speak(utterance)
     },
   }
 }
 
+const noop = (): void => {
+  // Intentionally silent.
+}
+
 /** Silent engine used when nothing is available (e.g. happy-dom tests). */
 export const createSilentEngine = (): SpeechEngine => ({
   available: false,
-  cancel: () => {},
-  speak: () => {},
+  cancel: noop,
+  speak: (text, options) => {
+    // Report instant completion so sequenced reading still drains.
+    if (options.onEnd) {
+      queueMicrotask(options.onEnd)
+    }
+  },
 })
 
 export interface SpeechCenter extends SpeechService {
@@ -49,7 +72,7 @@ export const createSpeechService = (
   i18n: I18nService,
   initial: { enabled: boolean; rate: number },
 ): SpeechCenter => {
-  let enabled = initial.enabled
+  let { enabled } = initial
   let muted = false
   let rate = clamp(initial.rate, 1, 3)
 
@@ -87,7 +110,11 @@ export const createSpeechService = (
         return
       }
       events.emit('speech:speak', { text })
-      engine.speak(text, { locale: i18n.getLocale(), rate })
+      engine.speak(text, {
+        locale: i18n.getLocale(),
+        onEnd: options?.onEnd,
+        rate,
+      })
     },
   }
 }

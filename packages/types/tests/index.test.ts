@@ -1,5 +1,5 @@
-import { expect, it } from 'vitest'
 import type { A11yPlugin, A11yTheme } from '@a11y-now/types'
+import { expect, it } from 'vitest'
 
 it('type contracts are usable at compile time', () => {
   const plugin: A11yPlugin<{ step: number }, { value: () => number }> = {

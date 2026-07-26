@@ -9,6 +9,8 @@ export * from '@a11y-now/shared'
 export { createDomService } from './dom'
 export { createEventBus } from './events'
 export { createA11yNow } from './kernel'
+export { createRemoteTTSEngine } from './remote-tts'
+export type { RemoteTTSContext, RemoteTTSEngineOptions } from './remote-tts'
 export { createShortcutCenter } from './shortcuts'
 export {
   createSilentEngine,
@@ -48,8 +50,11 @@ export const configurePlugin = <
   State extends StateDefaults = StateDefaults,
 >(
   plugin: A11yPlugin<Options, Api, State>,
-  options: Options,
-): ConfiguredPlugin<Options, Api, State> => ({ options, plugin })
+  options?: Options,
+): ConfiguredPlugin<Options, Api, State> => ({
+  options: options as Options,
+  plugin,
+})
 
 /** Identity helper: full type inference for theme definitions. */
 export const defineTheme = (theme: A11yTheme): A11yTheme => theme

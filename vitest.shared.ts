@@ -16,9 +16,13 @@ const PLUGINS = [
   'pin',
   'help',
   'exit',
+  'pinyin',
+  'zh-convert',
+  'elder-mode',
+  'auto-theme',
 ]
 const THEMES = ['default', 'deep-blue', 'chocolate', 'high-contrast', 'forest']
-const FRAMEWORKS = ['vue', 'react', 'svelte', 'solid', 'element']
+const FRAMEWORKS = ['vue', 'react', 'svelte', 'solid', 'element', 'next']
 
 /**
  * Resolve workspace packages to their sources so tests never require a build.
@@ -61,6 +65,5 @@ export const defineProject = (environment: 'node' | 'happy-dom') =>
     test: {
       environment,
       include: ['tests/**/*.test.ts'],
-      watch: false,
     },
   })

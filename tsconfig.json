@@ -31,6 +31,16 @@
       "@a11y-now/plugin-pin": ["./packages-plugins/pin/src/index.ts"],
       "@a11y-now/plugin-help": ["./packages-plugins/help/src/index.ts"],
       "@a11y-now/plugin-exit": ["./packages-plugins/exit/src/index.ts"],
+      "@a11y-now/plugin-pinyin": ["./packages-plugins/pinyin/src/index.ts"],
+      "@a11y-now/plugin-zh-convert": [
+        "./packages-plugins/zh-convert/src/index.ts"
+      ],
+      "@a11y-now/plugin-elder-mode": [
+        "./packages-plugins/elder-mode/src/index.ts"
+      ],
+      "@a11y-now/plugin-auto-theme": [
+        "./packages-plugins/auto-theme/src/index.ts"
+      ],
       "@a11y-now/theme-default": ["./packages-themes/default/src/index.ts"],
       "@a11y-now/theme-deep-blue": ["./packages-themes/deep-blue/src/index.ts"],
       "@a11y-now/theme-chocolate": ["./packages-themes/chocolate/src/index.ts"],
@@ -42,7 +52,9 @@
       "@a11y-now/react": ["./packages-frameworks/react/src/index.ts"],
       "@a11y-now/svelte": ["./packages-frameworks/svelte/src/index.ts"],
       "@a11y-now/solid": ["./packages-frameworks/solid/src/index.ts"],
-      "@a11y-now/element": ["./packages-frameworks/element/src/index.ts"]
+      "@a11y-now/element": ["./packages-frameworks/element/src/index.ts"],
+      "@a11y-now/next": ["./packages-frameworks/next/src/index.ts"],
+      "@a11y-now/nuxt": ["./packages-frameworks/nuxt/src/module.ts"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true

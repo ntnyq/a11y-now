@@ -1,25 +1,37 @@
-import {
-  configurePlugin,
-  definePlugin,
-  SPEECH_RATES,
-  speakableText,
-} from '@a11y-now/core'
+import { configurePlugin, definePlugin, SPEECH_RATES } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
+import {
+  createContinuousReading,
+  createHoverReading,
+  DEFAULT_SEGMENT_SELECTOR,
+} from './reading'
 
 export type ReadMode = 'continuous' | 'point'
 
 export interface SpeechPluginOptions {
-  /** Max characters read in one continuous pass, defaults to 3000. */
+  /**
+   * Max total characters enqueued per continuous pass.
+   * `0` (the default) reads the whole page — the queue can be stopped at
+   * any time, so no hard cap is needed.
+   */
   continuousLimit?: number
   /** Hover-read debounce in ms, defaults to 150. */
   hoverDelay?: number
+  /** Scroll the segment being read into view, defaults to true. */
+  scrollIntoView?: boolean
+  /** Block-level selector used to split the page into read segments. */
+  segmentSelector?: string
 }
 
 export interface SpeechPluginApi {
   getMode: () => ReadMode
-  /** Read the main page content once (continuous mode entry point). */
+  /** Is a continuous pass currently in progress? */
+  isReading: () => boolean
+  /** Read the main page content segment by segment (continuous entry point). */
   readPage: () => void
   setMode: (mode: ReadMode) => void
+  /** Stop the current continuous pass, if any. */
+  stopReading: () => void
   toggleVoice: () => void
 }
 
@@ -38,7 +50,7 @@ const ICON_MODE =
   '<svg viewBox="0 0 24 24"><path d="M9 2a2 2 0 0 0-2 2v8.6l-1.3-1.3a2 2 0 1 0-2.8 2.8L8.5 20H17l3-7V9a2 2 0 0 0-2-2h-1V6a2 2 0 0 0-2-2h-1a2 2 0 0 0-2-2H9Z"/></svg>'
 
 const speechPlugin = definePlugin<
-  SpeechPluginOptions | undefined,
+  SpeechPluginOptions,
   SpeechPluginApi,
   SpeechState
 >({
@@ -49,6 +61,7 @@ const speechPlugin = definePlugin<
       'speech.mode.point': 'Point reading, switch with {shortcut}',
       'speech.rate': 'Rate',
       'speech.rate.desc': 'Current rate {rate}x, adjust with {shortcut}',
+      'speech.reading.done': 'Finished reading the page',
       'speech.voice': 'Voice',
       'speech.voice.off': 'Voice is off, enable with {shortcut}',
       'speech.voice.on': 'Voice is on, disable with {shortcut}',
@@ -59,6 +72,7 @@ const speechPlugin = definePlugin<
       'speech.mode.point': '当前为指读，切换阅读方式 {shortcut}',
       'speech.rate': '语速',
       'speech.rate.desc': '当前语速为 {rate} 倍，调节语速 {shortcut}',
+      'speech.reading.done': '本页内容朗读完毕',
       'speech.voice': '声音开关',
       'speech.voice.off': '当前声音已关闭，开启声音 {shortcut}',
       'speech.voice.on': '当前声音已开启，关闭声音 {shortcut}',
@@ -66,8 +80,7 @@ const speechPlugin = definePlugin<
   },
   name: 'speech',
   setup: ctx => {
-    const hoverDelay = ctx.options?.hoverDelay ?? 150
-    const continuousLimit = ctx.options?.continuousLimit ?? 3000
+    const hoverDelay = ctx.options.hoverDelay ?? 150
     const shortcut = (key: string): string =>
       ctx.shortcuts.format({ alt: true, ctrl: true, key })
 
@@ -134,50 +147,27 @@ const speechPlugin = definePlugin<
         { shortcut: shortcut('f') },
       )
 
-    let hoverTimer: ReturnType<typeof setTimeout> | null = null
-    let lastSpoken: Element | null = null
-    const onHover = (event: MouseEvent): void => {
-      if (getMode() !== 'point' || !ctx.speech.isEnabled()) {
-        return
-      }
-      const target = event.target as Element | null
-      if (!target || target.closest('a11y-now-host')) {
-        return
-      }
-      const el = target.closest('a, button, [role], h1, h2, h3, h4, p, li, label, input, td, th') ?? target
-      if (el === lastSpoken) {
-        return
-      }
-      if (hoverTimer) {
-        clearTimeout(hoverTimer)
-      }
-      hoverTimer = setTimeout(() => {
-        lastSpoken = el
-        const text = speakableText(el)
-        if (text) {
-          ctx.speech.speak(text)
-        }
-      }, hoverDelay)
-    }
-    document.addEventListener('mouseover', onHover, true)
+    const disposeHover = createHoverReading(ctx, {
+      delay: hoverDelay,
+      isActive: () => getMode() === 'point',
+    })
 
-    const readPage = (): void => {
-      const root =
-        document.querySelector('main, article, [role="main"]') ?? document.body
-      const text = speakableText(root).slice(0, continuousLimit)
-      if (text) {
-        ctx.speech.speak(text)
-      }
-    }
+    // --- continuous reading: segment queue with progress highlight
+    const reading = createContinuousReading(ctx, {
+      limit: ctx.options.continuousLimit ?? 0,
+      onDone: () => {
+        ctx.ui.announce(ctx.i18n.t('speech.reading.done'))
+      },
+      scroll: ctx.options.scrollIntoView ?? true,
+      selector: ctx.options.segmentSelector ?? DEFAULT_SEGMENT_SELECTOR,
+    })
 
     const setMode = (mode: ReadMode): void => {
       ctx.state.set('mode', mode)
       modeBtn.update({ description: modeDesc })
       ctx.ui.announce(modeDesc())
       if (mode === 'continuous') {
-        readPage()
-      } else {
-        ctx.speech.cancel()
+        reading.readPage()
       }
     }
     const toggleMode = (): void => {
@@ -193,6 +183,25 @@ const speechPlugin = definePlugin<
       onPress: toggleMode,
       order: 22,
     })
+
+    const stoppers = [
+      // Leaving continuous mode (including a state reset) ends the pass.
+      ctx.state.subscribe((key, value) => {
+        if (key === 'mode' && value !== 'continuous') {
+          reading.stopReading()
+        }
+      }),
+      ctx.events.on('speech:enabled', ({ enabled }) => {
+        if (!enabled) {
+          reading.stopReading()
+        }
+      }),
+      ctx.events.on('screen-reader:change', ({ enabled }) => {
+        if (enabled) {
+          reading.stopReading()
+        }
+      }),
+    ]
 
     const unregisters = [
       ctx.shortcuts.register({
@@ -224,14 +233,17 @@ const speechPlugin = definePlugin<
     return {
       api: {
         getMode,
-        readPage,
+        isReading: reading.isReading,
+        readPage: reading.readPage,
         setMode,
+        stopReading: reading.stopReading,
         toggleVoice,
       },
       dispose: () => {
-        document.removeEventListener('mouseover', onHover, true)
-        if (hoverTimer) {
-          clearTimeout(hoverTimer)
+        reading.stopReading()
+        disposeHover()
+        for (const stop of stoppers) {
+          stop()
         }
         for (const unregister of unregisters) {
           unregister()
@@ -248,14 +260,17 @@ const speechPlugin = definePlugin<
 
 /** Self-voicing plugin: voice toggle, rate and read mode. */
 export const speech = (
-  options?: SpeechPluginOptions,
-): ConfiguredPlugin<
-  SpeechPluginOptions | undefined,
-  SpeechPluginApi,
-  SpeechState
-> => configurePlugin(speechPlugin, options)
+  options: SpeechPluginOptions = {},
+): ConfiguredPlugin<SpeechPluginOptions, SpeechPluginApi, SpeechState> =>
+  configurePlugin(speechPlugin, options)
 
 declare module '@a11y-now/types' {
+  interface A11yEventMap {
+    /** Continuous reading progress, one per spoken segment. */
+    'speech:reading': { index: number; total: number }
+    /** A continuous pass finished or was stopped. */
+    'speech:reading-end': Record<string, never>
+  }
   interface A11yPluginRegistry {
     speech: SpeechPluginApi
   }
