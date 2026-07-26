@@ -29,6 +29,8 @@ export default defineConfig({
             { link: '/frameworks/svelte', text: 'Svelte' },
             { link: '/frameworks/solid', text: 'Solid' },
             { link: '/frameworks/element', text: 'Web Component' },
+            { link: '/frameworks/nuxt', text: 'Nuxt' },
+            { link: '/frameworks/next', text: 'Next.js' },
           ],
           text: '框架接入',
         },
@@ -62,6 +64,15 @@ export default defineConfig({
             { link: '/plugins/exit', text: '退出服务' },
           ],
           text: '内置插件',
+        },
+        {
+          items: [
+            { link: '/plugins/pinyin', text: '拼音标注' },
+            { link: '/plugins/zh-convert', text: '简繁转换' },
+            { link: '/plugins/elder-mode', text: '关怀版' },
+            { link: '/plugins/auto-theme', text: '自动配色' },
+          ],
+          text: '可选扩展',
         },
       ],
       '/themes/': [
