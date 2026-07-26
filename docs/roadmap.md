@@ -71,6 +71,7 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 ## 已知风险备忘
 
 1. **依赖版本漂移**：happy-dom / vitepress alpha 升级曾引发行为变化，建议 Renovate 对二者单独分组、开 automerge 前先跑全量测试；
-2. **Node 26 全局污染**：见 P0-2，Node 后续版本可能默认启用 localStorage，setup 层修法更稳；
-3. **dts 工具链**：如日后想换回 tsgo，注意 rolldown-plugin-dts 检测到 TS 7 系（含 typescript 6.x）会自动切 tsgo 生成器——typescript 版本需与 dts 后端配套调整；
-4. **VitePress 2 alpha**：文档站阻塞时降级 1.x 即可，内容零改动。
+2. **happy-dom MutationObserver GC bug（已打补丁，2026-07-27）**：happy-dom ≤20.11.1 内部监听回调仅由 `WeakRef` 持有（`MutationObserverListener` 构造器里的内联箭头函数无任何强引用），V8 GC 后 `deref()` 变 undefined，**活跃 observer 静默失联**。表现为 CI Windows×Node24 `test:coverage`（覆盖率插桩加大 GC 压力）上 zh-convert 动态监听用例间歇失败，轮询等待也救不回。已用 `pnpm patch` 打补丁（`patches/happy-dom@20.11.1.patch`，构造器里对回调补一个强引用），`node --expose-gc` 最小复现脚本验证修复前必现、修复后消失。升级 happy-dom 时若补丁失配会报错——先确认上游是否已修复此问题再移除补丁；
+3. **Node 26 全局污染**：见 P0-2，Node 后续版本可能默认启用 localStorage，setup 层修法更稳；
+4. **dts 工具链**：如日后想换回 tsgo，注意 rolldown-plugin-dts 检测到 TS 7 系（含 typescript 6.x）会自动切 tsgo 生成器——typescript 版本需与 dts 后端配套调整；
+5. **VitePress 2 alpha**：文档站阻塞时降级 1.x 即可，内容零改动。

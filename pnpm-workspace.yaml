@@ -32,3 +32,5 @@ minimumReleaseAge: 0
 ignoreWorkspaceRootCheck: true
 packageManagerStrict: false
 shellEmulator: true
+patchedDependencies:
+  happy-dom@20.11.1: patches/happy-dom@20.11.1.patch

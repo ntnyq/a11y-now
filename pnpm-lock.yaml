@@ -58,6 +58,9 @@ catalogs:
       specifier: ^3.5.40
       version: 3.5.40
 
+patchedDependencies:
+  happy-dom@20.11.1: f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3
+
 importers:
 
   .:
@@ -85,7 +88,7 @@ importers:
         version: 12.0.0
       happy-dom:
         specifier: 'catalog:'
-        version: 20.11.1
+        version: 20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3)
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -115,7 +118,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
+        version: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3))(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
 
   docs:
     devDependencies:
@@ -3117,7 +3120,7 @@ snapshots:
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
       playwright: 1.62.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3))(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -3133,7 +3136,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3))(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
       ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
@@ -3153,7 +3156,7 @@ snapshots:
       obug: 2.1.4
       std-env: 4.2.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3))(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
     optionalDependencies:
       '@vitest/browser': 4.1.10(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@4.1.10)
 
@@ -3544,7 +3547,7 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  happy-dom@20.11.1:
+  happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3):
     dependencies:
       '@types/node': 26.1.1
       '@types/whatwg-mimetype': 3.0.2
@@ -4295,7 +4298,7 @@ snapshots:
       - universal-cookie
       - yaml
 
-  vitest@4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0)):
+  vitest@4.1.10(@types/node@26.1.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3))(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))
@@ -4321,7 +4324,7 @@ snapshots:
       '@types/node': 26.1.1
       '@vitest/browser-playwright': 4.1.10(playwright@1.62.0)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/coverage-v8': 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
-      happy-dom: 20.11.1
+      happy-dom: 20.11.1(patch_hash=f3d193c9421aa1654049e038ac5d91d3b904530b97baaad308bf7200d54948b3)
     transitivePeerDependencies:
       - msw
 
