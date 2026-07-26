@@ -88,13 +88,21 @@ const HELP_CSS = css`
     outline-offset: 2px;
   }
 
+  .help-scroll {
+    overflow: auto;
+  }
+
+  .help-scroll:focus-visible {
+    outline: var(--a11y-outline-width) solid var(--a11y-color-focus-ring);
+    outline-offset: -2px;
+  }
+
   .help-list {
     display: grid;
     grid-template-columns: max-content 1fr;
     column-gap: 20px;
     row-gap: 10px;
     align-items: center;
-    overflow: auto;
     margin: 0;
     padding: 14px 20px 20px;
   }
@@ -135,12 +143,14 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
       'help.close': 'Close',
       'help.desc': 'Show the shortcut guide, {shortcut}',
       'help.label': 'Help',
+      'help.list': 'Shortcut list',
       'help.title': 'Keyboard shortcuts',
     },
     'zh-CN': {
       'help.close': '关闭',
       'help.desc': '打开操作说明，{shortcut}',
       'help.label': '说明',
+      'help.list': '快捷键列表',
       'help.title': '快捷键操作说明',
     },
   },
@@ -204,6 +214,14 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
       head.append(title, closeBtn)
       dialog.append(head)
 
+      // The list scrolls when shortcuts overflow the dialog; keyboard
+      // users need the scroll container focusable to scroll it, and the
+      // wrapper keeps the `dl` semantics intact for its dt/dd children.
+      const scroller = document.createElement('div')
+      scroller.className = 'help-scroll'
+      scroller.setAttribute('role', 'group')
+      scroller.setAttribute('aria-label', ctx.i18n.t('help.list'))
+      scroller.tabIndex = 0
       const list = document.createElement('dl')
       list.className = 'help-list'
       for (const info of ctx.shortcuts.list()) {
@@ -212,7 +230,8 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
         dd.textContent = info.description
         list.append(keycaps(ctx.shortcuts.format(info)), dd)
       }
-      dialog.append(list)
+      scroller.append(list)
+      dialog.append(scroller)
 
       shadow.append(backdrop, dialog)
       closeBtn.focus()
