@@ -13,9 +13,9 @@
 
 Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file` 时为 `undefined`），会遮蔽 happy-dom 注入的实现——vitest 的 happy-dom 环境看到 `globalThis` 已有同名 key 就不再覆盖，且 `window` 与 `document.defaultView` 均被重映射回打补丁后的 global，setup 里拿不到真实 happy-dom window。落地修法：根级 `vitest.setup.ts`（经 `vitest.shared.ts` 与根配置 `setupFiles` 注入），对值为 `undefined` 的 `localStorage` / `sessionStorage` 按测试文件粒度安装内存版 Storage。已在本机 node 26.2.0 验证：修复前 26 用例挂，修复后 117/117 全过（含覆盖率门禁）。
 
-### 3. 文档站首次构建与部署
+### 3. 文档站首次构建与部署 ✅（2026-07-26）
 
-`docs:build`（VitePress 2.0 alpha）还没实际构建过。跑通 `pnpm docs:dev` 目检导航/侧栏/中文渲染，`docs:build` 通过后在 GitHub 仓库设置里启用 Pages（Source: GitHub Actions），验证 `docs.yml` 工作流端到端。alpha 版如有阻塞问题可降级 vitepress 1.x（页面语法完全兼容）。
+已上线：<https://ntnyq.github.io/a11y-now/>。仓库转 public 后经 API 启用 Pages（build_type=workflow），`docs.yml` 端到端通过；VitePress 配置补了 `base: '/a11y-now/'`（改用自定义域名时需改回 `'/'`）。真实浏览器验证：首页/指南/typedoc API 页渲染正常、资源 200、控制台零报错，自举工具栏挂载且分区计数随页面联动。
 
 ### 4. Playground 真机体验 QA
 
