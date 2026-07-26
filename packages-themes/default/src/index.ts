@@ -1,9 +1,9 @@
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
 /** Leaves both the toolbar and the page untouched. */
-export const defaultTheme = {
+export const defaultTheme = defineTheme({
   displayName: { 'en-US': 'Default', 'zh-CN': '默认' },
   name: 'default',
-} satisfies A11yTheme
+})
 
 export default defaultTheme

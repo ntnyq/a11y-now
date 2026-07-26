@@ -1,7 +1,7 @@
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
 /** Chocolate background with white text (巧克力色). */
-export const chocolate = {
+export const chocolate = defineTheme({
   displayName: { 'en-US': 'Chocolate', 'zh-CN': '巧克力色' },
   name: 'chocolate',
   page: {
@@ -18,6 +18,6 @@ export const chocolate = {
     'color-disabled-fg': 'rgb(190, 160, 160)',
     'color-fg': 'rgb(255, 255, 255)',
   },
-} satisfies A11yTheme
+})
 
 export default chocolate

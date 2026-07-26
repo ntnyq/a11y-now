@@ -44,7 +44,7 @@
   "scripts": {
     "build": "tsdown"
   },
-  "dependencies": {
-    "@a11y-now/types": "workspace:*"
+  "devDependencies": {
+    "@a11y-now/core": "workspace:*"
   }
 }

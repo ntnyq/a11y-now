@@ -360,34 +360,34 @@ importers:
         version: link:../../packages/types
 
   packages-themes/chocolate:
-    dependencies:
-      '@a11y-now/types':
+    devDependencies:
+      '@a11y-now/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
 
   packages-themes/deep-blue:
-    dependencies:
-      '@a11y-now/types':
+    devDependencies:
+      '@a11y-now/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
 
   packages-themes/default:
-    dependencies:
-      '@a11y-now/types':
+    devDependencies:
+      '@a11y-now/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
 
   packages-themes/forest:
-    dependencies:
-      '@a11y-now/types':
+    devDependencies:
+      '@a11y-now/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
 
   packages-themes/high-contrast:
-    dependencies:
-      '@a11y-now/types':
+    devDependencies:
+      '@a11y-now/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
 
   packages/a11y-now:
     dependencies:

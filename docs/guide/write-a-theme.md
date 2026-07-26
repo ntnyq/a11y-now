@@ -1,12 +1,12 @@
 # 编写主题
 
-主题是**零运行时的纯数据包**（命名约定 `a11y-now-theme-*`），只依赖
-`@a11y-now/types`：
+主题是**零运行时的纯数据包**（官方包命名 `@a11y-now/theme-*`），用
+`@a11y-now/core` 导出的 `defineTheme` 定义：
 
 ```ts
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
-export const nightOwl = {
+export const nightOwl = defineTheme({
   displayName: { 'en-US': 'Night Owl', 'zh-CN': '夜枭' },
   name: 'night-owl',
   page: {
@@ -18,10 +18,17 @@ export const nightOwl = {
     'color-bg': 'rgb(1, 22, 39)',
     'color-fg': 'rgb(214, 222, 235)',
   },
-} satisfies A11yTheme
+})
 ```
 
-`satisfies A11yTheme` 让 token 键名与值类型在编译期校验，多写少写立即报错。
+## defineTheme
+
+`defineTheme` 是纯类型辅助（identity 函数）：token 键名与值类型在编译期
+校验，多写少写立即报错，与 `definePlugin` 一一对应。写单文件主题时直接
+内联对象即可；发布独立主题包时，把 `@a11y-now/core` 放进
+**devDependencies** 并在 tsdown 配置里加
+`noExternal: [/^@a11y-now\//u]`——identity 函数会被内联并摇树，产物零
+运行时依赖、类型声明自包含（官方 5 个主题包即此形态，产物仅数十行）。
 
 ## 使用
 

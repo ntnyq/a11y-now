@@ -1,7 +1,7 @@
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
 /** Deep blue background with white text (深蓝白). */
-export const deepBlue = {
+export const deepBlue = defineTheme({
   displayName: { 'en-US': 'Deep Blue', 'zh-CN': '深蓝白' },
   name: 'deep-blue',
   page: {
@@ -18,6 +18,6 @@ export const deepBlue = {
     'color-disabled-fg': 'rgb(140, 165, 186)',
     'color-fg': 'rgb(255, 255, 255)',
   },
-} satisfies A11yTheme
+})
 
 export default deepBlue

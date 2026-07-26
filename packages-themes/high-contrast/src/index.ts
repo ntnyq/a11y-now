@@ -1,7 +1,7 @@
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
 /** Black background, white text, amber links (黑底白字). */
-export const highContrast = {
+export const highContrast = defineTheme({
   displayName: { 'en-US': 'High Contrast', 'zh-CN': '黑底白字' },
   name: 'high-contrast',
   page: {
@@ -19,6 +19,6 @@ export const highContrast = {
     'color-disabled-fg': 'rgb(130, 130, 130)',
     'color-fg': 'rgb(255, 255, 255)',
   },
-} satisfies A11yTheme
+})
 
 export default highContrast

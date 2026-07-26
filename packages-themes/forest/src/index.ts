@@ -1,7 +1,7 @@
-import type { A11yTheme } from '@a11y-now/types'
+import { defineTheme } from '@a11y-now/core'
 
 /** Forest green background with white text (森林绿). */
-export const forest = {
+export const forest = defineTheme({
   displayName: { 'en-US': 'Forest', 'zh-CN': '森林绿' },
   name: 'forest',
   page: {
@@ -18,6 +18,6 @@ export const forest = {
     'color-disabled-fg': 'rgb(170, 205, 170)',
     'color-fg': 'rgb(255, 255, 255)',
   },
-} satisfies A11yTheme
+})
 
 export default forest
