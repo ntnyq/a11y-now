@@ -48,11 +48,12 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 
 ### 6. CI 质量门禁补齐
 
-按 plan.md 承诺补上：每包 `publint` + `arethetypeswrong`（发布产物/类型双校验）、`vitest --coverage` 接入 CI 并为 core 与各插件包设 90% 行覆盖率阈值。
+- ✅ 覆盖率（2026-07-26）：CI test job 改跑 `test:coverage`，core 与 16 个插件包各设 90% 行覆盖率阈值（vitest.config.ts thresholds，逐包 glob 独立断言），当前 core 94.8%、全插件达标；
+- ⬜ 每包 `publint` + `arethetypeswrong`（发布产物/类型双校验）仍待接入 CI（发布前已本地抽查 5 包通过）。
 
-### 7. 浏览器端 e2e 固化
+### 7. 浏览器端 e2e 固化 ✅（2026-07-26）
 
-把本次开发中验证过的 13 项真实浏览器冒烟（含「退出后 DOM 逐字节零残留」）固化为仓库内的 vitest browser mode（playwright/chromium）用例，防回归。
+`vitest.browser.config.ts` + `tests/browser/`（playwright/chromium，`pnpm test:browser`，CI 独立 e2e job）：全预设挂载/逐字节零残留、方向键 roving 真实焦点、Ctrl+Alt+= 真实缩放、换肤 computed style 断言与还原、帮助对话框焦点管理（Esc 关闭还原焦点）、退出并持久化。落地时抓到并修复一个真实缺陷：roving 未跳过原生 `disabled` 按钮，方向键会把焦点丢失（happy-dom 无法暴露）。
 
 ### 8. 文档补全
 

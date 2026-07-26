@@ -67,7 +67,9 @@ export const createToolbar = (
   const focusables = (): HTMLButtonElement[] =>
     [...entries.values()]
       .map(entry => entry.el)
-      .filter(el => el.isConnected && !el.hidden)
+      // Natively disabled buttons cannot receive focus — roving over them
+      // would drop focus into the void.
+      .filter(el => el.isConnected && !el.hidden && !el.disabled)
 
   const onKeydown = (event: KeyboardEvent): void => {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']

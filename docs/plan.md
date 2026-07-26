@@ -366,7 +366,7 @@ packages-plugins/zoom/
 ```
 
 - 根 `vitest.config.ts` 改为 `projects: ['packages/*', 'packages-frameworks/*', 'packages-plugins/*', 'packages-themes/*']` 聚合，各包配置自己的环境。
-- 环境分层：types/shared/themes 用 node（主题包测试重点：token 键完整性、`satisfies` 之外的运行时校验）；core/plugins 用 **happy-dom**（挂载卸载、快捷键、状态持久化、区域扫描、**主题切换后变量值断言与还原断言**）；框架包用对应 Testing Library；关键交互路径（工具栏键盘遍历、shadow DOM 焦点管理、换肤视觉回归）用 **vitest browser mode（playwright/chromium）** 做少量端到端用例。
+- 环境分层：types/shared/themes 用 node（主题包测试重点：token 键完整性、`satisfies` 之外的运行时校验）；core/plugins 用 **happy-dom**（挂载卸载、快捷键、状态持久化、区域扫描、**主题切换后变量值断言与还原断言**）；框架包直接用各框架原生挂载 API 驱动（如 `react-dom/client` + `act`）——断言目标是「工具栏挂载/卸载与实例桥接」而非组件语义查询，原生 API 足够且零额外依赖，故不引入 Testing Library（实现决议，2026-07-26）；关键交互路径（工具栏键盘遍历、shadow DOM 焦点管理、换肤视觉回归）用 **vitest browser mode（playwright/chromium）** 做少量端到端用例。
 - 覆盖率 `@vitest/coverage-v8`，core 与各插件包行覆盖率门槛 90%。
 - 每个插件包的测试模板统一：注册 → 激活 → 断言 DOM 效果 → 快捷键触发 → 持久化恢复 → 卸载无残留（「无残留」用快照对比 `document.documentElement`，这是源页面审查中验证过的关键性质）。
 

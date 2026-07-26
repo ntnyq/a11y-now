@@ -158,3 +158,48 @@ it('web speech engine is unavailable without speechSynthesis', () => {
   // happy-dom exposes no speechSynthesis global.
   expect(createWebSpeechEngine().available).toBe(false)
 })
+
+class FakeUtterance extends EventTarget {
+  lang = ''
+  rate = 1
+  text: string
+
+  constructor(text: string) {
+    super()
+    this.text = text
+  }
+}
+
+it('web speech engine speaks and reports completion once', () => {
+  const synth = {
+    cancel: vi.fn<() => void>(),
+    speak: vi.fn<(utterance: FakeUtterance) => void>(),
+  }
+  vi.stubGlobal('speechSynthesis', synth)
+  vi.stubGlobal('SpeechSynthesisUtterance', FakeUtterance)
+
+  const engine = createWebSpeechEngine()
+  expect(engine.available).toBe(true)
+
+  const onEnd = vi.fn<() => void>()
+  engine.speak('你好', { locale: 'zh-CN', onEnd, rate: 2 })
+  expect(synth.cancel).toHaveBeenCalledTimes(1)
+  const utterance = synth.speak.mock.calls[0]?.[0] as FakeUtterance
+  expect(utterance.text).toBe('你好')
+  expect(utterance.lang).toBe('zh-CN')
+  expect(utterance.rate).toBe(2)
+
+  // Browsers may emit both `end` and `error` — completion fires once.
+  utterance.dispatchEvent(new Event('end'))
+  utterance.dispatchEvent(new Event('error'))
+  expect(onEnd).toHaveBeenCalledTimes(1)
+
+  // Empty text is a no-op; onEnd-less utterances skip listener wiring.
+  engine.speak('', { locale: 'zh-CN', rate: 1 })
+  expect(synth.speak).toHaveBeenCalledTimes(1)
+  engine.speak('again', { locale: 'zh-CN', rate: 1 })
+  expect(synth.speak).toHaveBeenCalledTimes(2)
+
+  engine.cancel()
+  expect(synth.cancel).toHaveBeenCalledTimes(3)
+})

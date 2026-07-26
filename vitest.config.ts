@@ -1,5 +1,11 @@
 import { defineConfig } from 'vitest/config'
-import { workspaceAlias } from './vitest.shared'
+import { PLUGINS, workspaceAlias } from './vitest.shared'
+
+/** Per-package 90% line-coverage gates for the kernel and every plugin. */
+const coverageThresholds = Object.fromEntries([
+  ['packages/core/src/**', { lines: 90 }],
+  ...PLUGINS.map(name => [`packages-plugins/${name}/src/**`, { lines: 90 }]),
+])
 
 export default defineConfig({
   resolve: {
@@ -14,6 +20,7 @@ export default defineConfig({
         'packages-frameworks/*/src/**',
       ],
       provider: 'v8',
+      thresholds: coverageThresholds,
     },
     projects: [
       'packages/*',
@@ -26,7 +33,9 @@ export default defineConfig({
         },
         test: {
           environment: 'happy-dom',
-          include: ['tests/**/*.test.ts'],
+          // Top level only — tests/browser/ belongs to the opt-in
+          // vitest.browser.config.ts project.
+          include: ['tests/*.test.ts'],
           name: 'integration',
         },
       },

@@ -3,7 +3,7 @@ import { defineProject as defineVitestProject } from 'vitest/config'
 
 const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
-const PLUGINS = [
+export const PLUGINS = [
   'region-nav',
   'speech',
   'screen-reader',
