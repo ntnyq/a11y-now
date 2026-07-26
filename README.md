@@ -10,6 +10,8 @@
 Accessibility toolbar for any website — pluggable, themeable,
 framework-agnostic, type-safe, and it leaves no trace on unmount.
 
+Docs: [简体中文](https://ntnyq.github.io/a11y-now/) · [English](https://ntnyq.github.io/a11y-now/en/)
+
 ## Quick start
 
 ```shell

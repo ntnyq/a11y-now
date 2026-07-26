@@ -58,6 +58,20 @@ if (!wasExited()) {
 }
 ```
 
+## 界面语言
+
+工具栏内置简体中文与英文文案,默认跟随 `<html lang>`(`en*` 匹配英文、
+`zh*` 匹配中文,其余回退中文),也可显式指定或自带语言包:
+
+```ts
+createA11yNow({ locale: 'en' }).mount()
+
+createA11yNow({
+  locale: 'fr-FR',
+  messages: { 'fr-FR': { 'toolbar.label': "Barre d'accessibilité" } },
+}).mount()
+```
+
 ## 预设
 
 | 预设                   | 内容                                                |
