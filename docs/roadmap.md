@@ -30,7 +30,7 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 - 踩坑记录：granular token 只授 `@a11y-now` scope 时,无 scope 的新包 `a11y-now` 发布 403（不存在的无 scope 包需要 All packages 权限）——主包本地手动发布,重跑 workflow 补齐（`pnpm -r publish` 自动跳过已上架版本）；
 - 验收通过：32/32 包 0.1.0 上架；干净环境 `npm i a11y-now` 依赖解析正确、`createA11yNow` 可导入；unpkg IIFE 200（45.5 KB）；changelogithub 生成 [GitHub Release](https://github.com/ntnyq/a11y-now/releases/tag/v0.1.0)。
 
-发布后待办：在 npm 为 32 个包配置 Trusted Publishing（OIDC，指向 `release.yml`），完成后撤销引导 token 并删除 workflow 的 `registry-url` / `NODE_AUTH_TOKEN` 两处。
+✅ 已切换 Trusted Publishing（2026-07-26）：`npm trust github`（npm ≥11.10）循环配好 32 个包（首次 2FA 后勾选 5 分钟豁免），`npm trust list` 逐包核验通过；workflow 已移除 `registry-url` / `NODE_AUTH_TOKEN`，`NPM_TOKEN` secret 已删除。后续发版零 token（OIDC + provenance），下次 0.1.x 发布即为 OIDC 通道的实测。
 
 ## P1 · 发布后加固(1~2 周)
 
