@@ -41,7 +41,9 @@ const runtimePluginPath = (): string => {
   // bundlers don't rewrite it into an asset reference.
   const base = import.meta.url
   const url = new URL('runtime/plugin.client.js', base)
-  return url.protocol === 'file:' ? fileURLToPath(url) : url.pathname
+  const path = url.protocol === 'file:' ? fileURLToPath(url) : url.pathname
+  // Nuxt expects posix-style paths; fileURLToPath yields backslashes on Windows.
+  return path.replaceAll('\\', '/')
 }
 
 const a11yNowModule = Object.assign(
