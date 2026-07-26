@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/next",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a11y-now Next.js integration: 'use client' drop-in component",
   "keywords": [
     "a11y",

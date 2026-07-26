@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-zoom",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a11y-now plugin: page zoom within safe bounds",
   "keywords": [
     "a11y",

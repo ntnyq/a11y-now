@@ -1,6 +1,6 @@
 {
   "name": "@a11y-now/plugin-exit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a11y-now plugin: exit the toolbar and remember the choice",
   "keywords": [
     "a11y",
