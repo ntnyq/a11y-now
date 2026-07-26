@@ -78,6 +78,38 @@ Node 25+ 自带实验性 `localStorage` 全局（未提供 `--localstorage-file`
 - ✅ **快捷键自定义 API**（2026-07-27）：`createA11yNow({ shortcutOverrides })` 按 id 覆写（partial 合并）或 `null` 禁用任意快捷键，`instance.shortcuts.setOverride(id, def)` 运行时改绑（`{}` 还原默认）；覆写结果自动进「操作说明」面板，冲突走既有检测立即抛错。
 - ✅ **help 弹框样式重做**（2026-07-27）：backdrop 压暗（`color-mix` 基于 fg token）+ 卡片化对话框（560px、圆角阴影）+ 头部标题栏与 ✕ 关闭（点击 backdrop / Esc / ✕ 均可关）+ 键帽风格 `<kbd>` 胶囊两列网格；样式集中于 shadow 内 `<style>`，全部引用 `--a11y-*` token，主题可完整重着色。
 
+## P5 · 下一步工作(2026-07-27 计划)
+
+### 10. 0.2.0 发布(最高优先)
+
+main 已积累 4 个未发布 feature 提交(新插件三连、快捷键覆写 API、help 重做、工具栏居中 + 总开关),文档/测试/门禁齐备、CI 全绿,发布价值成熟。注意事项:
+
+- ✅ 新包首发(2026-07-27):reading-mask / pause-motion / spacing 三包已用 `pnpm publish:new` 以 0.1.0 手动首发,npm 上均可见;首发版无 provenance 属手动通道预期,0.2.0 走 OIDC 后补齐。配套脚本沉淀在 `scripts/`:`pnpm publish:new` 自动检测 404 新包并首发(默认 0.1.0,构建 + publint/attw 前置校验,version 临时改写、发布后原样还原);`pnpm trust:new` 免登录检测「未上架或最新版无 provenance」的待配包,逐包 `npm trust github --allow-publish` 并 `npm trust list` 核验(均支持 `--dry-run`,trust 另有 `--print`)。
+- ⬜ 发版前确认三个新包已 `pnpm trust:new` 配好 trust;**0.2.0 将是新包走 OIDC 的首次实测**。
+- 流程:`release:check` 七道门禁 → `bumpp -r 0.2.0` 推 tag;发完干净环境 `npm i` 抽查 + unpkg IIFE 探活 + 各新包 `npm trust list` 核验。
+
+### 11. P1 尾巴清零
+
+- ⬜ 插件页截图/动图(P1-8):用浏览器 e2e 截图自动生成,顺带沉淀视觉基线,避免手工维护 19 张图;
+- ⬜ 「站点接入清单」指南页(P1-8):`data-a11y-skip` / `data-a11y-region` / `data-a11y-reading` 标注指南 + SSR / CSP 注意事项,双语;
+- ⬜ axe-core 实测(P1-9 的可自动化半):接入 `tests/browser/` 对 shadow DOM 工具栏与 help 对话框扫描,结论公开进文档;VoiceOver 实测保留人工;
+- ⬜ Playground 预检(P0-4 的可自动化半):真实浏览器过一遍 vanilla / vue / react 的挂载、19 插件开关与控制台零报错;体感项(Web Speech 中文音色、Safari 差异、指读节奏)留人工清单。
+
+### 12. 工程加固(候选,按需排期)
+
+- ⬜ CI 加 size-limit 体积门禁(IIFE 当前 45.5 KB 基线),防插件增长引发体积回归;
+- ⬜ Renovate 落地风险备忘 #1:happy-dom / vitepress 单独分组、关闭 automerge(当前继承全局 automerge;happy-dom 带 pnpm patch,版本漂移会直接挂 install);upstream [#2255](https://github.com/capricorn86/happy-dom/issues/2255) 修复后移除补丁;
+- ⬜ e2e 浏览器矩阵扩 firefox / webkit(Web Speech 与 reading-mask 跨引擎行为差异)。
+
+### 13. 产品候选(收集 0.2.0 反馈后挑选)
+
+highlight-links(链接强调)、focus-indicator(焦点强化)、dyslexia 字体、文本对齐调节等常见竞品能力;RemoteTTSEngine 对接一家真实厂商出教程;酝酿 1.0 的 API 冻结条件(shortcutOverrides / 事件名 / token 集稳定后)。
+
+### 人工待办(agent 无法代办)
+
+- npmjs.com 撤销 0.1.0 引导期 granular token(截至 2026-07-26 未确认);
+- VoiceOver 实测(P1-9)与真机体感 QA(P0-4 剩余项)。
+
 ## 已知风险备忘
 
 1. **依赖版本漂移**：happy-dom / vitepress alpha 升级曾引发行为变化，建议 Renovate 对二者单独分组、开 automerge 前先跑全量测试；
