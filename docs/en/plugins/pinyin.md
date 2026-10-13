@@ -16,8 +16,8 @@ original text node by node, leaving no trace.
 ## Usage
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { pinyinAnnotation } from '@a11y-now/plugin-pinyin'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [pinyinAnnotation()] }).mount()
 ```

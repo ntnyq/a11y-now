@@ -5,11 +5,14 @@ import type {
   StorageAdapter,
 } from '@a11y-now/types'
 
-const isStateValue = (value: unknown): value is StateValue =>
-  value === null ||
-  typeof value === 'boolean' ||
-  typeof value === 'number' ||
-  typeof value === 'string'
+function isStateValue(value: unknown): value is StateValue {
+  return (
+    value === null ||
+    typeof value === 'boolean' ||
+    typeof value === 'number' ||
+    typeof value === 'string'
+  )
+}
 
 /**
  * Create the plugin-scoped reactive persisted state.
@@ -17,20 +20,28 @@ const isStateValue = (value: unknown): value is StateValue =>
  * The whole scope is persisted as one JSON blob under
  * `<prefix>:plugin:<name>`, mirroring how the reference toolbar keeps one
  * cookie per feature — but versionable and namespaced.
+ *
+ * @template T - Persisted state keys and their value types.
+ * @param name - Plugin name used in the storage key.
+ * @param defaults - Initial values and the keys restored from persisted state.
+ * @param storage - Persistence adapter, or `null` to keep state only in memory.
+ * @param prefix - Namespace prepended to the plugin storage key.
+ * @returns State restored from storage with mutation, reset, and subscription
+ *   methods.
  */
-export const createScopedState = <T extends StateDefaults>(
+export function createScopedState<T extends StateDefaults>(
   name: string,
   defaults: T,
   storage: StorageAdapter | null,
   prefix: string,
-): ScopedState<T> => {
+): ScopedState<T> {
   const storageKey = `${prefix}:plugin:${name}`
   const values: Record<string, StateValue> = { ...defaults }
   const subscribers = new Set<
     (key: keyof T & string, value: T[keyof T]) => void
   >()
 
-  const restore = (): void => {
+  function restore(): void {
     const raw = storage?.get(storageKey)
     if (raw === null || raw === undefined) {
       return
@@ -55,11 +66,11 @@ export const createScopedState = <T extends StateDefaults>(
   }
   restore()
 
-  const persist = (): void => {
+  function persist(): void {
     storage?.set(storageKey, JSON.stringify(values))
   }
 
-  const notify = (key: keyof T & string): void => {
+  function notify(key: keyof T & string): void {
     // Snapshot: subscribers may unsubscribe while we iterate.
     const snapshot = [...subscribers]
     for (const fn of snapshot) {
@@ -70,7 +81,7 @@ export const createScopedState = <T extends StateDefaults>(
   return {
     defaults,
     get: key => values[key as string] as T[typeof key],
-    reset: () => {
+    reset() {
       for (const key of Object.keys(defaults)) {
         values[key] = defaults[key] as StateValue
       }
@@ -79,7 +90,7 @@ export const createScopedState = <T extends StateDefaults>(
         notify(key)
       }
     },
-    set: (key, value) => {
+    set(key, value) {
       if (values[key as string] === value) {
         return
       }
@@ -87,7 +98,7 @@ export const createScopedState = <T extends StateDefaults>(
       persist()
       notify(key as keyof T & string)
     },
-    subscribe: fn => {
+    subscribe(fn) {
       subscribers.add(fn)
       return () => {
         subscribers.delete(fn)
@@ -96,19 +107,38 @@ export const createScopedState = <T extends StateDefaults>(
   }
 }
 
-/** Default storage adapter backed by `localStorage`, or `null` when absent. */
-export const createLocalStorageAdapter = (): StorageAdapter | null => {
+/**
+ * Default storage adapter backed by `localStorage`, or `null` when absent.
+ *
+ * @returns A localStorage adapter, or `null` when storage is absent or
+ *   inaccessible.
+ */
+export function createLocalStorageAdapter(): StorageAdapter | null {
   try {
     if (typeof localStorage === 'undefined') {
       return null
     }
     return {
-      get: key => localStorage.getItem(key),
-      remove: key => {
-        localStorage.removeItem(key)
+      get(key) {
+        try {
+          return localStorage.getItem(key)
+        } catch {
+          return null
+        }
       },
-      set: (key, value) => {
-        localStorage.setItem(key, value)
+      remove(key) {
+        try {
+          localStorage.removeItem(key)
+        } catch {
+          // Persistence is best-effort; runtime state still resets.
+        }
+      },
+      set(key, value) {
+        try {
+          localStorage.setItem(key, value)
+        } catch {
+          // Quota or privacy restrictions must not interrupt page updates.
+        }
       },
     }
   } catch {
@@ -116,15 +146,19 @@ export const createLocalStorageAdapter = (): StorageAdapter | null => {
   }
 }
 
-/** In-memory adapter, useful for tests and privacy-sensitive embeds. */
-export const createMemoryStorageAdapter = (): StorageAdapter => {
+/**
+ * In-memory adapter, useful for tests and privacy-sensitive embeds.
+ *
+ * @returns An independent storage adapter backed by a new in-memory map.
+ */
+export function createMemoryStorageAdapter(): StorageAdapter {
   const map = new Map<string, string>()
   return {
     get: key => map.get(key) ?? null,
-    remove: key => {
+    remove(key) {
       map.delete(key)
     },
-    set: (key, value) => {
+    set(key, value) {
       map.set(key, value)
     },
   }

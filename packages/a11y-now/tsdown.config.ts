@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig([
   {
     clean: true,
-    dts: { tsgo: false },
+    dts: true,
     entry: [
       'src/index.ts',
       'src/presets/full.ts',
@@ -14,13 +14,15 @@ export default defineConfig([
   },
   {
     clean: false,
+    deps: {
+      alwaysBundle: [/./u],
+    },
     dts: false,
     // The iife format appends `.iife.js`, yielding dist/a11y-now.iife.js.
     entry: { 'a11y-now': 'src/iife.ts' },
     format: 'iife',
     globalName: 'A11yNow',
     minify: true,
-    noExternal: [/./u],
     platform: 'browser',
   },
 ])

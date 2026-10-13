@@ -7,6 +7,9 @@ import {
 } from '@a11y-now/core'
 import { beforeEach, expect, it, vi } from 'vitest'
 
+/**
+ * Host-page theme attributes exercised by color scheme detection tests.
+ */
 const SCHEME_MARKER_ATTRIBUTES = [
   'class',
   'style',
@@ -75,7 +78,7 @@ it('judges the page by background luminance when unmarked', () => {
 it('falls back to prefers-color-scheme and follows its changes', () => {
   const listeners: (() => void)[] = []
   const fake = {
-    addEventListener: (_event: string, fn: () => void) => {
+    addEventListener(_event: string, fn: () => void) {
       listeners.push(fn)
     },
     matches: true,
@@ -208,9 +211,9 @@ it('exposes the scheme service to plugins', () => {
   const a11y = createA11yNow({ colorScheme: 'dark', storage: null })
   a11y.use({
     name: 'scheme-probe',
-    setup: ctx => {
+    setup(ctx) {
       resolvedInSetup = ctx.scheme.resolved()
-      return { dispose: () => {} }
+      return { dispose() {} }
     },
   })
   a11y.mount()

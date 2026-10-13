@@ -6,8 +6,12 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
-const styleText = () =>
-  document.head.querySelector('[data-a11y-now="elder-mode"]')?.textContent ?? ''
+function styleText() {
+  return (
+    document.head.querySelector('[data-a11y-now="elder-mode"]')?.textContent ??
+    ''
+  )
+}
 
 it('applies the elder care styles and page class', () => {
   const a11y = createA11yNow({ storage: null }).use(elderMode())

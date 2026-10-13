@@ -6,17 +6,19 @@ import {
 } from '@a11y-now/core'
 import { beforeEach, expect, it, vi } from 'vitest'
 
-const cleanDom = (): void => {
+function cleanDom(): void {
   document.querySelector('a11y-now-host')?.remove()
   document.documentElement.removeAttribute('style')
   document.documentElement.removeAttribute('lang')
   delete document.documentElement.dataset['a11yTheme']
 }
 
-/** Mount with the given options and read the toolbar's aria-label. */
-const mountedToolbarLabel = (
+/**
+ * Mount with the given options and read the toolbar's aria-label.
+ */
+function mountedToolbarLabel(
   options: Parameters<typeof createA11yNow>[0] = {},
-): string | null | undefined => {
+): string | null | undefined {
   const a11y = createA11yNow({ storage: null, ...options })
   a11y.mount()
   const label = document
@@ -54,7 +56,7 @@ it('runs plugin setup on mount and dispose on unmount', () => {
   const dispose = vi.fn<() => void>()
   const plugin = definePlugin({
     name: 'probe',
-    setup: ctx => {
+    setup(ctx) {
       setup(ctx)
       return { api: { hello: 'world' }, dispose }
     },
@@ -70,15 +72,16 @@ it('runs plugin setup on mount and dispose on unmount', () => {
 
 it('orders plugins by dependsOn and rejects missing dependencies', () => {
   const order: string[] = []
-  const make = (name: string, dependsOn?: string[]) =>
-    definePlugin({
+  function make(name: string, dependsOn?: string[]) {
+    return definePlugin({
       ...(dependsOn ? { dependsOn } : {}),
       name,
-      setup: () => {
+      setup() {
         order.push(name)
-        return { dispose: () => {} }
+        return { dispose() {} }
       },
     })
+  }
 
   const a11y = createA11yNow({ storage: null })
     .use(make('b', ['a']))
@@ -94,7 +97,7 @@ it('orders plugins by dependsOn and rejects missing dependencies', () => {
 it('exposes plugin apis via getPlugin', () => {
   const plugin = definePlugin<undefined, { double: (n: number) => number }>({
     name: 'math',
-    setup: () => ({ api: { double: n => n * 2 }, dispose: () => {} }),
+    setup: () => ({ api: { double: n => n * 2 }, dispose() {} }),
   })
   const a11y = createA11yNow({ storage: null }).use(plugin)
   a11y.mount()
@@ -109,9 +112,9 @@ it('persists plugin state and restores it on a fresh instance', () => {
   const storage = createMemoryStorageAdapter()
   const plugin = definePlugin({
     name: 'counter',
-    setup: ctx => {
+    setup(ctx) {
       ctx.state.set('count', (ctx.state.get('count') as number) + 1)
-      return { dispose: () => {} }
+      return { dispose() {} }
     },
     state: { count: 0 },
   })
@@ -132,7 +135,7 @@ it('resetAll restores plugin state defaults and emits state:reset', () => {
   let observed = -1
   const plugin = definePlugin({
     name: 'resettable',
-    setup: ctx => {
+    setup(ctx) {
       ctx.state.set('value', 42)
       const stop = ctx.events.on('state:reset', () => {
         observed = ctx.state.get('value') as number
@@ -152,9 +155,9 @@ it('accepts configured plugins with typed options', () => {
   let received: unknown = null
   const plugin = definePlugin<{ step: number }>({
     name: 'configured',
-    setup: ctx => {
+    setup(ctx) {
       received = ctx.options
-      return { dispose: () => {} }
+      return { dispose() {} }
     },
   })
   const a11y = createA11yNow({ storage: null }).use(

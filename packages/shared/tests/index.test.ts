@@ -17,15 +17,16 @@ it('clamp and round2 behave', () => {
   expect(round2(1.1 + 0.1)).toBe(1.2)
 })
 
-const event = (init: Partial<KeyboardEvent>): KeyboardEvent =>
-  ({
+function event(init: Partial<KeyboardEvent>): KeyboardEvent {
+  return {
     altKey: false,
     ctrlKey: false,
     key: '',
     metaKey: false,
     shiftKey: false,
     ...init,
-  }) as KeyboardEvent
+  } as KeyboardEvent
+}
 
 it('shortcut helpers normalize, format and match', () => {
   const def = { alt: true, ctrl: true, key: 'T' }

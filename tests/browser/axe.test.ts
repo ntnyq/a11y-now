@@ -9,6 +9,7 @@ import { createA11yNow } from 'a11y-now'
 import type { A11yNowInstance } from 'a11y-now'
 import axe from 'axe-core'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { userEvent } from 'vitest/browser'
 
 let a11y: A11yNowInstance | null = null
 
@@ -29,7 +30,7 @@ afterEach(() => {
   document.documentElement.classList.remove('dark')
 })
 
-const shadowRoot = (): ShadowRoot => {
+function shadowRoot(): ShadowRoot {
   const host = document.querySelector('a11y-now-host')
   if (!host?.shadowRoot) {
     throw new Error('toolbar host missing')
@@ -37,8 +38,10 @@ const shadowRoot = (): ShadowRoot => {
   return host.shadowRoot
 }
 
-/** Whole-page axe run, violations condensed so failures read at a glance. */
-const audit = async (): Promise<string[]> => {
+/**
+ * Whole-page axe run, violations condensed so failures read at a glance.
+ */
+async function audit(): Promise<string[]> {
   const results = await axe.run(document, { resultTypes: ['violations'] })
   return results.violations.map(violation => {
     const targets = violation.nodes
@@ -48,12 +51,12 @@ const audit = async (): Promise<string[]> => {
   })
 }
 
-const mountToolbar = (): void => {
+function mountToolbar(): void {
   a11y = createA11yNow({ storage: null })
   a11y.mount()
 }
 
-const openHelpDialog = (): HTMLElement => {
+function openHelpDialog(): HTMLElement {
   const helpButton = shadowRoot().querySelector<HTMLButtonElement>(
     'button[data-item-id="help"]',
   )
@@ -68,7 +71,7 @@ const openHelpDialog = (): HTMLElement => {
   return dialog
 }
 
-const awaitScheme = async (scheme: string): Promise<void> => {
+async function awaitScheme(scheme: string): Promise<void> {
   await vi.waitFor(() => {
     const host = document.querySelector<HTMLElement>('a11y-now-host')
     expect(host?.dataset['a11yScheme']).toBe(scheme)
@@ -100,3 +103,37 @@ it('the open help dialog is clean in both schemes', async () => {
   await awaitScheme('dark')
   await expect(audit()).resolves.toStrictEqual([])
 })
+
+it.each(['default', 'deep-blue', 'chocolate', 'high-contrast', 'forest'])(
+  'theme %s has readable page and toolbar colors in all button states',
+  async name => {
+    mountToolbar()
+    a11y?.themes.apply(name)
+    const host = document.querySelector<HTMLElement>('a11y-now-host')
+    if (!host) {
+      throw new Error('Toolbar missing')
+    }
+    async function contrast(): Promise<string[]> {
+      const options = {
+        runOnly: { type: 'rule' as const, values: ['color-contrast'] },
+      }
+      const results = await axe.run(document, options)
+      const toolbarResults = await axe.run(host as HTMLElement, options)
+      return [...results.violations, ...toolbarResults.violations].flatMap(v =>
+        v.nodes.map(n => `${n.target.join(' ')}: ${n.failureSummary}`),
+      )
+    }
+    await expect(contrast()).resolves.toStrictEqual([])
+    const pin = shadowRoot().querySelector<HTMLButtonElement>(
+      '[data-item-id="pin"]',
+    )
+    if (!pin) {
+      throw new Error('Pin missing')
+    }
+    await userEvent.hover(pin)
+    await expect(contrast()).resolves.toStrictEqual([])
+    pin.click()
+    await expect(contrast()).resolves.toStrictEqual([])
+    await userEvent.unhover(pin)
+  },
+)

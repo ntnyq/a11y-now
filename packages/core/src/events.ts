@@ -2,13 +2,18 @@ import type { A11yEventMap, A11yEventName, EventBus } from '@a11y-now/types'
 
 type Handler = (payload: never) => void
 
-export const createEventBus = (): EventBus => {
+/**
+ * Create a typed event bus with synchronous listener delivery.
+ *
+ * @returns An independent bus with subscribe, unsubscribe, and emit methods.
+ */
+export function createEventBus(): EventBus {
   const handlers = new Map<A11yEventName, Set<Handler>>()
 
-  const on = <E extends A11yEventName>(
+  function on<E extends A11yEventName>(
     event: E,
     fn: (payload: A11yEventMap[E]) => void,
-  ): (() => void) => {
+  ): () => void {
     let set = handlers.get(event)
     if (!set) {
       set = new Set()
@@ -18,17 +23,17 @@ export const createEventBus = (): EventBus => {
     return () => off(event, fn)
   }
 
-  const off = <E extends A11yEventName>(
+  function off<E extends A11yEventName>(
     event: E,
     fn: (payload: A11yEventMap[E]) => void,
-  ): void => {
+  ): void {
     handlers.get(event)?.delete(fn as Handler)
   }
 
-  const emit = <E extends A11yEventName>(
+  function emit<E extends A11yEventName>(
     event: E,
     payload: A11yEventMap[E],
-  ): void => {
+  ): void {
     const set = handlers.get(event)
     if (!set) {
       return

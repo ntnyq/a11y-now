@@ -27,7 +27,7 @@ export const nightOwl = defineTheme({
 校验，多写少写立即报错，与 `definePlugin` 一一对应。写单文件主题时直接
 内联对象即可；发布独立主题包时，把 `@a11y-now/core` 放进
 **devDependencies** 并在 tsdown 配置里加
-`noExternal: [/^@a11y-now\//u]`——identity 函数会被内联并摇树，产物零
+`deps: { alwaysBundle: [/^@a11y-now\//u] }`——identity 函数会被内联并摇树，产物零
 运行时依赖、类型声明自包含（官方 5 个主题包即此形态，产物仅数十行）。
 
 ## 使用

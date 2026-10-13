@@ -12,6 +12,7 @@ import { createEventBus } from './events'
 import { createI18n } from './i18n'
 import { normalizeInput, sortPlugins } from './plugin-order'
 import type { Registered } from './plugin-order'
+import { createPluginScope } from './plugin-scope'
 import { createSchemeController } from './scheme'
 import { createShortcutCenter } from './shortcuts'
 import {
@@ -24,11 +25,18 @@ import { baseStyles } from './styles'
 import { createThemeService } from './theme'
 import { createToolbar } from './toolbar'
 
+/** Custom tag used for the toolbar shadow host. */
 const HOST_TAG = 'a11y-now-host'
 
-export const createA11yNow = (
-  options: A11yNowOptions = {},
-): A11yNowInstance => {
+/**
+ * Create an unmounted accessibility toolbar with the configured services.
+ *
+ * @param options - Toolbar configuration; omitted fields use the kernel
+ *   defaults.
+ * @returns An instance for registering plugins, mounting, and controlling the
+ *   toolbar.
+ */
+export function createA11yNow(options: A11yNowOptions = {}): A11yNowInstance {
   const doc = isBrowser() ? document : null
   const storage =
     options.storage === undefined
@@ -42,8 +50,8 @@ export const createA11yNow = (
 
   const events = createEventBus()
   const i18n = createI18n(locale, options.messages)
-  const scheme = createSchemeController(doc, events, options.colorScheme)
-  const shortcuts = createShortcutCenter(options.shortcutOverrides)
+  const scheme = createSchemeController(doc, events, options.colorScheme, false)
+  const shortcuts = createShortcutCenter(options.shortcutOverrides, false)
   const engine =
     options.speechEngine ??
     (isBrowser() ? createWebSpeechEngine() : createSilentEngine())
@@ -64,7 +72,9 @@ export const createA11yNow = (
     persistedEnabled === null || persistedEnabled === undefined
       ? (options.enabled ?? true)
       : persistedEnabled === 'true'
-  /** Last requested mount target, replayed when the toolbar is re-enabled. */
+  /**
+   * Last requested mount target, replayed when the toolbar is re-enabled.
+   */
   let savedTarget: Element | null = null
 
   let mounted = false
@@ -81,7 +91,7 @@ export const createA11yNow = (
     get colorScheme() {
       return scheme.preference()
     },
-    destroy: () => {
+    destroy() {
       instance.unmount()
       scheme.destroy()
       shortcuts.destroy()
@@ -97,7 +107,7 @@ export const createA11yNow = (
     get mounted() {
       return mounted
     },
-    mount: target => {
+    mount(target) {
       savedTarget = target ?? null
       if (mounted || !enabled) {
         return
@@ -106,85 +116,90 @@ export const createA11yNow = (
         warn('mount() requires a DOM environment')
         return
       }
-      mounted = true
-
-      host = doc.createElement(HOST_TAG)
-      // Mounted as a sibling of <body>, directly under <html> — page-level
-      // transforms/zoom on body can never affect the toolbar (the audited
-      // reference needs a `.noscale` counter-hack for this).
-      const parent = target ?? doc.documentElement
-      parent.append(host)
-      const shadow = host.attachShadow({ mode: 'open' })
-
-      const styleEl = doc.createElement('style')
-      styleEl.textContent = baseStyles()
-      shadow.append(styleEl)
-
-      toolbar = createToolbar(shadow, i18n, speech)
-      themes.attach(host)
-      scheme.attach(host)
-
-      kernelDisposers.push(
-        events.on('screen-reader:change', ({ enabled: srEnabled }) => {
-          toolbar?.setScreenReaderMode(srEnabled)
-        }),
-        events.on('a11y:reset', () => {
-          instance.resetAll()
-        }),
-        events.on('a11y:exit', () => {
-          // Exit persists the disabled choice so the toolbar stays hidden
-          // on later visits until explicitly re-enabled.
-          instance.setEnabled(false)
-        }),
-      )
-
       const ordered = sortPlugins(registered)
-      for (const { options: pluginOptions, plugin } of ordered) {
-        let scoped = scopedStates.get(plugin.name)
-        if (!scoped) {
-          scoped = createScopedState(
-            plugin.name,
-            plugin.state ?? {},
-            storage,
-            prefix,
-          )
-          scopedStates.set(plugin.name, scoped)
-        }
-        for (const [messagesLocale, table] of Object.entries(
-          plugin.messages ?? {},
-        )) {
-          if (table) {
-            i18n.extend(messagesLocale, table)
-          }
-        }
-        const result = plugin.setup({
-          dom,
-          events,
-          i18n,
-          options: pluginOptions,
-          scheme,
-          shortcuts,
-          speech,
-          state: scoped as ScopedState<StateDefaults>,
-          storage,
-          theme: themes,
-          ui: toolbar,
-        })
-        if (result.api !== undefined) {
-          apis.set(plugin.name, result.api)
-        }
-        disposers.push(result.dispose)
-        events.emit('plugin:activated', { name: plugin.name })
-      }
+      mounted = true
+      shortcuts.setEnabled(true)
+      try {
+        host = doc.createElement(HOST_TAG)
+        // Mount outside <body> so page transforms and zoom spare the toolbar.
+        const parent = target ?? doc.documentElement
+        parent.append(host)
+        const shadow = host.attachShadow({ mode: 'open' })
 
-      events.emit('toolbar:mounted', { host })
-      toolbar.announce(
-        i18n.t('a11y.entry', {
-          shortcut: shortcuts.format({ alt: true, ctrl: true, key: '?' }),
-        }),
-      )
+        const styleEl = doc.createElement('style')
+        styleEl.textContent = baseStyles()
+        shadow.append(styleEl)
+
+        toolbar = createToolbar(shadow, i18n, speech)
+        themes.attach(host)
+        scheme.attach(host)
+
+        kernelDisposers.push(
+          events.on('screen-reader:change', ({ enabled: srEnabled }) => {
+            toolbar?.setScreenReaderMode(srEnabled)
+          }),
+          events.on('a11y:reset', () => {
+            instance.resetAll()
+          }),
+          events.on('a11y:exit', () => {
+            // Exit persists the disabled choice so the toolbar stays hidden
+            // on later visits until explicitly re-enabled.
+            instance.setEnabled(false)
+          }),
+        )
+
+        for (const { options: pluginOptions, plugin } of ordered) {
+          let scoped = scopedStates.get(plugin.name)
+          if (!scoped) {
+            scoped = createScopedState(
+              plugin.name,
+              plugin.state ?? {},
+              storage,
+              prefix,
+            )
+            scopedStates.set(plugin.name, scoped)
+          }
+          for (const [messagesLocale, table] of Object.entries(
+            plugin.messages ?? {},
+          )) {
+            if (table) {
+              i18n.extend(messagesLocale, table)
+            }
+          }
+          const scope = createPluginScope({
+            dom,
+            events,
+            i18n,
+            options: pluginOptions,
+            scheme,
+            shortcuts,
+            speech,
+            state: scoped as ScopedState<StateDefaults>,
+            storage,
+            theme: themes,
+            ui: toolbar,
+          })
+          disposers.push(scope.dispose)
+          const result = plugin.setup(scope.context)
+          if (result.api !== undefined) {
+            apis.set(plugin.name, result.api)
+          }
+          disposers.push(result.dispose)
+          events.emit('plugin:activated', { name: plugin.name })
+        }
+
+        events.emit('toolbar:mounted', { host })
+        toolbar.announce(
+          i18n.t('a11y.entry', {
+            shortcut: shortcuts.format({ alt: true, ctrl: true, key: '?' }),
+          }),
+        )
+      } catch (error) {
+        instance.unmount()
+        throw error
+      }
     },
-    resetAll: () => {
+    resetAll() {
       for (const scoped of scopedStates.values()) {
         scoped.reset()
       }
@@ -193,10 +208,10 @@ export const createA11yNow = (
     get resolvedColorScheme() {
       return scheme.resolved()
     },
-    setColorScheme: value => {
+    setColorScheme(value) {
       scheme.set(value)
     },
-    setEnabled: value => {
+    setEnabled(value) {
       enabled = value
       storage?.set(enabledKey, String(value))
       if (value && !mounted) {
@@ -213,11 +228,12 @@ export const createA11yNow = (
       }
       return themes
     },
-    toggleEnabled: () => {
+    toggleEnabled() {
       instance.setEnabled(!mounted)
       return mounted
     },
-    unmount: () => {
+    unmount() {
+      shortcuts.setEnabled(false)
       if (!mounted) {
         return
       }
@@ -254,7 +270,7 @@ export const createA11yNow = (
         themes = nextThemes
       }
     },
-    use: input => {
+    use(input) {
       const item = normalizeInput(input)
       if (registered.some(entry => entry.plugin.name === item.plugin.name)) {
         warn(`plugin "${item.plugin.name}" is already registered`)
@@ -269,7 +285,7 @@ export const createA11yNow = (
       }
       return instance
     },
-    useTheme: theme => {
+    useTheme(theme) {
       themes?.register(theme)
       return instance
     },

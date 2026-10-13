@@ -8,12 +8,26 @@ import type {
   ToolbarUI,
 } from '@a11y-now/types'
 
+/**
+ * Toolbar groups in their left-to-right rendering order.
+ */
 const GROUP_ORDER: ToolbarGroup[] = ['region', 'tool', 'system']
 
 export interface ToolbarView extends ToolbarUI {
+  /**
+   * Remove the toolbar, live region, and keyboard listener.
+   */
   destroy: () => void
+  /**
+   * Root toolbar element rendered inside the shadow host.
+   */
   readonly el: HTMLElement
-  /** Show/hide items flagged `hideInScreenReaderMode`. */
+  /**
+   * Show/hide items flagged `hideInScreenReaderMode`.
+   *
+   * @param enabled - Whether buttons marked for screen-reader hiding should be
+   *   hidden.
+   */
   setScreenReaderMode: (enabled: boolean) => void
 }
 
@@ -22,12 +36,17 @@ export interface ToolbarView extends ToolbarUI {
  *
  * Keyboard support follows the WAI-ARIA toolbar pattern: one tab stop,
  * arrow keys move between buttons (roving tabindex), Home/End jump.
+ *
+ * @param shadow - Shadow root receiving the toolbar and live region.
+ * @param i18n - Translations for the toolbar and group labels.
+ * @param speech - Speech service used for announcements.
+ * @returns A toolbar view with item management and cleanup methods.
  */
-export const createToolbar = (
+export function createToolbar(
   shadow: ShadowRoot,
   i18n: I18nService,
   speech: SpeechService,
-): ToolbarView => {
+): ToolbarView {
   const doc = shadow.ownerDocument ?? document
   const root = doc.createElement('div')
   root.className = 'toolbar'
@@ -59,19 +78,29 @@ export const createToolbar = (
   }
 
   interface Entry {
+    /**
+     * Current button definition retained for partial updates.
+     */
     def: ToolbarItemDef
+    /**
+     * Rendered button associated with this toolbar entry.
+     */
     el: HTMLButtonElement
   }
   const entries = new Map<string, Entry>()
+  let screenReaderMode = false
 
-  const focusables = (): HTMLButtonElement[] =>
-    [...entries.values()]
-      .map(entry => entry.el)
-      // Natively disabled buttons cannot receive focus — roving over them
-      // would drop focus into the void.
-      .filter(el => el.isConnected && !el.hidden && !el.disabled)
+  function focusables(): HTMLButtonElement[] {
+    return (
+      [...entries.values()]
+        .map(entry => entry.el)
+        // Natively disabled buttons cannot receive focus — roving over them
+        // would drop focus into the void.
+        .filter(el => el.isConnected && !el.hidden && !el.disabled)
+    )
+  }
 
-  const onKeydown = (event: KeyboardEvent): void => {
+  function onKeydown(event: KeyboardEvent): void {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
     if (!keys.includes(event.key)) {
       return
@@ -99,18 +128,18 @@ export const createToolbar = (
   }
   root.addEventListener('keydown', onKeydown)
 
-  const syncTabStops = (): void => {
+  function syncTabStops(): void {
     const buttons = focusables()
     for (const [i, button] of buttons.entries()) {
       button.tabIndex = i === 0 ? 0 : -1
     }
   }
 
-  const renderContent = (
+  function renderContent(
     button: HTMLButtonElement,
     def: ToolbarItemDef,
     badge?: number | string,
-  ): void => {
+  ): void {
     button.textContent = ''
     if (def.icon) {
       const icon = doc.createElement('span')
@@ -139,7 +168,7 @@ export const createToolbar = (
     }
   }
 
-  const addItem = (def: ToolbarItemDef): ToolbarItemHandle => {
+  function addItem(def: ToolbarItemDef): ToolbarItemHandle {
     const group = groups.get(def.group ?? 'tool') as HTMLElement
     group.hidden = false
     const button = doc.createElement('button')
@@ -148,6 +177,7 @@ export const createToolbar = (
     button.dataset['itemId'] = def.id
     if (def.hideInScreenReaderMode) {
       button.dataset['hideInSr'] = 'true'
+      button.hidden = screenReaderMode
     }
     button.style.order = String(def.order ?? 0)
     if (def.pressed !== undefined) {
@@ -167,7 +197,7 @@ export const createToolbar = (
 
     return {
       el: button,
-      remove: () => {
+      remove() {
         button.remove()
         entries.delete(def.id)
         if (group.childElementCount === 0) {
@@ -175,7 +205,7 @@ export const createToolbar = (
         }
         syncTabStops()
       },
-      update: patch => {
+      update(patch) {
         if (patch.label !== undefined) {
           entry.def.label = patch.label
         }
@@ -197,18 +227,19 @@ export const createToolbar = (
 
   return {
     addItem,
-    announce: text => {
+    announce(text) {
       live.textContent = text
       speech.speak(text)
     },
-    destroy: () => {
+    destroy() {
       root.removeEventListener('keydown', onKeydown)
       root.remove()
       live.remove()
       entries.clear()
     },
     el: root,
-    setScreenReaderMode: enabled => {
+    setScreenReaderMode(enabled) {
+      screenReaderMode = enabled
       for (const entry of entries.values()) {
         if (entry.el.dataset['hideInSr'] === 'true') {
           entry.el.hidden = enabled

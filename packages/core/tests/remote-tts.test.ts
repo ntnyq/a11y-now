@@ -33,7 +33,9 @@ class FakeAudio extends EventTarget {
   }
 }
 
-const flush = (): Promise<void> => delay(0)
+function flush(): Promise<void> {
+  return delay(0)
+}
 
 afterEach(() => {
   FakeAudio.instances = []
@@ -41,7 +43,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const setup = (fetchImpl: typeof fetch) => {
+function setup(fetchImpl: typeof fetch) {
   vi.stubGlobal('Audio', FakeAudio)
   return createRemoteTTSEngine({
     endpoint: '/api/tts',

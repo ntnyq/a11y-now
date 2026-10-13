@@ -9,10 +9,23 @@ import { A11Y_NOW_NUXT_DEFAULTS } from '../options'
 import type { A11yNowNuxtOptions } from '../options'
 
 interface NuxtAppLike {
-  $config?: { public?: { a11yNow?: A11yNowNuxtOptions } }
+  /**
+   * Runtime configuration carrying the public toolbar module options.
+   */
+  $config?: {
+    /**
+     * Runtime configuration values available to client plugins.
+     */
+    public?: {
+      /**
+       * Serializable toolbar configuration supplied by the Nuxt module.
+       */
+      a11yNow?: A11yNowNuxtOptions
+    }
+  }
 }
 
-const presetOptions = (options: A11yNowNuxtOptions): A11yNowOptions => {
+function presetOptions(options: A11yNowNuxtOptions): A11yNowOptions {
   const base: A11yNowOptions = {}
   if (options.locale) {
     base.locale = options.locale
@@ -37,10 +50,14 @@ const presetOptions = (options: A11yNowNuxtOptions): A11yNowOptions => {
  * Client plugin registered by the module. Plain-function form needs no
  * `#app` import; Nuxt normalizes it and picks up the returned `provide`,
  * so `useNuxtApp().$a11yNow` is available even when auto-mount is off.
+ *
+ * @param nuxtApp - Nuxt application exposing public a11y-now runtime
+ *   configuration.
+ * @returns The toolbar instance under `provide.a11yNow` for Nuxt injection.
  */
-const a11yNowPlugin = (
-  nuxtApp: NuxtAppLike,
-): { provide: { a11yNow: A11yNowInstance } } => {
+function a11yNowPlugin(nuxtApp: NuxtAppLike): {
+  provide: { a11yNow: A11yNowInstance }
+} {
   const options: A11yNowNuxtOptions = {
     ...A11Y_NOW_NUXT_DEFAULTS,
     ...nuxtApp.$config?.public?.a11yNow,

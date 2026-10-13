@@ -18,8 +18,8 @@ GIFs get their original source back).
 ## Usage
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { pauseMotion } from '@a11y-now/plugin-pause-motion'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [pauseMotion()] }).mount()
 ```

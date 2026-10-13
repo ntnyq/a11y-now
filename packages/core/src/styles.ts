@@ -7,10 +7,11 @@ import {
   toolbarVar,
 } from './tokens'
 
-const tokenLines = (tokens: Partial<ToolbarTokens>): string =>
-  Object.entries(tokens)
+function tokenLines(tokens: Partial<ToolbarTokens>): string {
+  return Object.entries(tokens)
     .map(([key, value]) => `${toolbarVar(key as never)}: ${value};`)
     .join('\n  ')
+}
 
 const tokenDefaults = tokenLines(DEFAULT_TOOLBAR_TOKENS)
 const darkTokenDefaults = tokenLines(DARK_TOOLBAR_TOKENS)
@@ -19,8 +20,11 @@ const darkTokenDefaults = tokenLines(DARK_TOOLBAR_TOKENS)
  * Toolbar base stylesheet. Hard rule: components reference semantic
  * `--a11y-*` tokens only — never literal colors or sizes — so themes can
  * restyle everything by swapping variable values.
+ *
+ * @returns CSS for token defaults, layout, focus states, and color schemes.
  */
-export const baseStyles = (): string => css`
+export function baseStyles(): string {
+  return css`
   :host {
     ${tokenDefaults}
     all: initial;
@@ -47,10 +51,15 @@ export const baseStyles = (): string => css`
     box-sizing: border-box;
   }
 
+  [hidden] {
+    display: none !important;
+  }
+
   .toolbar {
     display: flex;
     align-items: stretch;
-    justify-content: var(--a11y-toolbar-justify);
+    justify-content: safe var(--a11y-toolbar-justify);
+    overflow-x: auto;
     gap: 8px;
     padding: 8px 16px;
     min-block-size: var(--a11y-toolbar-height);
@@ -61,6 +70,7 @@ export const baseStyles = (): string => css`
 
   .group {
     display: flex;
+    flex-shrink: 0;
     gap: 4px;
     align-items: stretch;
   }
@@ -143,3 +153,4 @@ export const baseStyles = (): string => css`
     white-space: nowrap;
   }
 `
+}

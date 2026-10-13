@@ -107,22 +107,36 @@ core + 全部官方插件 + 全部官方主题 ← a11y-now 聚合包
 ### 3.1 @a11y-now/types：类型即契约
 
 ```ts
-/** 插件定义（对外扩展的唯一入口） */
+/**
+ * 插件定义（对外扩展的唯一入口）
+ */
 export interface A11yPlugin<Options = void, Api = unknown> {
   name: string
-  /** 依赖的其他插件（按名声明，内核做拓扑排序与缺失校验） */
+  /**
+   * 依赖的其他插件（按名声明，内核做拓扑排序与缺失校验）
+   */
   dependsOn?: string[]
-  /** 工具栏按钮描述，省略则为无 UI 的后台插件 */
+  /**
+   * 工具栏按钮描述，省略则为无 UI 的后台插件
+   */
   toolbar?: ToolbarItemDef
-  /** 默认快捷键，用户可覆盖；内核负责冲突检测 */
+  /**
+   * 默认快捷键，用户可覆盖；内核负责冲突检测
+   */
   shortcut?: ShortcutDef
-  /** 需要持久化的状态 schema（含默认值与版本迁移） */
+  /**
+   * 需要持久化的状态 schema（含默认值与版本迁移）
+   */
   state?: StateSchema
-  /** 安装钩子：返回插件 Api（对外暴露）与清理函数 */
+  /**
+   * 安装钩子：返回插件 Api（对外暴露）与清理函数
+   */
   setup: (ctx: PluginContext<Options>) => PluginSetupResult<Api>
 }
 
-/** setup 收到的内核服务集合 —— 插件与内核交互的全部界面 */
+/**
+ * setup 收到的内核服务集合 —— 插件与内核交互的全部界面
+ */
 export interface PluginContext<Options> {
   options: Options
   ui: ToolbarUI // 注册按钮/更新状态文案（同步 title 与 aria-label）
@@ -136,19 +150,29 @@ export interface PluginContext<Options> {
   storage: StorageAdapter
 }
 
-/** 主题定义：纯数据，token 键类型化（见 §4 token 清单） */
+/**
+ * 主题定义：纯数据，token 键类型化（见 §4 token 清单）
+ */
 export interface A11yTheme {
   name: string
   displayName: Record<LocaleCode, string>
-  /** 工具栏自身 UI 的 token 覆盖（作用于 shadow :host） */
+  /**
+   * 工具栏自身 UI 的 token 覆盖（作用于 shadow :host）
+   */
   toolbar?: Partial<ToolbarTokens>
-  /** 页面改色 token（作用于 documentElement），default 主题为空对象 */
+  /**
+   * 页面改色 token（作用于 documentElement），default 主题为空对象
+   */
   page?: Partial<PageTokens>
-  /** 换肤时跳过的选择器（验证码/图片/表单控件等），合并进全局白名单 */
+  /**
+   * 换肤时跳过的选择器（验证码/图片/表单控件等），合并进全局白名单
+   */
   skipSelectors?: string[]
 }
 
-/** 事件与注册表通过 module augmentation 扩展，保证跨包类型安全 */
+/**
+ * 事件与注册表通过 module augmentation 扩展，保证跨包类型安全
+ */
 export interface A11yEventMap {
   'toolbar:mounted': { host: HTMLElement }
   'plugin:activated': { name: string }

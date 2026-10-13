@@ -2,15 +2,34 @@ import { configurePlugin, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface ScreenReaderApi {
+  /**
+   * Check whether screen-reader mode is enabled.
+   *
+   * @returns `true` when screen-reader mode is enabled.
+   */
   isEnabled: () => boolean
+  /**
+   * Toggle and persist screen-reader mode, updating its page effects.
+   */
   toggle: () => void
 }
 
 interface ScreenReaderState {
+  /**
+   * Whether screen-reader mode hides visual controls and mutes speech.
+   *
+   * @default false
+   */
   enabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
+/**
+ * Inline SVG for the screen-reader toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M12 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 10c4.4 0 8 1.8 8 4v2H4v-2c0-2.2 3.6-4 8-4Z"/></svg>'
 
@@ -38,10 +57,12 @@ const screenReaderPlugin = definePlugin<
     },
   },
   name: 'screen-reader',
-  setup: ctx => {
-    const isEnabled = (): boolean => ctx.state.get('enabled')
+  setup(ctx) {
+    function isEnabled(): boolean {
+      return ctx.state.get('enabled')
+    }
 
-    const apply = (enabled: boolean): void => {
+    function apply(enabled: boolean): void {
       ctx.speech.setMuted(enabled)
       if (enabled) {
         ctx.dom.addPageClass('a11y-screen-reader')
@@ -51,11 +72,9 @@ const screenReaderPlugin = definePlugin<
       ctx.events.emit('screen-reader:change', { enabled })
     }
 
-    const toggle = (): void => {
+    function toggle(): void {
       const next = !isEnabled()
       ctx.state.set('enabled', next)
-      apply(next)
-      button.update({ pressed: next })
       ctx.ui.announce(ctx.i18n.t(next ? 'sr.on' : 'sr.off'))
     }
 
@@ -86,9 +105,17 @@ const screenReaderPlugin = definePlugin<
       apply(true)
     }
 
+    const stopState = ctx.state.subscribe(key => {
+      if (key === 'enabled') {
+        apply(isEnabled())
+        button.update({ pressed: isEnabled() })
+      }
+    })
+
     return {
       api: { isEnabled, toggle },
-      dispose: () => {
+      dispose() {
+        stopState()
         if (isEnabled()) {
           ctx.speech.setMuted(false)
         }
@@ -100,15 +127,24 @@ const screenReaderPlugin = definePlugin<
   state: { enabled: false },
 })
 
-/** Screen-reader mode plugin. `Ctrl+Alt+R`. */
-export const screenReader = (): ConfiguredPlugin<
+/**
+ * Screen-reader mode plugin. `Ctrl+Alt+R`.
+ *
+ * @returns A configured screen-reader mode plugin for toolbar registration.
+ */
+export function screenReader(): ConfiguredPlugin<
   undefined,
   ScreenReaderApi,
   ScreenReaderState
-> => configurePlugin(screenReaderPlugin)
+> {
+  return configurePlugin(screenReaderPlugin)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the screen-reader plugin after activation.
+     */
     'screen-reader': ScreenReaderApi
   }
 }

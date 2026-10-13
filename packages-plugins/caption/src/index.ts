@@ -2,15 +2,34 @@ import { configurePlugin, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface CaptionApi {
+  /**
+   * Check whether the speech caption bar is enabled.
+   *
+   * @returns `true` when the speech caption bar is enabled.
+   */
   isEnabled: () => boolean
+  /**
+   * Toggle and persist the speech caption bar, updating its page effects.
+   */
   toggle: () => void
 }
 
 interface CaptionState {
+  /**
+   * Whether speech captions are shown.
+   *
+   * @default false
+   */
   enabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
+/**
+ * Inline SVG for the caption toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm2 5v2h6v-2H6Zm8 0v2h4v-2h-4ZM6 14v2h4v-2H6Zm6 0v2h6v-2h-6Z"/></svg>'
 
@@ -28,19 +47,22 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
     },
   },
   name: 'caption',
-  setup: ctx => {
+  setup(ctx) {
     let bar: HTMLElement | null = null
     let stopSpeechEvents: (() => void) | null = null
 
     const shadow = document.querySelector('a11y-now-host')?.shadowRoot ?? null
 
-    const isEnabled = (): boolean => ctx.state.get('enabled')
-    const describe = (): string =>
-      ctx.i18n.t(isEnabled() ? 'caption.on' : 'caption.off', {
+    function isEnabled(): boolean {
+      return ctx.state.get('enabled')
+    }
+    function describe(): string {
+      return ctx.i18n.t(isEnabled() ? 'caption.on' : 'caption.off', {
         shortcut: ctx.shortcuts.format({ alt: true, ctrl: true, key: 'b' }),
       })
+    }
 
-    const apply = (enabled: boolean): void => {
+    function apply(enabled: boolean): void {
       if (enabled && shadow) {
         bar = document.createElement('div')
         bar.dataset['a11yCaption'] = 'true'
@@ -70,11 +92,9 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
       }
     }
 
-    const toggle = (): void => {
+    function toggle(): void {
       const next = !isEnabled()
       ctx.state.set('enabled', next)
-      apply(next)
-      button.update({ description: describe, pressed: next })
       ctx.ui.announce(describe())
     }
 
@@ -102,9 +122,17 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
       apply(true)
     }
 
+    const stopState = ctx.state.subscribe(key => {
+      if (key === 'enabled') {
+        apply(isEnabled())
+        button.update({ description: describe, pressed: isEnabled() })
+      }
+    })
+
     return {
       api: { isEnabled, toggle },
-      dispose: () => {
+      dispose() {
+        stopState()
         apply(false)
         unregister()
         button.remove()
@@ -114,15 +142,24 @@ const captionPlugin = definePlugin<undefined, CaptionApi, CaptionState>({
   state: { enabled: false },
 })
 
-/** Big caption bar plugin: mirrors spoken text at the bottom. `Ctrl+Alt+B`. */
-export const caption = (): ConfiguredPlugin<
+/**
+ * Big caption bar plugin: mirrors spoken text at the bottom. `Ctrl+Alt+B`.
+ *
+ * @returns A configured caption bar plugin for toolbar registration.
+ */
+export function caption(): ConfiguredPlugin<
   undefined,
   CaptionApi,
   CaptionState
-> => configurePlugin(captionPlugin)
+> {
+  return configurePlugin(captionPlugin)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the caption plugin after activation.
+     */
     caption: CaptionApi
   }
 }

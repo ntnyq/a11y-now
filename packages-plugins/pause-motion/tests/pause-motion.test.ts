@@ -7,9 +7,12 @@ beforeEach(() => {
   document.body.innerHTML = '<main><p>内容</p></main>'
 })
 
-const styleText = () =>
-  document.head.querySelector('[data-a11y-now="pause-motion"]')?.textContent ??
-  ''
+function styleText() {
+  return (
+    document.head.querySelector('[data-a11y-now="pause-motion"]')
+      ?.textContent ?? ''
+  )
+}
 
 it('injects the freeze stylesheet and removes it on toggle-off', () => {
   const a11y = createA11yNow({ storage: null }).use(pauseMotion())
@@ -66,7 +69,7 @@ it('freezes same-origin GIFs onto a still and restores the original', () => {
 
   const getContext = vi
     .spyOn(HTMLCanvasElement.prototype, 'getContext')
-    .mockReturnValue({ drawImage: () => {} } as never)
+    .mockReturnValue({ drawImage() {} } as never)
   const toDataURL = vi
     .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
     .mockReturnValue('data:image/png;base64,STILL')

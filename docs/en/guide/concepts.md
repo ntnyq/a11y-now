@@ -74,3 +74,18 @@ adds nothing to your own site's axe / Lighthouse findings.
 Automated scans only cover machine-checkable issue types; the real
 screen-reader experience (VoiceOver / NVDA) is verified manually, with
 conclusions updated release by release.
+
+## Lifecycle and recovery
+
+Construction does not attach browser listeners. Mounting starts them; unmounting
+stops them, and remounting resumes them. Dependency validation runs before page
+mutations. If plugin setup fails, mounting rolls back the host, completed plugins,
+and subscriptions registered through the plugin context before rethrowing.
+Plugins must still clean up their own direct browser side effects if setup throws.
+
+The default localStorage adapter treats unavailable storage and quota failures as
+best-effort persistence: toolbar controls continue to work in memory.
+
+On narrow screens, the toolbar scrolls horizontally with its first controls
+reachable. Arrow-key navigation scrolls focused controls into view. Pinned page
+spacing follows the toolbar's measured height.

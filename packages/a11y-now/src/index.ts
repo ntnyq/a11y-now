@@ -38,12 +38,14 @@ export { readingPreset } from './presets/reading'
 export { screenReaderPreset } from './presets/screen-reader'
 
 /**
- * Create a toolbar instance. Defaults to the full preset when no plugins
- * are supplied.
+ * Create a toolbar instance. Defaults to the full preset when neither
+ * plugins nor themes are supplied.
+ *
+ * @param options - Toolbar configuration with the full preset as the fallback.
+ * @returns An instance for registering plugins, mounting, and controlling the
+ *   toolbar.
  */
-export const createA11yNow = (
-  options: A11yNowOptions = {},
-): A11yNowInstance => {
+export function createA11yNow(options: A11yNowOptions = {}): A11yNowInstance {
   if (options.plugins || options.themes) {
     return createKernel(options)
   }
@@ -58,8 +60,12 @@ export const createA11yNow = (
 /**
  * Did the user exit the toolbar in a previous visit? Integrators can honor
  * this before auto-mounting.
+ *
+ * @param storagePrefix - Storage namespace, defaulting to `a11y-now`.
+ * @returns `true` when stored exit state is disabled; `false` for missing or
+ *   unreadable state.
  */
-export const wasExited = (storagePrefix = 'a11y-now'): boolean => {
+export function wasExited(storagePrefix = 'a11y-now'): boolean {
   try {
     const raw = localStorage.getItem(`${storagePrefix}:plugin:exit`)
     if (!raw) {

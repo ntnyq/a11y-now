@@ -13,8 +13,8 @@
 ## 使用
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { zhConvert } from '@a11y-now/plugin-zh-convert'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [zhConvert()] }).mount()
 ```

@@ -19,25 +19,38 @@ import { highContrast } from '@a11y-now/theme-high-contrast'
 import type { A11yPluginInput, A11yTheme } from '@a11y-now/types'
 
 export interface Preset {
+  /**
+   * Configured plugins included in this preset, in registration order.
+   */
   plugins: A11yPluginInput[]
+  /**
+   * Theme definitions bundled with this preset.
+   */
   themes: A11yTheme[]
 }
 
-/** Every official plugin and theme — the default for the aggregate entry. */
-export const fullPreset = (): Preset => ({
-  plugins: [
-    regionNav(),
-    screenReader(),
-    speech(),
-    themeSwitcher(),
-    zoom(),
-    bigCursor(),
-    crosshair(),
-    caption(),
-    reset(),
-    pin(),
-    help(),
-    exit(),
-  ],
-  themes: [defaultTheme, deepBlue, chocolate, highContrast, forest],
-})
+/**
+ * Default toolbar preset for the aggregate entry.
+ *
+ * @returns Fresh configurations for the default plugins and all built-in
+ *   themes.
+ */
+export function fullPreset(): Preset {
+  return {
+    plugins: [
+      regionNav(),
+      screenReader(),
+      speech(),
+      themeSwitcher(),
+      zoom(),
+      bigCursor(),
+      crosshair(),
+      caption(),
+      reset(),
+      pin(),
+      help(),
+      exit(),
+    ],
+    themes: [defaultTheme, deepBlue, chocolate, highContrast, forest],
+  }
+}

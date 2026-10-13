@@ -8,24 +8,27 @@ beforeEach(() => {
   document.body.innerHTML = '<main><p>你好世界</p></main>'
 })
 
-const engine = () => {
+function engine() {
   const calls: { onEnd?: (() => void) | undefined; text: string }[] = []
   return {
     calls,
     engine: {
       available: true,
-      cancel: () => {},
-      speak: (text: string, options: SpeechSpeakOptions) => {
+      cancel() {},
+      speak(text: string, options: SpeechSpeakOptions) {
         calls.push({ onEnd: options.onEnd, text })
       },
     },
-    /** Speak calls that belong to the continuous queue (they carry onEnd). */
+    /**
+     * Speak calls that belong to the continuous queue (they carry onEnd).
+     */
     segments: () => calls.filter(call => call.onEnd),
   }
 }
 
-const reading = () =>
-  document.querySelector('[data-a11y-reading]')?.textContent ?? null
+function reading() {
+  return document.querySelector('[data-a11y-reading]')?.textContent ?? null
+}
 
 it('toggles voice and persists the choice', () => {
   const storage = createMemoryStorageAdapter()

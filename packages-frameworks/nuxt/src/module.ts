@@ -3,7 +3,13 @@ import { A11Y_NOW_NUXT_DEFAULTS } from './options'
 import type { A11yNowNuxtOptions } from './options'
 
 interface NuxtPluginEntry {
+  /**
+   * Nuxt environment in which the registered plugin runs.
+   */
   mode?: 'all' | 'client' | 'server'
+  /**
+   * Path to the runtime plugin module registered with Nuxt.
+   */
   src: string
 }
 
@@ -13,11 +19,41 @@ interface NuxtPluginEntry {
  * modules are first-class citizens of `installModule`.
  */
 export interface NuxtLike {
+  /**
+   * Nuxt configuration updated with the toolbar runtime options and plugin.
+   */
   options: {
+    /**
+     * Additional Nuxt configuration entries outside this module.
+     */
     [key: string]: unknown
+    /**
+     * Runtime plugins registered with Nuxt.
+     */
     plugins?: (NuxtPluginEntry | string)[]
-    runtimeConfig: { public: Record<string, unknown> }
+    /**
+     * Runtime configuration exposed by the Nuxt application.
+     */
+    runtimeConfig: {
+      /**
+       * Runtime configuration values available to client plugins.
+       */
+      public: Record<string, unknown>
+    }
   }
+}
+
+/**
+ * Absolute path of the built runtime plugin next to this module file.
+ */
+function runtimePluginPath(): string {
+  // Kept out of the literal `new URL('...', import.meta.url)` shape so
+  // bundlers don't rewrite it into an asset reference.
+  const base = import.meta.url
+  const url = new URL('runtime/plugin.client.js', base)
+  const path = url.protocol === 'file:' ? fileURLToPath(url) : url.pathname
+  // Nuxt expects posix-style paths; fileURLToPath yields backslashes on Windows.
+  return path.replaceAll('\\', '/')
 }
 
 /**
@@ -34,18 +70,12 @@ export interface NuxtLike {
  * Merges `a11yNow` config-key options with inline module options, exposes
  * the result via `runtimeConfig.public.a11yNow` and registers the client
  * plugin that mounts the toolbar (and provides `$a11yNow`).
+ *
+ * @param inlineOptions - Inline module options overriding the Nuxt
+ *   configuration key.
+ * @param nuxt - Nuxt instance receiving runtime configuration and the client
+ *   plugin.
  */
-/** Absolute path of the built runtime plugin next to this module file. */
-const runtimePluginPath = (): string => {
-  // Kept out of the literal `new URL('...', import.meta.url)` shape so
-  // bundlers don't rewrite it into an asset reference.
-  const base = import.meta.url
-  const url = new URL('runtime/plugin.client.js', base)
-  const path = url.protocol === 'file:' ? fileURLToPath(url) : url.pathname
-  // Nuxt expects posix-style paths; fileURLToPath yields backslashes on Windows.
-  return path.replaceAll('\\', '/')
-}
-
 const a11yNowModule = Object.assign(
   (inlineOptions: A11yNowNuxtOptions | undefined, nuxt: NuxtLike): void => {
     const configOptions = (nuxt.options['a11yNow'] ?? {}) as A11yNowNuxtOptions

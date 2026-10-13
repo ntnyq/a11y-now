@@ -6,6 +6,7 @@
 import { createA11yNow } from 'a11y-now'
 import type { A11yNowInstance } from 'a11y-now'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { page, userEvent } from 'vitest/browser'
 
 let a11y: A11yNowInstance | null = null
 
@@ -24,7 +25,7 @@ afterEach(() => {
   a11y = null
 })
 
-const shadowRoot = (): ShadowRoot => {
+function shadowRoot(): ShadowRoot {
   const host = document.querySelector('a11y-now-host')
   if (!host?.shadowRoot) {
     throw new Error('toolbar host missing')
@@ -32,9 +33,9 @@ const shadowRoot = (): ShadowRoot => {
   return host.shadowRoot
 }
 
-const buttons = (): HTMLButtonElement[] => [
-  ...shadowRoot().querySelectorAll('button'),
-]
+function buttons(): HTMLButtonElement[] {
+  return [...shadowRoot().querySelectorAll('button')]
+}
 
 it('mounts the full preset and unmounts byte-exact', () => {
   const before = document.documentElement.outerHTML
@@ -42,7 +43,9 @@ it('mounts the full preset and unmounts byte-exact', () => {
   a11y.mount()
   expect(buttons().length).toBeGreaterThan(10)
   const toolbar = shadowRoot().querySelector('[role="toolbar"]')
-  expect(toolbar && getComputedStyle(toolbar).justifyContent).toBe('center')
+  expect(toolbar && getComputedStyle(toolbar).justifyContent).toBe(
+    'safe center',
+  )
 
   a11y.unmount()
   expect(document.documentElement.outerHTML).toBe(before)
@@ -190,4 +193,81 @@ it('setColorScheme pins the chrome regardless of the page', () => {
 
   a11y.setColorScheme('light')
   expect(getComputedStyle(toolbar).backgroundColor).toBe('rgb(255, 255, 255)')
+})
+
+it('contains Tab and Shift+Tab inside Help and restores background access', async () => {
+  const pageButton = document.createElement('button')
+  pageButton.textContent = 'Page action'
+  document.body.append(pageButton)
+  a11y = createA11yNow({ storage: null })
+  a11y.mount()
+  const help = shadowRoot().querySelector<HTMLButtonElement>(
+    '[data-item-id="help"]',
+  )
+  help?.focus()
+  help?.click()
+  const dialog = shadowRoot().querySelector('[role="dialog"]')
+  const close = dialog?.querySelector('button')
+  const scroller = dialog?.querySelector('.help-scroll')
+  expect(document.body.inert).toBe(true)
+  await userEvent.tab({ shift: true })
+  expect(shadowRoot().activeElement).toBe(scroller)
+  await userEvent.tab()
+  expect(shadowRoot().activeElement).toBe(close)
+  await userEvent.tab()
+  expect(shadowRoot().activeElement).toBe(scroller)
+  await userEvent.tab()
+  expect(shadowRoot().activeElement).toBe(close)
+  pageButton.focus()
+  expect(dialog?.contains(shadowRoot().activeElement)).toBe(true)
+  await userEvent.keyboard('{Escape}')
+  expect(shadowRoot().activeElement).toBe(help)
+  expect(document.body.hasAttribute('inert')).toBe(false)
+  pageButton.focus()
+  expect(document.activeElement).toBe(pageButton)
+})
+
+it('screen-reader mode removes visual buttons from layout', () => {
+  a11y = createA11yNow({ storage: null })
+  a11y.mount()
+  a11y.getPlugin('screen-reader')?.toggle()
+  const zoom = shadowRoot().querySelector<HTMLElement>(
+    '[data-item-id="zoom-in"]',
+  )
+  expect(zoom && getComputedStyle(zoom).display).toBe('none')
+  expect(zoom?.getBoundingClientRect().width).toBe(0)
+  a11y.getPlugin('screen-reader')?.toggle()
+  expect(zoom && getComputedStyle(zoom).display).toBe('flex')
+})
+
+it('keeps the first and last controls reachable on a narrow viewport', async () => {
+  await page.viewport(375, 812)
+  try {
+    a11y = createA11yNow({ locale: 'en-US', storage: null })
+    a11y.mount()
+    const toolbar = shadowRoot().querySelector<HTMLElement>('.toolbar')
+    if (!toolbar) {
+      throw new Error('Toolbar missing')
+    }
+    expect(toolbar.scrollWidth).toBeGreaterThan(toolbar.clientWidth)
+    const [first] = buttons()
+    expect(first?.getBoundingClientRect().left).toBeGreaterThanOrEqual(0)
+    const enabled = buttons().find(button => !button.disabled)
+    enabled?.focus()
+    await userEvent.keyboard('{End}')
+    const exit = shadowRoot().querySelector<HTMLElement>(
+      '[data-item-id="exit"]',
+    )
+    expect(shadowRoot().activeElement).toBe(exit)
+    expect(exit?.getBoundingClientRect().right).toBeLessThanOrEqual(375)
+    await vi.waitFor(() => {
+      expect(
+        Number(
+          getComputedStyle(document.body).paddingBlockStart.replace('px', ''),
+        ),
+      ).toBeCloseTo(toolbar.getBoundingClientRect().height)
+    })
+  } finally {
+    await page.viewport(1280, 720)
+  }
 })

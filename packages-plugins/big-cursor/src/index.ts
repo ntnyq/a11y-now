@@ -6,26 +6,53 @@ import {
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface BigCursorOptions {
-  /** Cursor fill color; defaults to the `cursor-color` page token. */
+  /**
+   * Cursor fill color; defaults to the `cursor-color` page token.
+   *
+   * @default DEFAULT_PAGE_TOKENS['cursor-color'] ('#ffd700').
+   */
   color?: string
-  /** Cursor size in px, defaults to 48. */
+  /**
+   * Cursor size in px, defaults to 48.
+   *
+   * @default 48
+   */
   size?: number
 }
 
 export interface BigCursorApi {
+  /**
+   * Check whether the large cursor is enabled.
+   *
+   * @returns `true` when the large cursor is enabled.
+   */
   isEnabled: () => boolean
+  /**
+   * Toggle and persist the large cursor, updating its page effects.
+   */
   toggle: () => void
 }
 
 interface BigCursorState {
+  /**
+   * Whether the enlarged cursor is applied to the page.
+   *
+   * @default false
+   */
   enabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
+/**
+ * Inline SVG for the big-cursor toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M4 2l16 7.6-6.8 1.9 4.3 7.4-2.6 1.5-4.3-7.4L6 18.2 4 2Z"/></svg>'
 
-const cursorSvg = (color: string, size: number): string => {
+function cursorSvg(color: string, size: number): string {
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">` +
     `<path d="M4 2l16 7.6-6.8 1.9 4.3 7.4-2.6 1.5-4.3-7.4L6 18.2 4 2Z" ` +
@@ -51,18 +78,21 @@ const bigCursorPlugin = definePlugin<
     },
   },
   name: 'big-cursor',
-  setup: ctx => {
+  setup(ctx) {
     const size = ctx.options.size ?? 48
     const color = ctx.options.color ?? DEFAULT_PAGE_TOKENS['cursor-color']
     let disposeStyle: (() => void) | null = null
 
-    const isEnabled = (): boolean => ctx.state.get('enabled')
-    const describe = (): string =>
-      ctx.i18n.t(isEnabled() ? 'cursor.on' : 'cursor.off', {
+    function isEnabled(): boolean {
+      return ctx.state.get('enabled')
+    }
+    function describe(): string {
+      return ctx.i18n.t(isEnabled() ? 'cursor.on' : 'cursor.off', {
         shortcut: ctx.shortcuts.format({ alt: true, ctrl: true, key: 'm' }),
       })
+    }
 
-    const apply = (enabled: boolean): void => {
+    function apply(enabled: boolean): void {
       if (enabled) {
         disposeStyle = ctx.dom.injectStyle(
           'big-cursor',
@@ -74,11 +104,9 @@ const bigCursorPlugin = definePlugin<
       }
     }
 
-    const toggle = (): void => {
+    function toggle(): void {
       const next = !isEnabled()
       ctx.state.set('enabled', next)
-      apply(next)
-      button.update({ description: describe, pressed: next })
       ctx.ui.announce(describe())
     }
 
@@ -107,9 +135,17 @@ const bigCursorPlugin = definePlugin<
       apply(true)
     }
 
+    const stopState = ctx.state.subscribe(key => {
+      if (key === 'enabled') {
+        apply(isEnabled())
+        button.update({ description: describe, pressed: isEnabled() })
+      }
+    })
+
     return {
       api: { isEnabled, toggle },
-      dispose: () => {
+      dispose() {
+        stopState()
         unregister()
         button.remove()
         disposeStyle?.()
@@ -119,14 +155,24 @@ const bigCursorPlugin = definePlugin<
   state: { enabled: false },
 })
 
-/** Big mouse cursor plugin. `Ctrl+Alt+M`. */
-export const bigCursor = (
+/**
+ * Big mouse cursor plugin. `Ctrl+Alt+M`.
+ *
+ * @param options - Cursor color and size overrides; omitted fields use plugin
+ *   defaults.
+ * @returns A configured large cursor plugin for toolbar registration.
+ */
+export function bigCursor(
   options: BigCursorOptions = {},
-): ConfiguredPlugin<BigCursorOptions, BigCursorApi, BigCursorState> =>
-  configurePlugin(bigCursorPlugin, options)
+): ConfiguredPlugin<BigCursorOptions, BigCursorApi, BigCursorState> {
+  return configurePlugin(bigCursorPlugin, options)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the big-cursor plugin after activation.
+     */
     'big-cursor': BigCursorApi
   }
 }

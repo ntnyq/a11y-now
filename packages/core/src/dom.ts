@@ -3,24 +3,32 @@ import type { DomService } from '@a11y-now/types'
 /**
  * All page mutations flow through this service so `unmount()` can restore
  * the page exactly — the "leave no trace" guarantee.
+ *
+ * @param doc - Document receiving tracked styles, classes, and custom
+ *   properties.
+ * @returns A mutation service whose cleanup removes its tracked page changes.
  */
-export const createDomService = (doc: Document): DomService => {
+export function createDomService(doc: Document): DomService {
   const styles = new Map<string, HTMLStyleElement>()
   const pageVars = new Set<string>()
   const pageClasses = new Set<string>()
-  let hadStyleAttr: boolean | null = null
   let hadClassAttr: boolean | null = null
+  let hadStyleAttr: boolean | null = null
 
-  /** Drop the empty `style=""` left behind by removeProperty. */
-  const tidyStyleAttr = (): void => {
+  /**
+   * Drop the empty `style=""` left behind by removeProperty.
+   */
+  function tidyStyleAttr(): void {
     const el = doc.documentElement
     if (hadStyleAttr === false && el.style.length === 0) {
       el.removeAttribute('style')
     }
   }
 
-  /** Drop the empty `class=""` left behind by classList.remove. */
-  const tidyClassAttr = (): void => {
+  /**
+   * Drop the empty `class=""` left behind by classList.remove.
+   */
+  function tidyClassAttr(): void {
     const el = doc.documentElement
     if (hadClassAttr === false && el.classList.length === 0) {
       el.removeAttribute('class')
@@ -28,12 +36,12 @@ export const createDomService = (doc: Document): DomService => {
   }
 
   return {
-    addPageClass: className => {
+    addPageClass(className) {
       hadClassAttr ??= doc.documentElement.hasAttribute('class')
       doc.documentElement.classList.add(className)
       pageClasses.add(className)
     },
-    cleanup: () => {
+    cleanup() {
       for (const el of styles.values()) {
         el.remove()
       }
@@ -49,7 +57,7 @@ export const createDomService = (doc: Document): DomService => {
       pageClasses.clear()
       tidyClassAttr()
     },
-    injectStyle: (id, cssText) => {
+    injectStyle(id, cssText) {
       let el = styles.get(id)
       if (!el) {
         el = doc.createElement('style')
@@ -63,17 +71,18 @@ export const createDomService = (doc: Document): DomService => {
         styles.delete(id)
       }
     },
-    removePageClass: className => {
+    removePageClass(className) {
+      hadClassAttr ??= doc.documentElement.hasAttribute('class')
       doc.documentElement.classList.remove(className)
       pageClasses.delete(className)
       tidyClassAttr()
     },
-    removePageVar: name => {
+    removePageVar(name) {
       doc.documentElement.style.removeProperty(name)
       pageVars.delete(name)
       tidyStyleAttr()
     },
-    setPageVar: (name, value) => {
+    setPageVar(name, value) {
       hadStyleAttr ??= doc.documentElement.hasAttribute('style')
       doc.documentElement.style.setProperty(name, value)
       pageVars.add(name)

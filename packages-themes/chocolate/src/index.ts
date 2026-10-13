@@ -1,6 +1,8 @@
 import { defineTheme } from '@a11y-now/core'
 
-/** Chocolate background with white text (巧克力色). */
+/**
+ * Chocolate background with white text (巧克力色).
+ */
 export const chocolate = defineTheme({
   displayName: { 'en-US': 'Chocolate', 'zh-CN': '巧克力色' },
   name: 'chocolate',

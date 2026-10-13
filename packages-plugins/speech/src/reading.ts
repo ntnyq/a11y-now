@@ -1,20 +1,29 @@
 import { css, pageVar, speakableText } from '@a11y-now/core'
 import type { PluginContext } from '@a11y-now/types'
 
+/**
+ * Interactive and text elements treated as hover-reading targets.
+ */
 const HOVER_TARGET_SELECTOR =
   'a, button, [role], h1, h2, h3, h4, p, li, label, input, td, th'
 
 /**
  * Point reading: debounced hover speech over interactive/text elements.
  * Returns a dispose function.
+ *
+ * @param ctx - Plugin context supplying the speech service.
+ * @param config - Hover debounce delay in milliseconds and active-mode
+ *   predicate.
+ * @returns A disposer that removes the hover listener and cancels the pending
+ *   timer.
  */
-export const createHoverReading = (
+export function createHoverReading(
   ctx: Pick<PluginContext, 'speech'>,
   config: { delay: number; isActive: () => boolean },
-): (() => void) => {
-  let timer: ReturnType<typeof setTimeout> | null = null
+): () => void {
   let lastSpoken: Element | null = null
-  const onHover = (event: MouseEvent): void => {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  function onHover(event: MouseEvent): void {
     if (!config.isActive() || !ctx.speech.isEnabled()) {
       return
     }
@@ -47,32 +56,67 @@ export const createHoverReading = (
 }
 
 export interface ContinuousReadingConfig {
-  /** Max total characters enqueued per pass, `0` = unlimited. */
+  /**
+   * Max total characters enqueued per pass, `0` = unlimited.
+   */
   limit: number
-  /** Announce the natural end of a pass. */
+  /**
+   * Announce the natural end of a pass.
+   */
   onDone: () => void
-  /** Scroll the segment being read into view. */
+  /**
+   * Scroll the segment being read into view.
+   */
   scroll: boolean
-  /** Block-level selector used to split the page into read segments. */
+  /**
+   * Block-level selector used to split the page into read segments.
+   */
   selector: string
 }
 
 export interface ContinuousReading {
+  /**
+   * Check whether a continuous reading pass is in progress.
+   *
+   * @returns `true` while the reading queue is active.
+   */
   isReading: () => boolean
+  /**
+   * Start a new pass through main page content when speech is enabled and
+   * unmuted.
+   */
   readPage: () => void
+  /**
+   * Stop the current pass, cancel speech, and remove reading highlights.
+   */
   stopReading: () => void
 }
 
 interface ReadSegment {
+  /**
+   * Page element highlighted while this segment is spoken.
+   */
   el: Element
+  /**
+   * Speakable text queued for this page segment.
+   */
   text: string
 }
 
+/**
+ * Default block elements collected as continuous-reading segments.
+ */
 export const DEFAULT_SEGMENT_SELECTOR =
   'h1, h2, h3, h4, h5, h6, p, li, blockquote, dt, dd, figcaption, caption, th, td, pre, summary'
 
+/**
+ * Attribute marking the page segment currently being spoken.
+ */
 const READING_ATTR = 'data-a11y-reading'
 
+/**
+ * Page stylesheet outlining the active continuous-reading segment.
+ */
 const HIGHLIGHT_STYLE = css`
   [${READING_ATTR}] {
     outline: var(${pageVar('region-outline')}, 2px solid #ff6c00) !important;
@@ -84,20 +128,26 @@ const HIGHLIGHT_STYLE = css`
  * Continuous reading as a segment queue: one leaf block element per
  * utterance, advanced by the engine's `onEnd` callback, with the current
  * segment highlighted via `data-a11y-reading`.
+ *
+ * @param ctx - Plugin services for highlighting, events, and speech playback.
+ * @param config - Segment selection, character limit, scrolling, and completion
+ *   callback.
+ * @returns Controls for starting, inspecting, and stopping continuous page
+ *   reading.
  */
-export const createContinuousReading = (
+export function createContinuousReading(
   ctx: Pick<PluginContext, 'dom' | 'events' | 'speech'>,
   config: ContinuousReadingConfig,
-): ContinuousReading => {
+): ContinuousReading {
   let generation = 0
   let queue: ReadSegment[] = []
   let index = -1
   let disposeStyle: (() => void) | null = null
 
-  const collectSegments = (root: Element): ReadSegment[] => {
+  function collectSegments(root: Element): ReadSegment[] {
     const segments: ReadSegment[] = []
     let total = 0
-    const push = (el: Element, text: string): boolean => {
+    function push(el: Element, text: string): boolean {
       const clipped =
         config.limit > 0 ? text.slice(0, config.limit - total) : text
       if (!clipped) {
@@ -128,12 +178,11 @@ export const createContinuousReading = (
     return segments
   }
 
-  const isReading = (): boolean => index >= 0
-
-  const clearHighlight = (): void => {
-    document.querySelector(`[${READING_ATTR}]`)?.removeAttribute(READING_ATTR)
+  function isReading(): boolean {
+    return index >= 0
   }
-  const highlight = (el: Element): void => {
+
+  function highlight(el: Element): void {
     clearHighlight()
     el.setAttribute(READING_ATTR, 'true')
     if (config.scroll && typeof el.scrollIntoView === 'function') {
@@ -141,7 +190,7 @@ export const createContinuousReading = (
     }
   }
 
-  const cleanup = (): void => {
+  function cleanup(): void {
     generation += 1
     queue = []
     index = -1
@@ -150,7 +199,7 @@ export const createContinuousReading = (
     disposeStyle = null
   }
 
-  const stopReading = (): void => {
+  function stopReading(): void {
     if (!isReading()) {
       return
     }
@@ -159,7 +208,7 @@ export const createContinuousReading = (
     ctx.events.emit('speech:reading-end', {})
   }
 
-  const speakNext = (): void => {
+  function speakNext(): void {
     index += 1
     const segment = queue[index]
     if (!segment) {
@@ -173,7 +222,7 @@ export const createContinuousReading = (
     ctx.events.emit('speech:reading', { index, total: queue.length })
     const gen = generation
     ctx.speech.speak(segment.text, {
-      onEnd: () => {
+      onEnd() {
         if (gen === generation) {
           speakNext()
         }
@@ -181,7 +230,7 @@ export const createContinuousReading = (
     })
   }
 
-  const readPage = (): void => {
+  function readPage(): void {
     stopReading()
     if (!ctx.speech.isEnabled() || ctx.speech.isMuted()) {
       return
@@ -197,4 +246,8 @@ export const createContinuousReading = (
   }
 
   return { isReading, readPage, stopReading }
+}
+
+function clearHighlight(): void {
+  document.querySelector(`[${READING_ATTR}]`)?.removeAttribute(READING_ATTR)
 }

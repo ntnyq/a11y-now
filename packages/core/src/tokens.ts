@@ -1,6 +1,8 @@
 import type { PageTokens, ToolbarTokens } from '@a11y-now/types'
 
-/** Toolbar UI token defaults — the toolbar half of `theme-default`. */
+/**
+ * Toolbar UI token defaults — the toolbar half of `theme-default`.
+ */
 export const DEFAULT_TOOLBAR_TOKENS: ToolbarTokens = {
   'btn-size': '56px',
   'color-accent': '#0b5cad',
@@ -38,7 +40,9 @@ export const DARK_TOOLBAR_TOKENS: Partial<ToolbarTokens> = {
   'color-fg': '#e8eaed',
 }
 
-/** Page token defaults, aligned with the audited reference toolbar. */
+/**
+ * Page token defaults, aligned with the audited reference toolbar.
+ */
 export const DEFAULT_PAGE_TOKENS: PageTokens = {
   bg: '',
   'cursor-color': '#ffd700',
@@ -48,16 +52,38 @@ export const DEFAULT_PAGE_TOKENS: PageTokens = {
   'region-outline': '2px solid #ff6c00',
 }
 
+/**
+ * CSS custom property prefix for toolbar design tokens.
+ */
 export const TOOLBAR_TOKEN_PREFIX = '--a11y-'
+/**
+ * CSS custom property prefix for page design tokens.
+ */
 export const PAGE_TOKEN_PREFIX = '--a11y-page-'
 
-export const toolbarVar = (key: keyof ToolbarTokens): string =>
-  `${TOOLBAR_TOKEN_PREFIX}${key}`
+/**
+ * Resolve a toolbar token to its CSS custom property name.
+ *
+ * @param key - Toolbar design token key.
+ * @returns The property name prefixed with `--a11y-`.
+ */
+export function toolbarVar(key: keyof ToolbarTokens): string {
+  return `${TOOLBAR_TOKEN_PREFIX}${key}`
+}
 
-export const pageVar = (key: keyof PageTokens): string =>
-  `${PAGE_TOKEN_PREFIX}${key}`
+/**
+ * Resolve a page token to its CSS custom property name.
+ *
+ * @param key - Page design token key.
+ * @returns The property name prefixed with `--a11y-page-`.
+ */
+export function pageVar(key: keyof PageTokens): string {
+  return `${PAGE_TOKEN_PREFIX}${key}`
+}
 
-/** Selectors always excluded from page re-coloring. */
+/**
+ * Selectors always excluded from page re-coloring.
+ */
 export const GLOBAL_SKIP_SELECTORS = [
   '[data-a11y-skip]',
   'audio',

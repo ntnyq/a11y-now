@@ -2,28 +2,71 @@ import { clamp, configurePlugin, definePlugin, round2 } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface ZoomOptions {
-  /** Maximum page zoom, defaults to 1.3 (mirrors the audited reference). */
+  /**
+   * Maximum page zoom, defaults to 1.3 (mirrors the audited reference).
+   *
+   * @default 1.3
+   */
   max?: number
-  /** Minimum page zoom, defaults to 1. */
+  /**
+   * Minimum page zoom, defaults to 1.
+   *
+   * @default 1
+   */
   min?: number
-  /** Zoom step, defaults to 0.1. */
+  /**
+   * Zoom step, defaults to 0.1.
+   *
+   * @default 0.1
+   */
   step?: number
 }
 
 export interface ZoomApi {
+  /**
+   * Read the current page zoom factor.
+   *
+   * @returns The persisted zoom scale, where 1 represents the original size.
+   */
   getScale: () => number
+  /**
+   * Apply and persist a page zoom factor within the configured bounds.
+   *
+   * @param scale - Requested zoom factor, clamped to the configured range and
+   *   rounded.
+   */
   setScale: (scale: number) => void
+  /**
+   * Increase page zoom by the configured step, up to its maximum.
+   */
   zoomIn: () => void
+  /**
+   * Decrease page zoom by the configured step, down to its minimum.
+   */
   zoomOut: () => void
 }
 
 interface ZoomState {
+  /**
+   * Persisted page zoom multiplier.
+   *
+   * @default 1
+   */
   scale: number
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: number
 }
 
+/**
+ * Inline SVG for the zoom-in toolbar button.
+ */
 const ICON_IN =
   '<svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-1 3v2H7v2h2v2h2v-2h2V9h-2V7H9Z"/></svg>'
+/**
+ * Inline SVG for the zoom-out toolbar button.
+ */
 const ICON_OUT =
   '<svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM7 9v2h6V9H7Z"/></svg>'
 
@@ -49,13 +92,13 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
     },
   },
   name: 'zoom',
-  setup: ctx => {
+  setup(ctx) {
     const min = ctx.options.min ?? 1
     const max = ctx.options.max ?? 1.3
     const step = ctx.options.step ?? 0.1
     let disposeStyle: (() => void) | null = null
 
-    const apply = (scale: number): void => {
+    function apply(scale: number): void {
       if (scale === 1) {
         disposeStyle?.()
         disposeStyle = null
@@ -69,7 +112,7 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
       )
     }
 
-    const describe = (key: 'zoom.in.desc' | 'zoom.out.desc'): string => {
+    function describe(key: 'zoom.in.desc' | 'zoom.out.desc'): string {
       const shortcutKey = key === 'zoom.in.desc' ? '=' : '-'
       return `${ctx.i18n.t('zoom.current', { scale: ctx.state.get('scale') })}，${ctx.i18n.t(
         key,
@@ -83,7 +126,7 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
       )}`
     }
 
-    const setScale = (next: number): void => {
+    function setScale(next: number): void {
       const clamped = round2(clamp(next, min, max))
       const current = ctx.state.get('scale')
       if (clamped === current) {
@@ -91,17 +134,13 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
         return
       }
       ctx.state.set('scale', clamped)
-      apply(clamped)
-      inBtn.update({ description: () => describe('zoom.in.desc') })
-      outBtn.update({ description: () => describe('zoom.out.desc') })
-      ctx.events.emit('zoom:change', { scale: clamped })
       ctx.ui.announce(ctx.i18n.t('zoom.current', { scale: clamped }))
     }
 
-    const zoomIn = (): void => {
+    function zoomIn(): void {
       setScale(ctx.state.get('scale') + step)
     }
-    const zoomOut = (): void => {
+    function zoomOut(): void {
       setScale(ctx.state.get('scale') - step)
     }
 
@@ -150,7 +189,10 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
     }
     const stopState = ctx.state.subscribe((key, value) => {
       if (key === 'scale') {
-        apply(value as number)
+        apply(value)
+        inBtn.update({ description: () => describe('zoom.in.desc') })
+        outBtn.update({ description: () => describe('zoom.out.desc') })
+        ctx.events.emit('zoom:change', { scale: value })
       }
     })
 
@@ -161,7 +203,7 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
         zoomIn,
         zoomOut,
       },
-      dispose: () => {
+      dispose() {
         stopState()
         unregisterIn()
         unregisterOut()
@@ -174,17 +216,34 @@ const zoomPlugin = definePlugin<ZoomOptions, ZoomApi, ZoomState>({
   state: { scale: 1 },
 })
 
-/** Page zoom plugin. `Ctrl+Alt+=` / `Ctrl+Alt+-`. */
-export const zoom = (
+/**
+ * Page zoom plugin. `Ctrl+Alt+=` / `Ctrl+Alt+-`.
+ *
+ * @param options - Minimum, maximum, and step size for page zoom.
+ * @returns A configured page zoom plugin for toolbar registration.
+ */
+export function zoom(
   options: ZoomOptions = {},
-): ConfiguredPlugin<ZoomOptions, ZoomApi, ZoomState> =>
-  configurePlugin(zoomPlugin, options)
+): ConfiguredPlugin<ZoomOptions, ZoomApi, ZoomState> {
+  return configurePlugin(zoomPlugin, options)
+}
 
 declare module '@a11y-now/types' {
   interface A11yEventMap {
-    'zoom:change': { scale: number }
+    /**
+     * Page zoom changed to the supplied scale multiplier.
+     */
+    'zoom:change': {
+      /**
+       * New page zoom multiplier.
+       */
+      scale: number
+    }
   }
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the zoom plugin after activation.
+     */
     zoom: ZoomApi
   }
 }

@@ -2,23 +2,46 @@ import { configurePlugin, css, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface PauseMotionOptions {
-  /** Also freeze GIF images onto a first-frame canvas snapshot. Default true. */
+  /**
+   * Also freeze GIF images onto a first-frame canvas snapshot. Default true.
+   *
+   * @default true
+   */
   freezeGifs?: boolean
 }
 
 export interface PauseMotionApi {
+  /**
+   * Check whether page motion suppression is enabled.
+   *
+   * @returns `true` when page motion suppression is enabled.
+   */
   isEnabled: () => boolean
+  /**
+   * Toggle and persist page motion suppression, updating its page effects.
+   */
   toggle: () => void
 }
 
 interface PauseMotionState {
+  /**
+   * Whether page animations and media playback are paused.
+   *
+   * @default false
+   */
   enabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
+/**
+ * Selector suffix excluding opted-out elements and their descendants.
+ */
 const SKIP = ':not([data-a11y-skip], [data-a11y-skip] *)'
 
-const resumeVideo = async (video: HTMLVideoElement): Promise<void> => {
+async function resumeVideo(video: HTMLVideoElement): Promise<void> {
   try {
     await video.play()
   } catch {
@@ -26,6 +49,9 @@ const resumeVideo = async (video: HTMLVideoElement): Promise<void> => {
   }
 }
 
+/**
+ * Inline SVG for the pause-motion toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6V5Zm8 0h4v14h-4V5Z"/></svg>'
 
@@ -47,23 +73,19 @@ const pauseMotionPlugin = definePlugin<
     },
   },
   name: 'pause-motion',
-  setup: ctx => {
+  setup(ctx) {
     const freezeGifs = ctx.options.freezeGifs ?? true
     let disposeStyle: (() => void) | null = null
-    /** Videos we paused, to resume on disable. */
+    /**
+     * Videos we paused, to resume on disable.
+     */
     const pausedVideos = new Set<HTMLVideoElement>()
-    /** GIF images swapped to a still snapshot, with their original src. */
+    /**
+     * GIF images swapped to a still snapshot, with their original src.
+     */
     const frozenGifs = new Map<HTMLImageElement, string>()
 
-    const buildStyle = (): string => css`
-      :where(body *${SKIP}, body *${SKIP}::before, body *${SKIP}::after) {
-        animation-play-state: paused !important;
-        transition-property: none !important;
-        scroll-behavior: auto !important;
-      }
-    `
-
-    const pauseVideos = (): void => {
+    function pauseVideos(): void {
       for (const video of document.querySelectorAll('video')) {
         const skipped = video.closest('[data-a11y-skip]')
         if (!skipped && (!video.paused || video.autoplay)) {
@@ -77,7 +99,7 @@ const pauseMotionPlugin = definePlugin<
       }
     }
 
-    const resumeVideos = (): void => {
+    function resumeVideos(): void {
       for (const video of pausedVideos) {
         if (video.isConnected && video.autoplay) {
           // Fire-and-forget: the failure path is swallowed inside.
@@ -87,7 +109,7 @@ const pauseMotionPlugin = definePlugin<
       pausedVideos.clear()
     }
 
-    const freezeGifImage = (img: HTMLImageElement): void => {
+    function freezeGifImage(img: HTMLImageElement): void {
       try {
         const canvas = document.createElement('canvas')
         canvas.width = img.naturalWidth
@@ -105,7 +127,7 @@ const pauseMotionPlugin = definePlugin<
       }
     }
 
-    const freezeGifImages = (): void => {
+    function freezeGifImages(): void {
       for (const img of document.querySelectorAll('img')) {
         const eligible =
           img.src.toLowerCase().includes('.gif') &&
@@ -118,7 +140,7 @@ const pauseMotionPlugin = definePlugin<
       }
     }
 
-    const restoreGifImages = (): void => {
+    function restoreGifImages(): void {
       for (const [img, original] of frozenGifs) {
         if (img.isConnected) {
           img.src = original
@@ -127,7 +149,7 @@ const pauseMotionPlugin = definePlugin<
       frozenGifs.clear()
     }
 
-    const apply = (enabled: boolean): void => {
+    function apply(enabled: boolean): void {
       if (enabled) {
         disposeStyle = ctx.dom.injectStyle('pause-motion', buildStyle())
         pauseVideos()
@@ -142,17 +164,18 @@ const pauseMotionPlugin = definePlugin<
       }
     }
 
-    const isEnabled = (): boolean => ctx.state.get('enabled')
-    const describe = (): string =>
-      ctx.i18n.t(isEnabled() ? 'motion.on' : 'motion.off', {
+    function isEnabled(): boolean {
+      return ctx.state.get('enabled')
+    }
+    function describe(): string {
+      return ctx.i18n.t(isEnabled() ? 'motion.on' : 'motion.off', {
         shortcut: ctx.shortcuts.format({ alt: true, ctrl: true, key: 'x' }),
       })
+    }
 
-    const toggle = (): void => {
+    function toggle(): void {
       const next = !isEnabled()
       ctx.state.set('enabled', next)
-      apply(next)
-      button.update({ description: describe, pressed: next })
       ctx.ui.announce(describe())
     }
 
@@ -180,9 +203,17 @@ const pauseMotionPlugin = definePlugin<
       apply(true)
     }
 
+    const stopState = ctx.state.subscribe(key => {
+      if (key === 'enabled') {
+        apply(isEnabled())
+        button.update({ description: describe, pressed: isEnabled() })
+      }
+    })
+
     return {
       api: { isEnabled, toggle },
-      dispose: () => {
+      dispose() {
+        stopState()
         apply(false)
         unregister()
         button.remove()
@@ -197,14 +228,31 @@ const pauseMotionPlugin = definePlugin<
  * (a forced `prefers-reduced-motion`-style override), pauses autoplaying
  * video, and best-effort freezes same-origin GIFs onto a still first frame
  * — for vestibular-disorder and attention-sensitive users.
+ *
+ * @param options - Whether to freeze GIF images as well as other page motion.
+ * @returns A configured motion pause plugin for toolbar registration.
  */
-export const pauseMotion = (
+export function pauseMotion(
   options: PauseMotionOptions = {},
-): ConfiguredPlugin<PauseMotionOptions, PauseMotionApi, PauseMotionState> =>
-  configurePlugin(pauseMotionPlugin, options)
+): ConfiguredPlugin<PauseMotionOptions, PauseMotionApi, PauseMotionState> {
+  return configurePlugin(pauseMotionPlugin, options)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the pause-motion plugin after activation.
+     */
     'pause-motion': PauseMotionApi
   }
+}
+
+function buildStyle(): string {
+  return css`
+    :where(body *${SKIP}, body *${SKIP}::before, body *${SKIP}::after) {
+      animation-play-state: paused !important;
+      transition-property: none !important;
+      scroll-behavior: auto !important;
+    }
+  `
 }

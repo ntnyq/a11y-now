@@ -5,7 +5,7 @@ import { beforeEach, expect, it } from 'vitest'
 
 let a11y: A11yNowInstance = createA11yNow({ storage: null })
 
-const mountWith = (storage = createMemoryStorageAdapter()) => {
+function mountWith(storage = createMemoryStorageAdapter()) {
   a11y = createA11yNow({ storage }).use(zoom())
   a11y.mount()
   return storage
@@ -15,8 +15,11 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
-const zoomStyle = () =>
-  document.head.querySelector('[data-a11y-now="zoom"]')?.textContent ?? ''
+function zoomStyle() {
+  return (
+    document.head.querySelector('[data-a11y-now="zoom"]')?.textContent ?? ''
+  )
+}
 
 it('zooms in and out within bounds via api', () => {
   mountWith()

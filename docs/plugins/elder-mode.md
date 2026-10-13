@@ -11,8 +11,8 @@
 ## 使用
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { elderMode } from '@a11y-now/plugin-elder-mode'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [elderMode()] }).mount()
 ```

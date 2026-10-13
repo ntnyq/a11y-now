@@ -37,29 +37,55 @@ export {
   toolbarVar,
 } from './tokens'
 
-/** Identity helper: full type inference for plugin definitions. */
-export const definePlugin = <
+/**
+ * Identity helper: full type inference for plugin definitions.
+ *
+ * @template Options - Plugin-specific configuration.
+ * @template Api - API exposed after plugin setup.
+ * @template State - Persisted state shape.
+ * @param plugin - Plugin definition to type-check and preserve.
+ * @returns The same plugin definition, without cloning.
+ */
+export function definePlugin<
   Options = void,
   Api = unknown,
   State extends StateDefaults = StateDefaults,
->(
-  plugin: A11yPlugin<Options, Api, State>,
-): A11yPlugin<Options, Api, State> => plugin
+>(plugin: A11yPlugin<Options, Api, State>): A11yPlugin<Options, Api, State> {
+  return plugin
+}
 
-/** Identity helper: full type inference for configured plugin factories. */
-export const configurePlugin = <
+/**
+ * Bundle a plugin definition with options while preserving type inference.
+ *
+ * @template Options - Plugin-specific configuration.
+ * @template Api - API exposed after plugin setup.
+ * @template State - Persisted state shape.
+ * @param plugin - Plugin definition to configure.
+ * @param options - Options passed to setup; omitted options remain `undefined`.
+ * @returns The definition and options packaged for toolbar registration.
+ */
+export function configurePlugin<
   Options,
   Api,
   State extends StateDefaults = StateDefaults,
 >(
   plugin: A11yPlugin<Options, Api, State>,
   options?: Options,
-): ConfiguredPlugin<Options, Api, State> => ({
-  options: options as Options,
-  plugin,
-})
+): ConfiguredPlugin<Options, Api, State> {
+  return {
+    options: options as Options,
+    plugin,
+  }
+}
 
-/** Identity helper: full type inference for theme definitions. */
-export const defineTheme = (theme: A11yTheme): A11yTheme => theme
+/**
+ * Identity helper: full type inference for theme definitions.
+ *
+ * @param theme - Theme definition to type-check and preserve.
+ * @returns The same theme definition, without cloning.
+ */
+export function defineTheme(theme: A11yTheme): A11yTheme {
+  return theme
+}
 
 export type * from '@a11y-now/types'

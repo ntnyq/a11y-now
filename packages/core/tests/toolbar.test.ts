@@ -6,7 +6,7 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
-const mountToolbar = () => {
+function mountToolbar() {
   const a11y = createA11yNow({ storage: null }).use(zoom())
   a11y.mount()
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
@@ -14,12 +14,13 @@ const mountToolbar = () => {
   return { a11y, buttons, shadow }
 }
 
-const press = (target: Element, key: string): void => {
+function press(target: Element, key: string): void {
   target.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key }))
 }
 
-const tabStops = (buttons: HTMLButtonElement[]): number[] =>
-  buttons.map(button => button.tabIndex)
+function tabStops(buttons: HTMLButtonElement[]): number[] {
+  return buttons.map(button => button.tabIndex)
+}
 
 it('arrow keys rove the toolbar tab stop, wrapping at the edges', () => {
   const { a11y, buttons } = mountToolbar()

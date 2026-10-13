@@ -1,6 +1,8 @@
 import { defineTheme } from '@a11y-now/core'
 
-/** Deep blue background with white text (深蓝白). */
+/**
+ * Deep blue background with white text (深蓝白).
+ */
 export const deepBlue = defineTheme({
   displayName: { 'en-US': 'Deep Blue', 'zh-CN': '深蓝白' },
   name: 'deep-blue',

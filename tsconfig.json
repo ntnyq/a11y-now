@@ -4,6 +4,7 @@
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "module": "ESNext",
+    "jsx": "react-jsx",
     "types": ["node"],
     "paths": {
       "@a11y-now/types": ["./packages/types/src/index.ts"],
@@ -67,6 +68,9 @@
     "skipLibCheck": true
   },
   "include": [
+    "docs/.vitepress/**/*.ts",
+    "playground/**/*.ts",
+    "playground/**/*.tsx",
     "packages/*/src",
     "packages/*/tests",
     "packages-plugins/*/src",
@@ -76,6 +80,8 @@
     "packages-frameworks/*/src",
     "packages-frameworks/*/tests",
     "tests",
+    "scripts",
+    "**/tsdown.config.ts",
     "*.ts"
   ]
 }

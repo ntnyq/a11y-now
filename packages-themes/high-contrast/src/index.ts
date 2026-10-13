@@ -1,6 +1,8 @@
 import { defineTheme } from '@a11y-now/core'
 
-/** Black background, white text, amber links (黑底白字). */
+/**
+ * Black background, white text, amber links (黑底白字).
+ */
 export const highContrast = defineTheme({
   displayName: { 'en-US': 'High Contrast', 'zh-CN': '黑底白字' },
   name: 'high-contrast',

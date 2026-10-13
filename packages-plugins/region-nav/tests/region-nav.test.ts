@@ -2,6 +2,9 @@ import { createA11yNow } from '@a11y-now/core'
 import { regionNav } from '@a11y-now/plugin-region-nav'
 import { beforeEach, expect, it } from 'vitest'
 
+/**
+ * Page fixture containing each landmark used by region navigation tests.
+ */
 const PAGE = `
   <header><h1>站点</h1></header>
   <nav><a href="#a">链接A</a><a href="#b">链接B</a></nav>

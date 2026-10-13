@@ -8,7 +8,7 @@ beforeEach(() => {
 
 it('mirrors spoken text into the caption bar', () => {
   const a11y = createA11yNow({
-    speechEngine: { available: true, cancel: () => {}, speak: () => {} },
+    speechEngine: { available: true, cancel() {}, speak() {} },
     storage: null,
   }).use(caption())
   a11y.mount()

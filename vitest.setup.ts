@@ -6,22 +6,24 @@
  * working storage. The real happy-dom window is unreachable from setup code
  * (`window` and `document.defaultView` are both remapped to the patched
  * global), so back the broken keys with a fresh in-memory Storage per file.
+ *
+ * @returns A fresh in-memory implementation of the browser Storage interface.
  */
-export const createMemoryStorage = (): Storage => {
+export function createMemoryStorage(): Storage {
   const map = new Map<string, string>()
   return {
     get length() {
       return map.size
     },
-    clear: () => {
+    clear() {
       map.clear()
     },
     getItem: key => map.get(key) ?? null,
     key: index => [...map.keys()][index] ?? null,
-    removeItem: key => {
+    removeItem(key) {
       map.delete(key)
     },
-    setItem: (key, value) => {
+    setItem(key, value) {
       map.set(key, String(value))
     },
   }

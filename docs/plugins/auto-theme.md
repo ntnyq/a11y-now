@@ -12,8 +12,8 @@
 ## 使用
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { autoTheme } from '@a11y-now/plugin-auto-theme'
+import { createA11yNow } from 'a11y-now'
 
 // 需保证映射到的主题已注册（full preset 已包含下列默认主题）
 createA11yNow({ plugins: [autoTheme()] }).mount()

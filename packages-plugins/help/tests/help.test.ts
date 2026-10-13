@@ -57,3 +57,63 @@ it('renders keycap chips and closes on backdrop click', () => {
   expect(shadow?.querySelector('.help-backdrop')).toBeNull()
   a11y.unmount()
 })
+
+it('contains focus and restores existing inert attributes on close and disposal', () => {
+  const originalInert = document.body.getAttribute('inert')
+  document.body.setAttribute('inert', 'preserve')
+  const a11y = createA11yNow({ storage: null }).use(help())
+  a11y.mount()
+  const shadow = document.querySelector('a11y-now-host')?.shadowRoot
+  const opener = shadow?.querySelector<HTMLButtonElement>(
+    '[data-item-id="help"]',
+  )
+  opener?.focus()
+  const api = a11y.getPlugin('help')
+  api?.open()
+  const dialog = shadow?.querySelector('[role="dialog"]')
+  const close = dialog?.querySelector<HTMLButtonElement>('button')
+  const scroller = dialog?.querySelector<HTMLElement>('.help-scroll')
+  close?.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    }),
+  )
+  expect(shadow?.activeElement).toBe(scroller)
+  scroller?.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    }),
+  )
+  expect(shadow?.activeElement).toBe(close)
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    }),
+  )
+  expect(shadow?.activeElement).toBe(close)
+  document.dispatchEvent(
+    new FocusEvent('focusin', { bubbles: true, composed: true }),
+  )
+  expect(shadow?.activeElement).toBe(close)
+  api?.close()
+  expect(document.body.getAttribute('inert')).toBe('preserve')
+  expect(opener?.closest('.toolbar')?.hasAttribute('inert')).toBe(false)
+  api?.open()
+  a11y.destroy()
+  expect(document.body.getAttribute('inert')).toBe('preserve')
+  if (originalInert === null) {
+    document.body.removeAttribute('inert')
+  } else {
+    document.body.setAttribute('inert', originalInert)
+  }
+})

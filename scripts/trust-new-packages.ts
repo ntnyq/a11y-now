@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 /**
  * 为尚未走过 Trusted Publishing(OIDC)的包配置 npm trust(GitHub Actions)。
  *
@@ -17,17 +17,20 @@
  */
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import { relative, resolve, sep } from 'node:path'
+import { resolve } from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { parseArgs } from 'node:util'
+import {
+  die,
+  listPublishablePackages,
+  parseManifest,
+  ROOT,
+  run,
+} from './workspace'
 
-const ROOT = resolve(import.meta.dirname, '..')
-const PUBLISH_DIRS = new Set([
-  'packages',
-  'packages-plugins',
-  'packages-frameworks',
-  'packages-themes',
-])
+/**
+ * 用于配置 npm trusted publishing 的 GitHub Actions 工作流文件名。
+ */
 const WORKFLOW_FILE = 'release.yml'
 
 const { positionals, values: opts } = parseArgs({
@@ -39,38 +42,20 @@ const { positionals, values: opts } = parseArgs({
   },
 })
 
-function die(message) {
-  console.error(`✖ ${message}`)
-  process.exit(1)
-}
-
-function run(cmd, args) {
-  const res = spawnSync(cmd, args, { cwd: ROOT, encoding: 'utf8' })
-  if (res.error) {
-    die(`无法执行 ${cmd}:${res.error.message}`)
-  }
-  return res
-}
-
-function listPublishablePackages() {
-  const res = run('pnpm', ['m', 'ls', '--json', '--depth', '-1'])
-  if (res.status !== 0) {
-    die(`pnpm m ls 失败:\n${res.stderr}`)
-  }
-  return JSON.parse(res.stdout).filter(
-    pkg =>
-      pkg.name &&
-      pkg.private === false &&
-      PUBLISH_DIRS.has(relative(ROOT, pkg.path).split(sep)[0]),
-  )
-}
-
+const manifest = parseManifest(
+  readFileSync(resolve(ROOT, 'package.json'), 'utf8'),
+)
+const { repository } = manifest
 const repoUrl =
-  JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')).repository
-    ?.url ?? ''
-const repoSlug = /github\.com[/:](?<slug>[\w.-]+\/[\w.-]+?)(?:\.git)?$/u.exec(
-  repoUrl,
-)?.groups?.slug
+  typeof repository === 'object' &&
+  repository !== null &&
+  'url' in repository &&
+  typeof repository.url === 'string'
+    ? repository.url
+    : ''
+const repoSlug =
+  /github\.com[/:](?<slug>[\w.-]+\/[\w.-]+?)(?:\.git)?$/u.exec(repoUrl)
+    ?.groups?.['slug'] ?? ''
 if (!repoSlug) {
   die(`无法从根 package.json repository.url 解析 owner/repo:${repoUrl}`)
 }
@@ -114,18 +99,20 @@ if (targets.length === 0) {
   process.exit(0)
 }
 
-const trustArgs = name => [
-  'trust',
-  'github',
-  name,
-  '--repository',
-  repoSlug,
-  '--file',
-  WORKFLOW_FILE,
-  '--allow-publish',
-  ...(opts['dry-run'] ? ['--dry-run'] : []),
-  ...(opts.yes ? ['--yes'] : []),
-]
+function trustArgs(name: string): string[] {
+  return [
+    'trust',
+    'github',
+    name,
+    '--repository',
+    repoSlug,
+    '--file',
+    WORKFLOW_FILE,
+    '--allow-publish',
+    ...(opts['dry-run'] ? ['--dry-run'] : []),
+    ...(opts.yes ? ['--yes'] : []),
+  ]
+}
 
 console.log(
   `\n待配置 Trusted Publishing 的包(repo ${repoSlug},workflow ${WORKFLOW_FILE}):`,

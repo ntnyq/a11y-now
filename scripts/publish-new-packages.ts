@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 /**
  * 首发 npm 上尚不存在的 workspace 新包(默认首发版本 0.1.0)。
  *
@@ -21,16 +21,15 @@
  */
 import { spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { join, relative, resolve, sep } from 'node:path'
+import { join } from 'node:path'
 import { parseArgs } from 'node:util'
-
-const ROOT = resolve(import.meta.dirname, '..')
-const PUBLISH_DIRS = new Set([
-  'packages',
-  'packages-plugins',
-  'packages-frameworks',
-  'packages-themes',
-])
+import {
+  die,
+  listPublishablePackages,
+  parseManifest,
+  ROOT,
+  run,
+} from './workspace'
 
 const { positionals, values: opts } = parseArgs({
   allowPositionals: true,
@@ -42,20 +41,7 @@ const { positionals, values: opts } = parseArgs({
   },
 })
 
-function die(message) {
-  console.error(`✖ ${message}`)
-  process.exit(1)
-}
-
-function run(cmd, args) {
-  const res = spawnSync(cmd, args, { cwd: ROOT, encoding: 'utf8' })
-  if (res.error) {
-    die(`无法执行 ${cmd}:${res.error.message}`)
-  }
-  return res
-}
-
-function runInherit(cmd, args) {
+function runInherit(cmd: string, args: string[]): void {
   const res = spawnSync(cmd, args, { cwd: ROOT, stdio: 'inherit' })
   if (res.error) {
     die(`无法执行 ${cmd}:${res.error.message}`)
@@ -63,19 +49,6 @@ function runInherit(cmd, args) {
   if (res.status !== 0) {
     die(`命令失败(exit ${res.status}):${cmd} ${args.join(' ')}`)
   }
-}
-
-function listPublishablePackages() {
-  const res = run('pnpm', ['m', 'ls', '--json', '--depth', '-1'])
-  if (res.status !== 0) {
-    die(`pnpm m ls 失败:\n${res.stderr}`)
-  }
-  return JSON.parse(res.stdout).filter(
-    pkg =>
-      pkg.name &&
-      pkg.private === false &&
-      PUBLISH_DIRS.has(relative(ROOT, pkg.path).split(sep)[0]),
-  )
 }
 
 const firstVersion = opts['first-version']
@@ -91,13 +64,16 @@ if (!opts['dry-run'] && !opts.otp && !process.stdin.isTTY) {
 
 const packages = listPublishablePackages()
 const byName = new Map(packages.map(pkg => [pkg.name, pkg]))
-for (const name of positionals) {
-  if (!byName.has(name)) {
-    die(`workspace 中没有可发布包 ${name}`)
-  }
-}
 const candidates =
-  positionals.length > 0 ? positionals.map(name => byName.get(name)) : packages
+  positionals.length > 0
+    ? positionals.map(name => {
+        const pkg = byName.get(name)
+        if (!pkg) {
+          die(`workspace 中没有可发布包 ${name}`)
+        }
+        return pkg
+      })
+    : packages
 
 console.log(`检查 ${candidates.length} 个包在 npm 上的状态……`)
 const missing = []
@@ -160,11 +136,11 @@ const published = []
 for (const pkg of missing) {
   const manifestPath = join(pkg.path, 'package.json')
   const raw = readFileSync(manifestPath, 'utf8')
-  const manifest = JSON.parse(raw)
-  const needsRewrite = manifest.version !== firstVersion
+  const manifest = parseManifest(raw)
+  const needsRewrite = manifest['version'] !== firstVersion
   console.log(`\n发布 ${pkg.name}@${firstVersion}……`)
   if (needsRewrite) {
-    manifest.version = firstVersion
+    manifest['version'] = firstVersion
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
   }
   let res = null

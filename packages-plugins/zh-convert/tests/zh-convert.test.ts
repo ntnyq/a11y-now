@@ -12,7 +12,7 @@ beforeEach(() => {
  * MutationObserver delivery goes through happy-dom's timer queue, which can
  * lose the race against a single 0ms delay on slow runners — poll instead.
  */
-const until = async (predicate: () => boolean): Promise<void> => {
+async function until(predicate: () => boolean): Promise<void> {
   for (let i = 0; i < 100 && !predicate(); i++) {
     // eslint-disable-next-line no-await-in-loop -- sequential polling by design
     await delay(5)

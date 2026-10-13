@@ -1,17 +1,34 @@
 import { configurePlugin, css, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
+import { containModalFocus } from './modal'
 
 export interface HelpApi {
+  /**
+   * Close the help dialog and restore focus to its opener.
+   */
   close: () => void
+  /**
+   * Check whether the help dialog is currently displayed.
+   *
+   * @returns `true` when the help dialog is open.
+   */
   isOpen: () => boolean
+  /**
+   * Open the help dialog with current shortcuts and move focus into it.
+   */
   open: () => void
 }
 
+/**
+ * Inline SVG for the help toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v2h2v-2Zm-1-11a4 4 0 0 1 4 4c0 1.5-.8 2.2-1.7 3-.8.7-1.3 1.2-1.3 2.5h-2c0-2 1-2.9 1.9-3.7.7-.6 1.1-1 1.1-1.8a2 2 0 1 0-4 0H8a4 4 0 0 1 4-4Z"/></svg>'
 
-/** Render `Ctrl+Alt+T` as a row of keycap chips. */
-const keycaps = (formatted: string): HTMLElement => {
+/**
+ * Render `Ctrl+Alt+T` as a row of keycap chips.
+ */
+function keycaps(formatted: string): HTMLElement {
   const keys = document.createElement('dt')
   keys.className = 'help-keys'
   for (const segment of formatted.split('+')) {
@@ -22,7 +39,9 @@ const keycaps = (formatted: string): HTMLElement => {
   return keys
 }
 
-/** Dialog styles, injected into the shadow root next to the toolbar's. */
+/**
+ * Dialog styles, injected into the shadow root next to the toolbar's.
+ */
 const HELP_CSS = css`
   .help-backdrop {
     position: fixed;
@@ -155,17 +174,20 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
     },
   },
   name: 'help',
-  setup: ctx => {
+  setup(ctx) {
     let dialog: HTMLElement | null = null
     let backdrop: HTMLElement | null = null
     let previousFocus: HTMLElement | null = null
+    let releaseFocus: (() => void) | null = null
 
     const shadow = document.querySelector('a11y-now-host')?.shadowRoot ?? null
     const styleEl = document.createElement('style')
     styleEl.textContent = HELP_CSS
     shadow?.append(styleEl)
 
-    const close = (): void => {
+    function close(): void {
+      releaseFocus?.()
+      releaseFocus = null
       dialog?.remove()
       dialog = null
       backdrop?.remove()
@@ -174,14 +196,14 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
       previousFocus = null
     }
 
-    const onKeydown = (event: KeyboardEvent): void => {
+    function onKeydown(event: KeyboardEvent): void {
       if (event.key === 'Escape' && dialog) {
         event.stopPropagation()
         close()
       }
     }
 
-    const open = (): void => {
+    function open(): void {
       if (!shadow || dialog) {
         return
       }
@@ -234,7 +256,7 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
       dialog.append(scroller)
 
       shadow.append(backdrop, dialog)
-      closeBtn.focus()
+      releaseFocus = containModalFocus(dialog, closeBtn)
       ctx.ui.announce(ctx.i18n.t('help.title'))
     }
 
@@ -268,7 +290,7 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
         isOpen: () => dialog !== null,
         open,
       },
-      dispose: () => {
+      dispose() {
         document.removeEventListener('keydown', onKeydown, true)
         close()
         unregister()
@@ -279,12 +301,20 @@ const helpPlugin = definePlugin<undefined, HelpApi>({
   },
 })
 
-/** Help panel plugin. `Ctrl+Alt+?`. */
-export const help = (): ConfiguredPlugin<undefined, HelpApi> =>
-  configurePlugin(helpPlugin)
+/**
+ * Help panel plugin. `Ctrl+Alt+?`.
+ *
+ * @returns A configured help dialog plugin for toolbar registration.
+ */
+export function help(): ConfiguredPlugin<undefined, HelpApi> {
+  return configurePlugin(helpPlugin)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the help plugin after activation.
+     */
     help: HelpApi
   }
 }

@@ -15,15 +15,35 @@ export type RegionType =
   | 'window'
 
 export interface RegionNavOptions {
-  /** Override the selector heuristics per region type. */
+  /**
+   * Override the selector heuristics per region type.
+   *
+   * @default Built-in landmark selectors, overridden per supplied region type.
+   */
   selectors?: Partial<Record<RegionType, string>>
 }
 
 export interface RegionNavApi {
+  /**
+   * Clear the current region highlight, temporary tabindex, and cycle
+   * positions.
+   */
   clear: () => void
+  /**
+   * Read the number of elements found by the latest region scan.
+   *
+   * @returns Element counts keyed by region type.
+   */
   counts: () => Record<RegionType, number>
-  /** Enter a region; repeated calls cycle through its elements. */
+  /**
+   * Enter a region; repeated calls cycle through its elements.
+   *
+   * @param type - Region type to focus and cycle through.
+   */
   enter: (type: RegionType) => void
+  /**
+   * Rescan visible page regions and refresh toolbar counts.
+   */
   rescan: () => void
 }
 
@@ -40,6 +60,9 @@ export const REGION_TYPES: RegionType[] = [
   'content',
 ]
 
+/**
+ * Default landmark selectors used to discover each navigation region.
+ */
 const DEFAULT_SELECTORS: Record<RegionType, string> = {
   content: 'main, article, [role="main"]',
   interactive: 'form, [role="form"], [role="search"]',
@@ -49,12 +72,18 @@ const DEFAULT_SELECTORS: Record<RegionType, string> = {
   window: 'header, [role="banner"]',
 }
 
-const isVisible = (el: Element): boolean => {
+function isVisible(el: Element): boolean {
   const rect = el.getBoundingClientRect()
   return rect.width > 0 && rect.height > 0
 }
 
+/**
+ * Class applied to the currently highlighted navigation region.
+ */
 const MARK_CLASS = 'a11y-region-current'
+/**
+ * DOM service stylesheet id for navigation region outlines.
+ */
 const STYLE_ID = 'region-nav'
 
 const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
@@ -83,7 +112,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
     },
   },
   name: 'region-nav',
-  setup: ctx => {
+  setup(ctx) {
     const selectors = { ...DEFAULT_SELECTORS, ...ctx.options.selectors }
     const found = new Map<RegionType, Element[]>()
     const indexes = new Map<RegionType, number>()
@@ -95,7 +124,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       `.${MARK_CLASS} { outline: var(${pageVar('region-outline')}, 2px solid #ff6c00) !important; outline-offset: 2px; }`,
     )
 
-    const rescan = (): void => {
+    function rescan(): void {
       found.clear()
       const host = document.querySelector('a11y-now-host')
       // data-a11y-region 属性优先：站点可手动标注区域归属。
@@ -123,7 +152,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       syncButtons()
     }
 
-    const unmark = (el: Element | null): void => {
+    function unmark(el: Element | null): void {
       if (!el) {
         return
       }
@@ -137,22 +166,24 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       }
     }
 
-    const clear = (): void => {
+    function clear(): void {
       unmark(marked)
       marked = null
       indexes.clear()
     }
 
-    const onEscape = (event: KeyboardEvent): void => {
+    function onEscape(event: KeyboardEvent): void {
       if (event.key === 'Escape' && marked) {
         clear()
       }
     }
     document.addEventListener('keydown', onEscape)
 
-    const name = (type: RegionType): string => ctx.i18n.t(`region.${type}`)
+    function name(type: RegionType): string {
+      return ctx.i18n.t(`region.${type}`)
+    }
 
-    const enter = (type: RegionType): void => {
+    function enter(type: RegionType): void {
       const elements = found.get(type) ?? []
       if (elements.length === 0) {
         ctx.ui.announce(ctx.i18n.t('region.empty', { name: name(type) }))
@@ -180,14 +211,16 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       )
     }
 
-    const counts = (): Record<RegionType, number> =>
-      Object.fromEntries(
+    function counts(): Record<RegionType, number> {
+      return Object.fromEntries(
         REGION_TYPES.map(type => [type, (found.get(type) ?? []).length]),
       ) as Record<RegionType, number>
+    }
 
     const buttons = REGION_TYPES.map((type, index) => {
-      const shortcutLabel = (): string =>
-        ctx.shortcuts.format({ alt: true, key: String(index + 1) })
+      function shortcutLabel(): string {
+        return ctx.shortcuts.format({ alt: true, key: String(index + 1) })
+      }
       return {
         handle: ctx.ui.addItem({
           description: () =>
@@ -199,7 +232,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
           group: 'region',
           id: `region-${type}`,
           label: () => name(type),
-          onPress: () => {
+          onPress() {
             enter(type)
           },
           order: index,
@@ -208,7 +241,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       }
     })
 
-    const syncButtons = (): void => {
+    function syncButtons(): void {
       for (const { handle, type } of buttons) {
         const count = (found.get(type) ?? []).length
         handle.update({ badge: count, disabled: count === 0 })
@@ -219,7 +252,7 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
       ctx.shortcuts.register({
         alt: true,
         description: () => name(type),
-        handler: () => {
+        handler() {
           enter(type)
         },
         id: `region-${type}`,
@@ -228,10 +261,12 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
     )
 
     rescan()
+    const stopReset = ctx.events.on('state:reset', clear)
 
     return {
       api: { clear, counts, enter, rescan },
-      dispose: () => {
+      dispose() {
+        stopReset()
         clear()
         document.removeEventListener('keydown', onEscape)
         for (const unregister of unregisters) {
@@ -246,14 +281,23 @@ const regionNavPlugin = definePlugin<RegionNavOptions, RegionNavApi>({
   },
 })
 
-/** Region navigation plugin. `Alt+1`..`Alt+6` enter and cycle regions. */
-export const regionNav = (
+/**
+ * Region navigation plugin. `Alt+1`..`Alt+6` enter and cycle regions.
+ *
+ * @param options - Optional selector overrides for each region type.
+ * @returns A configured region navigation plugin for toolbar registration.
+ */
+export function regionNav(
   options: RegionNavOptions = {},
-): ConfiguredPlugin<RegionNavOptions, RegionNavApi> =>
-  configurePlugin(regionNavPlugin, options)
+): ConfiguredPlugin<RegionNavOptions, RegionNavApi> {
+  return configurePlugin(regionNavPlugin, options)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the region-nav plugin after activation.
+     */
     'region-nav': RegionNavApi
   }
 }

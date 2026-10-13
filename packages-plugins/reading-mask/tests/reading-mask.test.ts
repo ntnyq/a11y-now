@@ -6,7 +6,7 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
-const covers = () => {
+function covers() {
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
   return [...(shadow?.querySelectorAll('div') ?? [])].filter(
     el => el.style.pointerEvents === 'none',

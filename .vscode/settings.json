@@ -9,20 +9,25 @@
   },
   "js/ts.experimental.useTsgo": true,
   "cSpell.words": [
+    "attw",
     "bumpp",
     "changelogithub",
     "codecov",
     "esbuild",
     "lcov",
+    "noscale",
     "oxfmt",
     "oxlint",
     "pnpm",
+    "rgba",
     "tsdown",
     "tsgo",
     "unrs",
     "vite",
+    "vitejs",
     "vitepress",
-    "vitest"
+    "vitest",
+    "WCAG"
   ],
   "cSpell.allowCompoundWords": true
 }

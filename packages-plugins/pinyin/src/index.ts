@@ -3,32 +3,66 @@ import type { ConfiguredPlugin } from '@a11y-now/types'
 import { pinyin } from 'pinyin-pro'
 
 export interface PinyinOptions {
-  /** Max Han characters annotated per pass, defaults to 10000. 0 = unlimited. */
+  /**
+   * Max Han characters annotated per pass, defaults to 10000. 0 = unlimited.
+   *
+   * @default 10000
+   */
   limit?: number
   /**
    * Annotation root selector. Defaults to `main, article, [role="main"]`,
    * falling back to `<body>`.
+   *
+   * @default The first main, article, or [role="main"] element, falling back to body.
    */
   root?: string
 }
 
 export interface PinyinApi {
+  /**
+   * Check whether pinyin annotations are enabled.
+   *
+   * @returns `true` when pinyin annotations are enabled.
+   */
   isEnabled: () => boolean
+  /**
+   * Toggle and persist pinyin annotations, updating the page text.
+   */
   toggle: () => void
 }
 
 interface PinyinState {
+  /**
+   * Whether Han text is annotated with pinyin.
+   *
+   * @default false
+   */
   enabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
-const HAN_RE = /\p{Script=Han}/u
-const SKIP_SELECTOR =
-  'script, style, noscript, textarea, ruby, code, pre, [data-a11y-skip]'
+/**
+ * Maximum Han characters annotated in one pass when no limit is supplied.
+ */
 const DEFAULT_LIMIT = 10_000
-
+/**
+ * Detect Han-script characters before attempting text transformation.
+ */
+const HAN_RE = /\p{Script=Han}/u
+/**
+ * Inline SVG for the pinyin toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3Zm-6.02-5L8.5 5.48 10.57 11H6.43Zm15.16.59-8.09 8.09L9.83 16l-1.41 1.41 5.09 5.09L23 13l-1.41-1.41Z"/></svg>'
+
+/**
+ * Elements whose text must be excluded from page text transformation.
+ */
+const SKIP_SELECTOR =
+  'script, style, noscript, textarea, ruby, code, pre, [data-a11y-skip]'
 
 const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
   messages: {
@@ -44,17 +78,22 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
     },
   },
   name: 'pinyin',
-  setup: ctx => {
+  setup(ctx) {
     const limit = ctx.options.limit ?? DEFAULT_LIMIT
-    /** Inserted wrapper → the text node it replaced, for exact reverts. */
+    /**
+     * Inserted wrapper → the text node it replaced, for exact reverts.
+     */
     const originals = new Map<HTMLElement, Text>()
 
-    const resolveRoot = (): Element =>
-      (ctx.options.root ? document.querySelector(ctx.options.root) : null) ??
-      document.querySelector('main, article, [role="main"]') ??
-      document.body
+    function resolveRoot(): Element {
+      return (
+        (ctx.options.root ? document.querySelector(ctx.options.root) : null) ??
+        document.querySelector('main, article, [role="main"]') ??
+        document.body
+      )
+    }
 
-    const annotate = (): void => {
+    function annotate(): void {
       const walker = document.createTreeWalker(
         resolveRoot(),
         NodeFilter.SHOW_TEXT,
@@ -101,7 +140,7 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
       }
     }
 
-    const revert = (): void => {
+    function revert(): void {
       for (const [wrapper, original] of originals) {
         if (wrapper.isConnected) {
           wrapper.replaceWith(original)
@@ -110,13 +149,16 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
       originals.clear()
     }
 
-    const isEnabled = (): boolean => ctx.state.get('enabled')
-    const describe = (): string =>
-      ctx.i18n.t(isEnabled() ? 'pinyin.on' : 'pinyin.off', {
+    function isEnabled(): boolean {
+      return ctx.state.get('enabled')
+    }
+    function describe(): string {
+      return ctx.i18n.t(isEnabled() ? 'pinyin.on' : 'pinyin.off', {
         shortcut: ctx.shortcuts.format({ alt: true, ctrl: true, key: 'p' }),
       })
+    }
 
-    const apply = (enabled: boolean): void => {
+    function apply(enabled: boolean): void {
       if (enabled) {
         annotate()
       } else {
@@ -124,11 +166,9 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
       }
     }
 
-    const toggle = (): void => {
+    function toggle(): void {
       const next = !isEnabled()
       ctx.state.set('enabled', next)
-      apply(next)
-      button.update({ description: describe, pressed: next })
       ctx.ui.announce(describe())
     }
 
@@ -157,9 +197,17 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
       apply(true)
     }
 
+    const stopState = ctx.state.subscribe(key => {
+      if (key === 'enabled') {
+        apply(isEnabled())
+        button.update({ description: describe, pressed: isEnabled() })
+      }
+    })
+
     return {
       api: { isEnabled, toggle },
-      dispose: () => {
+      dispose() {
+        stopState()
         revert()
         unregister()
         button.remove()
@@ -173,14 +221,22 @@ const pinyinPlugin = definePlugin<PinyinOptions, PinyinApi, PinyinState>({
  * Pinyin ruby annotation plugin (拼音标注), powered by `pinyin-pro`.
  * `Ctrl+Alt+P` toggles `<ruby>` pinyin above Han characters in the main
  * content; disabling restores the original text nodes exactly.
+ *
+ * @param options - Annotation limit and root selector; omitted fields use
+ *   plugin defaults.
+ * @returns A configured pinyin annotation plugin for toolbar registration.
  */
-export const pinyinAnnotation = (
+export function pinyinAnnotation(
   options: PinyinOptions = {},
-): ConfiguredPlugin<PinyinOptions, PinyinApi, PinyinState> =>
-  configurePlugin(pinyinPlugin, options)
+): ConfiguredPlugin<PinyinOptions, PinyinApi, PinyinState> {
+  return configurePlugin(pinyinPlugin, options)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the pinyin plugin after activation.
+     */
     pinyin: PinyinApi
   }
 }

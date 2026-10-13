@@ -9,8 +9,8 @@
 ## 使用
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { readingMask } from '@a11y-now/plugin-reading-mask'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [readingMask()] }).mount()
 ```

@@ -48,6 +48,6 @@
   "dependencies": {
     "@a11y-now/core": "workspace:*",
     "@a11y-now/types": "workspace:*",
-    "pinyin-pro": "^3.28.2"
+    "pinyin-pro": "^3.29.5"
   }
 }

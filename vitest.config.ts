@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitest/config'
 import { PLUGINS, workspaceAlias } from './vitest.shared'
 
-/** Per-package 90% line-coverage gates for the kernel and every plugin. */
+/**
+ * Per-package 90% line-coverage gates for the kernel and every plugin.
+ */
 const coverageThresholds = Object.fromEntries([
   ['packages/core/src/**', { lines: 90 }],
   ...PLUGINS.map(name => [`packages-plugins/${name}/src/**`, { lines: 90 }]),

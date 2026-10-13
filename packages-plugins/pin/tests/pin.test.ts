@@ -6,8 +6,9 @@ beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()
 })
 
-const pinStyle = () =>
-  document.head.querySelector('[data-a11y-now="pin"]')?.textContent ?? ''
+function pinStyle() {
+  return document.head.querySelector('[data-a11y-now="pin"]')?.textContent ?? ''
+}
 
 it('reserves page space by default and releases it when unpinned', () => {
   const a11y = createA11yNow({ storage: null }).use(pin())

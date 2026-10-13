@@ -22,14 +22,23 @@ const BUILT_IN: Record<string, A11yMessages> = {
   },
 }
 
-export const createI18n = (
+/**
+ * Create a translation service with built-in messages and locale fallbacks.
+ *
+ * @param initialLocale - Locale used for the first translation lookup.
+ * @param overrides - Additional messages merged over the built-in locale
+ *   tables.
+ * @returns A mutable translation service that falls back to Chinese, English,
+ *   then the key.
+ */
+export function createI18n(
   initialLocale: LocaleCode,
   overrides?: Partial<Record<LocaleCode, A11yMessages>>,
-): I18nService => {
+): I18nService {
   let locale: LocaleCode = initialLocale
   const tables = new Map<LocaleCode, A11yMessages>()
 
-  const extend = (target: LocaleCode, messages: A11yMessages): void => {
+  function extend(target: LocaleCode, messages: A11yMessages): void {
     tables.set(target, { ...tables.get(target), ...messages })
   }
 
@@ -47,10 +56,10 @@ export const createI18n = (
   return {
     extend,
     getLocale: () => locale,
-    setLocale: next => {
+    setLocale(next) {
       locale = next
     },
-    t: (key, params) => {
+    t(key, params) {
       const message =
         tables.get(locale)?.[key] ??
         tables.get('zh-CN')?.[key] ??

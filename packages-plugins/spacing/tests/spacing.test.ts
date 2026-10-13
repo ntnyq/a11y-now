@@ -7,8 +7,11 @@ beforeEach(() => {
   document.body.innerHTML = '<main><p>正文</p></main>'
 })
 
-const styleText = () =>
-  document.head.querySelector('[data-a11y-now="spacing"]')?.textContent ?? ''
+function styleText() {
+  return (
+    document.head.querySelector('[data-a11y-now="spacing"]')?.textContent ?? ''
+  )
+}
 
 it('cycles off → comfort (WCAG 1.4.12) → loose → off', () => {
   const a11y = createA11yNow({ storage: null }).use(textSpacing())

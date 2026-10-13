@@ -7,7 +7,17 @@ import type {
 } from '@a11y-now/types'
 
 export interface A11yNowElementConfig {
+  /**
+   * Default plugins used when an element has no per-element override.
+   *
+   * @default []
+   */
   plugins?: A11yPluginInput[]
+  /**
+   * Default themes used when an element has no per-element override.
+   *
+   * @default []
+   */
   themes?: A11yTheme[]
 }
 
@@ -29,10 +39,16 @@ export class A11yNowElement extends HTMLElement {
   public static defaults: A11yNowElementConfig = {}
 
   public instance: A11yNowInstance | null = null
-  /** Per-element overrides, assignable before connection. */
+  /**
+   * Per-element overrides, assignable before connection.
+   */
   public plugins: A11yPluginInput[] | null = null
   public themes: A11yTheme[] | null = null
 
+  /**
+   * Create and mount the toolbar when the element connects, unless already
+   * created.
+   */
   public connectedCallback(): void {
     if (this.instance) {
       return
@@ -52,17 +68,27 @@ export class A11yNowElement extends HTMLElement {
     this.instance.mount()
   }
 
+  /**
+   * Destroy the toolbar and clear the instance when the element disconnects.
+   */
   public disconnectedCallback(): void {
     this.instance?.destroy()
     this.instance = null
   }
 }
 
-/** Register `<a11y-now>` (idempotent). Returns the element class. */
-export const defineA11yNowElement = (
+/**
+ * Register `<a11y-now>` (idempotent). Returns the element class.
+ *
+ * @param defaults - Default plugins and themes used by connected elements.
+ * @param tagName - Custom element name, defaulting to `a11y-now`.
+ * @returns The A11yNowElement class, even when the tag was already registered.
+ * @throws {DOMException} If the registry rejects the name or constructor.
+ */
+export function defineA11yNowElement(
   defaults: A11yNowElementConfig = {},
   tagName = 'a11y-now',
-): typeof A11yNowElement => {
+): typeof A11yNowElement {
   A11yNowElement.defaults = defaults
   if (!customElements.get(tagName)) {
     customElements.define(tagName, A11yNowElement)

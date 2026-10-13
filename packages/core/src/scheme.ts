@@ -5,10 +5,14 @@ import type {
   ResolvedColorScheme,
 } from '@a11y-now/types'
 
-/** Attribute stamped on the shadow host with the resolved scheme. */
+/**
+ * Attribute stamped on the shadow host with the resolved scheme.
+ */
 export const SCHEME_ATTR = 'data-a11y-scheme'
 
-/** Attributes whose `dark` / `light` tokens mark a site's theme choice. */
+/**
+ * Attributes whose `dark` / `light` tokens mark a site's theme choice.
+ */
 const MARKER_ATTRIBUTES = [
   'class',
   'data-theme',
@@ -16,19 +20,30 @@ const MARKER_ATTRIBUTES = [
   'data-color-scheme',
 ]
 
-/** Host attributes observed for theme switches (markers plus inline style). */
+/**
+ * Host attributes observed for theme switches (markers plus inline style).
+ */
 const THEME_ATTRIBUTES = [...MARKER_ATTRIBUTES, 'style']
 
 export interface SchemeController extends ColorSchemeService {
-  /** Bind (or unbind with `null`) the shadow host once (un)mounted. */
+  /**
+   * Bind (or unbind with `null`) the shadow host once (un)mounted.
+   *
+   * @param host - Toolbar shadow host, or `null` to detach it.
+   */
   attach: (host: HTMLElement | null) => void
+  /**
+   * Stop page and media observers and release the toolbar host.
+   */
   destroy: () => void
 }
 
-/** Read an unambiguous `dark` / `light` out of a token list like `"mac dark"`. */
-const schemeFromTokens = (
+/**
+ * Read an unambiguous `dark` / `light` out of a token list like `"mac dark"`.
+ */
+function schemeFromTokens(
   value: string | null | undefined,
-): ResolvedColorScheme | null => {
+): ResolvedColorScheme | null {
   if (!value) {
     return null
   }
@@ -41,15 +56,17 @@ const schemeFromTokens = (
   return dark ? 'dark' : 'light'
 }
 
-const srgbChannel = (value: number): number => {
+function srgbChannel(value: number): number {
   const channel = value / 255
   return channel <= 0.03928
     ? channel / 12.92
     : ((channel + 0.055) / 1.055) ** 2.4
 }
 
-/** WCAG relative luminance of an `rgb()`/`rgba()` string; null if opaque-less. */
-const luminanceOf = (value: string | null | undefined): number | null => {
+/**
+ * WCAG relative luminance of an `rgb()`/`rgba()` string; null if opaque-less.
+ */
+function luminanceOf(value: string | null | undefined): number | null {
   const parts = /rgba?\((?<channels>[^)]*)\)/u
     .exec(value ?? '')
     ?.groups?.['channels']?.split(/[\s,/]+/u)
@@ -69,11 +86,13 @@ const luminanceOf = (value: string | null | undefined): number | null => {
   )
 }
 
-/** Judge the page by its effective background luminance. */
-const schemeFromBackground = (
+/**
+ * Judge the page by its effective background luminance.
+ */
+function schemeFromBackground(
   win: Window,
   doc: Document,
-): ResolvedColorScheme | null => {
+): ResolvedColorScheme | null {
   for (const el of [doc.body, doc.documentElement]) {
     const luminance = el
       ? luminanceOf(win.getComputedStyle(el).backgroundColor)
@@ -91,10 +110,10 @@ const schemeFromBackground = (
  * `class` / `data-theme` / `data-color-mode` / `data-color-scheme`, then
  * the effective page background luminance.
  */
-const detectHostScheme = (
+function detectHostScheme(
   win: Window,
   doc: Document,
-): ResolvedColorScheme | null => {
+): ResolvedColorScheme | null {
   const roots = [doc.documentElement, doc.body]
   for (const el of roots) {
     const declared = el
@@ -122,12 +141,19 @@ const detectHostScheme = (
  * attribute mutations and media-query flips. The resolved value is
  * stamped on the shadow host as `data-a11y-scheme` so the base stylesheet
  * can swap token defaults; theme inline tokens still win over both.
+ *
+ * @param doc - Host document, or `null` when no DOM is available.
+ * @param events - Bus receiving resolved scheme changes.
+ * @param initial - Initial preference, defaulting to `auto`.
+ * @param observeImmediately - Start observing now, or defer until a host is attached.
+ * @returns A live scheme controller; call `destroy()` to stop its observers.
  */
-export const createSchemeController = (
+export function createSchemeController(
   doc: Document | null,
   events: EventBus,
   initial: ColorSchemePreference = 'auto',
-): SchemeController => {
+  observeImmediately = true,
+): SchemeController {
   const win = doc?.defaultView ?? null
   let preference = initial
   let host: HTMLElement | null = null
@@ -137,7 +163,7 @@ export const createSchemeController = (
       ? win.matchMedia('(prefers-color-scheme: dark)')
       : null
 
-  const resolve = (): ResolvedColorScheme => {
+  function resolve(): ResolvedColorScheme {
     if (preference !== 'auto') {
       return preference
     }
@@ -150,11 +176,11 @@ export const createSchemeController = (
 
   let current = resolve()
 
-  const apply = (): void => {
+  function apply(): void {
     host?.setAttribute(SCHEME_ATTR, current)
   }
 
-  const refresh = (): void => {
+  function refresh(): void {
     const next = resolve()
     if (next === current) {
       return
@@ -164,11 +190,11 @@ export const createSchemeController = (
     events.emit('scheme:change', { scheme: next })
   }
 
-  media?.addEventListener('change', refresh)
+  let observing = false
 
   let observer: MutationObserver | null = null
   const observed = new Set<Element>()
-  const observe = (el: Element | null): void => {
+  function observe(el: Element | null): void {
     if (!el || observed.has(el) || typeof MutationObserver !== 'function') {
       return
     }
@@ -179,34 +205,49 @@ export const createSchemeController = (
     })
     observed.add(el)
   }
-  if (doc) {
-    observe(doc.documentElement)
-    observe(doc.body)
+  function start(): void {
+    if (!observing) {
+      observing = true
+      media?.addEventListener('change', refresh)
+    }
+    if (doc) {
+      observe(doc.documentElement)
+      observe(doc.body)
+    }
+  }
+
+  function stop(): void {
+    if (observing) {
+      media?.removeEventListener('change', refresh)
+    }
+    observing = false
+    observer?.disconnect()
+    observer = null
+    observed.clear()
+  }
+
+  if (observeImmediately) {
+    start()
   }
 
   return {
-    attach: el => {
+    attach(el) {
       host = el
       if (!el) {
+        stop()
         return
       }
-      // `<body>` may not have existed at construction time.
-      if (doc) {
-        observe(doc.body)
-      }
+      start()
       refresh()
       apply()
     },
-    destroy: () => {
-      media?.removeEventListener('change', refresh)
-      observer?.disconnect()
-      observer = null
-      observed.clear()
+    destroy() {
+      stop()
       host = null
     },
     preference: () => preference,
     resolved: () => current,
-    set: scheme => {
+    set(scheme) {
       preference = scheme
       refresh()
     },

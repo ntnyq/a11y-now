@@ -1,5 +1,6 @@
 import { createA11yNow, createMemoryStorageAdapter } from '@a11y-now/core'
 import { autoTheme } from '@a11y-now/plugin-auto-theme'
+import { themeSwitcher } from '@a11y-now/plugin-theme'
 import { deepBlue } from '@a11y-now/theme-deep-blue'
 import { defaultTheme } from '@a11y-now/theme-default'
 import { highContrast } from '@a11y-now/theme-high-contrast'
@@ -17,7 +18,7 @@ class FakeMql extends EventTarget {
 
 let mqls = new Map<string, FakeMql>()
 
-const mql = (query: string): FakeMql => {
+function mql(query: string): FakeMql {
   let entry = mqls.get(query)
   if (!entry) {
     entry = new FakeMql(query)
@@ -26,7 +27,13 @@ const mql = (query: string): FakeMql => {
   return entry
 }
 
+/**
+ * System dark-scheme media query used by auto-theme tests.
+ */
 const DARK = '(prefers-color-scheme: dark)'
+/**
+ * System high-contrast media query used by auto-theme tests.
+ */
 const CONTRAST = '(prefers-contrast: more)'
 
 beforeEach(() => {
@@ -39,7 +46,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const mountWith = (options: Partial<A11yNowOptions> = {}) => {
+function mountWith(options: Partial<A11yNowOptions> = {}) {
   const a11y = createA11yNow({
     storage: null,
     themes: [defaultTheme, deepBlue, highContrast],
@@ -131,3 +138,31 @@ it('unmounts without residue', () => {
   a11y.unmount()
   expect(document.documentElement.outerHTML).toBe(before)
 })
+
+it.each([true, false])(
+  'reset restores auto theme independently of registration order (%s)',
+  first => {
+    mql(DARK).matches = true
+    const plugins = first
+      ? [autoTheme(), themeSwitcher()]
+      : [themeSwitcher(), autoTheme()]
+    const a11y = createA11yNow({
+      storage: null,
+      plugins,
+      themes: [defaultTheme, deepBlue, highContrast],
+    })
+    a11y.mount()
+    a11y.getPlugin('theme')?.apply('high-contrast')
+    expect(a11y.getPlugin('auto-theme')?.isEnabled()).toBe(false)
+    a11y.resetAll()
+    expect(a11y.getPlugin('auto-theme')?.isEnabled()).toBe(true)
+    expect(a11y.themes.current()?.name).toBe('deep-blue')
+    expect(
+      document
+        .querySelector('a11y-now-host')
+        ?.shadowRoot?.querySelector('[data-item-id="auto-theme"]')
+        ?.getAttribute('aria-pressed'),
+    ).toBe('true')
+    a11y.destroy()
+  },
+)

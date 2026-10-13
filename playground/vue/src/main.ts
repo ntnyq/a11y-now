@@ -3,7 +3,7 @@ import { fullPreset } from 'a11y-now'
 import { createApp, defineComponent, h } from 'vue'
 
 const App = defineComponent({
-  setup: () => {
+  setup() {
     const a11y = useA11yNow()
     return () =>
       h('main', [

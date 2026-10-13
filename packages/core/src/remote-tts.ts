@@ -5,39 +5,82 @@ import type {
   SpeechSpeakOptions,
 } from '@a11y-now/types'
 
-/** One utterance as seen by the remote service. */
+/**
+ * One utterance as seen by the remote service.
+ */
 export interface RemoteTTSContext {
+  /**
+   * Language tag requested for the generated speech.
+   */
   locale: LocaleCode
+  /**
+   * Requested speech speed multiplier.
+   */
   rate: number
+  /**
+   * Utterance text sent to the remote speech service.
+   */
   text: string
 }
 
 export interface RemoteTTSEngineOptions {
-  /** Map an utterance to the JSON request body, defaults to the context itself. */
+  /**
+   * Map an utterance to the JSON request body, defaults to the context itself.
+   *
+   * @param ctx - Utterance text, locale, and rate sent to the remote backend.
+   * @returns A JSON-serializable request body.
+   *
+   * @default The unmodified utterance context.
+   */
   body?: (ctx: RemoteTTSContext) => unknown
   /**
    * Apply `rate` locally via `audio.playbackRate`, defaults to true.
    * Disable when the service renders the rate into the audio itself.
+   *
+   * @default true
    */
   clientRate?: boolean
-  /** POST target returning an audio payload (e.g. `audio/mpeg`). */
+  /**
+   * POST target returning an audio payload (e.g. `audio/mpeg`).
+   */
   endpoint: string
-  /** Custom fetch, e.g. wrapped with auth or retries. Defaults to global fetch. */
+  /**
+   * Custom fetch, e.g. wrapped with auth or retries. Defaults to global fetch.
+   *
+   * @param input - TTS endpoint URL or request to fetch.
+   * @param init - Request body, headers, method, and cancellation signal.
+   * @returns A promise resolving to the HTTP response.
+   *
+   * @default The global fetch implementation.
+   */
   fetchImpl?: typeof fetch
-  /** Extra request headers, e.g. `Authorization`. */
+  /**
+   * Extra request headers, e.g. `Authorization`.
+   *
+   * @default {}
+   */
   headers?: Record<string, string>
-  /** Turn a response into a playable audio URL. Defaults to a blob object-URL. */
+  /**
+   * Turn a response into a playable audio URL. Defaults to a blob object-URL.
+   *
+   * @param response - Successful HTTP response from the TTS endpoint.
+   * @returns A promise resolving to the URL used for audio playback.
+   *
+   * @default A blob object URL created from the response body.
+   */
   resolveAudio?: (response: Response) => Promise<string>
 }
 
-/** Safe for non-blob URLs and environments without `revokeObjectURL`. */
-const releaseUrl = (url: string): void => {
+/**
+ * Safe for non-blob URLs and environments without `revokeObjectURL`.
+ */
+function releaseUrl(url: string): void {
   if (typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
     URL.revokeObjectURL(url)
   }
 }
 
-const defaultResolveAudio = async (response: Response): Promise<string> => {
+async function defaultResolveAudio(response: Response): Promise<string> {
   const blob = await response.blob()
   if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
     throw new TypeError('URL.createObjectURL unavailable; pass resolveAudio')
@@ -59,10 +102,15 @@ const defaultResolveAudio = async (response: Response): Promise<string> => {
  *   speechEngine: createRemoteTTSEngine({ endpoint: '/api/tts' }),
  * })
  * ```
+ *
+ * @param options - Endpoint, request customization, and audio playback
+ *   configuration.
+ * @returns A remote speech engine, available when both fetch and Audio are
+ *   present.
  */
-export const createRemoteTTSEngine = (
+export function createRemoteTTSEngine(
   options: RemoteTTSEngineOptions,
-): SpeechEngine => {
+): SpeechEngine {
   const fetcher =
     options.fetchImpl ?? (typeof fetch === 'function' ? fetch : null)
   const hasAudio = typeof Audio !== 'undefined'
@@ -78,7 +126,7 @@ export const createRemoteTTSEngine = (
   // a dead endpoint during sequenced reading must not flood the console.
   let warned = false
 
-  const cleanup = (): void => {
+  function cleanup(): void {
     controller?.abort()
     controller = null
     if (audio) {
@@ -92,19 +140,19 @@ export const createRemoteTTSEngine = (
     }
   }
 
-  const finishAs = (gen: number, onEnd?: (() => void) | undefined): void => {
+  function finishAs(gen: number, onEnd?: (() => void) | undefined): void {
     if (gen === generation) {
       cleanup()
       onEnd?.()
     }
   }
 
-  const run = async (
+  async function run(
     text: string,
     speakOptions: SpeechSpeakOptions,
     gen: number,
     signal: AbortSignal,
-  ): Promise<void> => {
+  ): Promise<void> {
     if (!fetcher) {
       return
     }
@@ -156,14 +204,14 @@ export const createRemoteTTSEngine = (
     }
   }
 
-  const reportFailure = (error: unknown, gen: number): void => {
+  function reportFailure(error: unknown, gen: number): void {
     if (gen === generation && !warned) {
       warned = true
       warn(`remote TTS failed: ${String(error)}`)
     }
   }
 
-  const speak = (text: string, speakOptions: SpeechSpeakOptions): void => {
+  function speak(text: string, speakOptions: SpeechSpeakOptions): void {
     generation += 1
     cleanup()
     if (!fetcher || !hasAudio || !text) {
@@ -177,7 +225,7 @@ export const createRemoteTTSEngine = (
 
   return {
     available: fetcher !== null && hasAudio,
-    cancel: () => {
+    cancel() {
       generation += 1
       cleanup()
     },

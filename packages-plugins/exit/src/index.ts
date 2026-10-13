@@ -2,14 +2,28 @@ import { configurePlugin, definePlugin } from '@a11y-now/core'
 import type { ConfiguredPlugin } from '@a11y-now/types'
 
 export interface ExitApi {
+  /**
+   * Persist the exit choice and request toolbar unmounting.
+   */
   exit: () => void
 }
 
 interface ExitState {
+  /**
+   * Whether the user exited the toolbar in this state scope.
+   *
+   * @default false
+   */
   disabled: boolean
+  /**
+   * Persistable state entries supported by this plugin scope.
+   */
   [key: string]: boolean
 }
 
+/**
+ * Inline SVG for the exit toolbar button.
+ */
 const ICON =
   '<svg viewBox="0 0 24 24"><path d="M10 3h4v2h-4V3ZM5 5h2v14H5V5Zm12 0h2v14h-2V5Zm-7 4l-4 3 4 3v-2h6v-2h-6V9Z"/></svg>'
 
@@ -25,8 +39,8 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
     },
   },
   name: 'exit',
-  setup: ctx => {
-    const exit = (): void => {
+  setup(ctx) {
+    function exitToolbar(): void {
       // Persisted so integrators can honor the user's choice on next visit
       // (see the `wasExited` helper in the aggregate package).
       ctx.state.set('disabled', true)
@@ -42,7 +56,7 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
       icon: ICON,
       id: 'exit',
       label: () => ctx.i18n.t('exit.label'),
-      onPress: exit,
+      onPress: exitToolbar,
       order: 40,
     })
 
@@ -50,7 +64,7 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
       alt: true,
       ctrl: true,
       description: () => ctx.i18n.t('exit.label'),
-      handler: exit,
+      handler: exitToolbar,
       id: 'exit',
       key: 'e',
     })
@@ -59,8 +73,8 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
     ctx.state.set('disabled', false)
 
     return {
-      api: { exit },
-      dispose: () => {
+      api: { exit: exitToolbar },
+      dispose() {
         unregister()
         button.remove()
       },
@@ -69,12 +83,20 @@ const exitPlugin = definePlugin<undefined, ExitApi, ExitState>({
   state: { disabled: false },
 })
 
-/** Exit plugin: unmounts the toolbar and remembers the choice. `Ctrl+Alt+E`. */
-export const exit = (): ConfiguredPlugin<undefined, ExitApi, ExitState> =>
-  configurePlugin(exitPlugin)
+/**
+ * Exit plugin: unmounts the toolbar and remembers the choice. `Ctrl+Alt+E`.
+ *
+ * @returns A configured exit plugin for toolbar registration.
+ */
+export function exit(): ConfiguredPlugin<undefined, ExitApi, ExitState> {
+  return configurePlugin(exitPlugin)
+}
 
 declare module '@a11y-now/types' {
   interface A11yPluginRegistry {
+    /**
+     * Public API exposed by the exit plugin after activation.
+     */
     exit: ExitApi
   }
 }

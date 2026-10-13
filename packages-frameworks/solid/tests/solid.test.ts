@@ -2,7 +2,7 @@ import { createA11yNowSolid, createA11yEventSignal } from '@a11y-now/solid'
 import { createRoot } from 'solid-js'
 import { beforeEach, expect, it } from 'vitest'
 
-const noopDispose = (): void => {}
+function noopDispose(): void {}
 
 beforeEach(() => {
   document.querySelector('a11y-now-host')?.remove()

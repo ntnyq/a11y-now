@@ -12,8 +12,8 @@ readers. Styles are applied through a reclaimable stylesheet, and
 ## Usage
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { textSpacing } from '@a11y-now/plugin-spacing'
+import { createA11yNow } from 'a11y-now'
 
 createA11yNow({ plugins: [textSpacing()] }).mount()
 ```

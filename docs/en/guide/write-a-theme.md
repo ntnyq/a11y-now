@@ -28,7 +28,7 @@ value types are checked at compile time — an extra or missing token fails
 immediately, mirroring `definePlugin`. For a single-file theme just inline
 the object; when publishing a standalone theme package, put
 `@a11y-now/core` in **devDependencies** and add
-`noExternal: [/^@a11y-now\//u]` to your tsdown config — the identity
+`deps: { alwaysBundle: [/^@a11y-now\//u] }` to your tsdown config — the identity
 function gets inlined and tree-shaken, leaving a zero-dependency artifact
 with self-contained type declarations (the five official theme packages
 ship exactly this way, each only a few dozen lines).

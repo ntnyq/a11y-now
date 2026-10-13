@@ -49,6 +49,6 @@
   "dependencies": {
     "@a11y-now/core": "workspace:*",
     "@a11y-now/types": "workspace:*",
-    "opencc-js": "^1.4.1"
+    "opencc-js": "^1.4.2"
   }
 }

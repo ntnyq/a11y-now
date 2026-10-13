@@ -1,6 +1,9 @@
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 
+/**
+ * DOM id of the documentation button that toggles the accessibility toolbar.
+ */
 const TRIGGER_ID = 'a11y-now-trigger'
 
 /**
@@ -53,7 +56,7 @@ export default {
     ].join('\n')
     document.head.append(triggerStyle)
 
-    const refresh = (): void => {
+    function refresh(): void {
       const en = /^en\b/iu.test(document.documentElement.lang)
       const labels = a11y.mounted
         ? { en: 'Hide the accessibility toolbar', zh: '收起无障碍工具栏' }

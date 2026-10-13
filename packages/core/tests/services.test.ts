@@ -48,7 +48,7 @@ it('shortcut center matches key combos and detects conflicts', () => {
       alt: true,
       ctrl: true,
       description: 'other',
-      handler: () => {},
+      handler() {},
       id: 'other',
       key: 'T',
     }),
@@ -118,7 +118,7 @@ it('speech service respects enabled and muted flags', () => {
   const speak =
     vi.fn<(text: string, options: { locale: string; rate: number }) => void>()
   const a11y = createA11yNow({
-    speechEngine: { available: true, cancel: () => {}, speak },
+    speechEngine: { available: true, cancel() {}, speak },
     storage: null,
   })
   a11y.mount()
@@ -145,7 +145,7 @@ it('toolbar renders items with aria-pressed and roving tabindex', () => {
   const a11y = createA11yNow({ storage: null })
   const plugin = {
     name: 'ui-probe',
-    setup: (ctx: {
+    setup(ctx: {
       ui: {
         addItem: (def: {
           id: string
@@ -154,7 +154,7 @@ it('toolbar renders items with aria-pressed and roving tabindex', () => {
           pressed: boolean
         }) => { el: HTMLElement; update: (p: { pressed?: boolean }) => void }
       }
-    }) => {
+    }) {
       const handle = ctx.ui.addItem({
         id: 'probe',
         label: 'Probe',
@@ -179,7 +179,7 @@ it('toolbar renders items with aria-pressed and roving tabindex', () => {
   a11y.unmount()
 })
 
-const press = (key: string): void => {
+function press(key: string): void {
   window.dispatchEvent(
     new KeyboardEvent('keydown', { altKey: true, ctrlKey: true, key }),
   )
@@ -191,16 +191,18 @@ it('shortcut overrides remap, disable and rebind at runtime', () => {
     remapped: { key: 'y' },
   })
   let fired = ''
-  const make = (id: string, key: string) => ({
-    alt: true,
-    ctrl: true,
-    description: id,
-    handler: () => {
-      fired = id
-    },
-    id,
-    key,
-  })
+  function make(id: string, key: string) {
+    return {
+      alt: true,
+      ctrl: true,
+      description: id,
+      handler() {
+        fired = id
+      },
+      id,
+      key,
+    }
+  }
   center.register(make('remapped', 't'))
   center.register(make('disabled', 'd'))
 
@@ -233,19 +235,19 @@ it('shortcut overrides remap, disable and rebind at runtime', () => {
 it('kernel wires shortcutOverrides through to plugin registrations', () => {
   const plugin = definePlugin({
     name: 'probe-shortcut',
-    setup: ctx => {
+    setup(ctx) {
       let count = 0
       ctx.shortcuts.register({
         alt: true,
         ctrl: true,
         description: 'probe',
-        handler: () => {
+        handler() {
           count += 1
         },
         id: 'probe-shortcut',
         key: 'q',
       })
-      return { api: { count: () => count }, dispose: () => {} }
+      return { api: { count: () => count }, dispose() {} }
     },
   })
   const a11y = createA11yNow({

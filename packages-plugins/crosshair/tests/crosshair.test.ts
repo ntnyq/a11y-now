@@ -40,10 +40,11 @@ it('lines follow the pointer on the next animation frame', async () => {
   )
 
   const shadow = document.querySelector('a11y-now-host')?.shadowRoot
-  const lines = () =>
-    [...(shadow?.querySelectorAll('div') ?? [])].filter(
+  function lines() {
+    return [...(shadow?.querySelectorAll('div') ?? [])].filter(
       el => el.style.pointerEvents === 'none',
     )
+  }
   await vi.waitFor(() => {
     expect(lines().map(el => el.style.insetBlockStart)).toContain('80px')
     expect(lines().map(el => el.style.insetInlineStart)).toContain('120px')

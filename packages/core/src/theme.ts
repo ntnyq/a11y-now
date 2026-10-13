@@ -15,14 +15,25 @@ import {
 } from './tokens'
 
 export interface ThemeCenter extends ThemeService {
-  /** Bind the shadow host once the toolbar is mounted. */
+  /**
+   * Bind the shadow host once the toolbar is mounted.
+   *
+   * @param host - Toolbar shadow host receiving the active theme tokens.
+   */
   attach: (host: HTMLElement) => void
+  /**
+   * Remove applied theme styles and release the host while retaining registered
+   * themes.
+   */
   destroy: () => void
 }
 
+/**
+ * DOM service stylesheet id for active theme page colors.
+ */
 const PAGE_STYLE_ID = 'theme-page'
 
-const buildPageStyle = (theme: A11yTheme): string => {
+function buildPageStyle(theme: A11yTheme): string {
   const skip = [...GLOBAL_SKIP_SELECTORS, ...(theme.skipSelectors ?? [])]
   const not = skip.map(selector => `:not(${selector})`).join('')
   return css`
@@ -45,21 +56,27 @@ const buildPageStyle = (theme: A11yTheme): string => {
  * `document.documentElement` — no stylesheet is ever rebuilt, which is the
  * deliberate improvement over the audited reference implementation
  * (it regenerates 100 KB+ of override styles per switch).
+ *
+ * @param dom - Service that tracks page style mutations.
+ * @param events - Bus receiving theme-change notifications.
+ * @param doc - Document whose page theme attributes are updated.
+ * @returns A theme registry with switching, host attachment, and cleanup
+ *   methods.
  */
-export const createThemeService = (
+export function createThemeService(
   dom: DomService,
   events: EventBus,
   doc: Document,
-): ThemeCenter => {
+): ThemeCenter {
   const registry = new Map<string, A11yTheme>()
-  let host: HTMLElement | null = null
   let currentName: string | null = null
   let disposePageStyle: (() => void) | null = null
+  let host: HTMLElement | null = null
 
   const appliedToolbarKeys = new Set<keyof ToolbarTokens>()
   const appliedPageKeys = new Set<keyof PageTokens>()
 
-  const clear = (): void => {
+  function clear(): void {
     if (host) {
       for (const key of appliedToolbarKeys) {
         host.style.removeProperty(toolbarVar(key))
@@ -75,7 +92,7 @@ export const createThemeService = (
     delete doc.documentElement.dataset['a11yTheme']
   }
 
-  const apply = (name: string): void => {
+  function apply(name: string): void {
     const theme = registry.get(name)
     if (!theme) {
       warn(`unknown theme "${name}"`)
@@ -101,9 +118,11 @@ export const createThemeService = (
     events.emit('theme:change', { theme: name })
   }
 
-  const list = (): A11yTheme[] => [...registry.values()]
+  function list(): A11yTheme[] {
+    return [...registry.values()]
+  }
 
-  const peek = (): A11yTheme | null => {
+  function peek(): A11yTheme | null {
     const themes = list()
     if (themes.length === 0) {
       return null
@@ -114,26 +133,26 @@ export const createThemeService = (
 
   return {
     apply,
-    attach: el => {
+    attach(el) {
       host = el
       if (currentName) {
         apply(currentName)
       }
     },
     current: () => (currentName ? (registry.get(currentName) ?? null) : null),
-    cycle: () => {
+    cycle() {
       const next = peek()
       if (next) {
         apply(next.name)
       }
       return next
     },
-    destroy: () => {
+    destroy() {
       clear()
       currentName = null
       host = null
     },
-    getToken: key => {
+    getToken(key) {
       const fromTheme = currentName
         ? registry.get(currentName)?.toolbar?.[key]
         : undefined
@@ -141,7 +160,7 @@ export const createThemeService = (
     },
     list,
     peek,
-    register: theme => {
+    register(theme) {
       registry.set(theme.name, theme)
     },
   }

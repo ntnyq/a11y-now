@@ -1,8 +1,13 @@
 import { fileURLToPath } from 'node:url'
 import { defineProject as defineVitestProject } from 'vitest/config'
 
-const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
+function r(path: string) {
+  return fileURLToPath(new URL(path, import.meta.url))
+}
 
+/**
+ * Plugin workspace names used for test aliases and project selection.
+ */
 export const PLUGINS = [
   'region-nav',
   'speech',
@@ -24,7 +29,13 @@ export const PLUGINS = [
   'pause-motion',
   'spacing',
 ]
+/**
+ * Theme workspace names resolved to source modules during tests.
+ */
 const THEMES = ['default', 'deep-blue', 'chocolate', 'high-contrast', 'forest']
+/**
+ * Framework adapter workspace names resolved to source modules during tests.
+ */
 const FRAMEWORKS = ['vue', 'react', 'svelte', 'solid', 'element', 'next']
 
 /**
@@ -60,8 +71,15 @@ export const workspaceAlias: Record<string, string> = {
   ),
 }
 
-export const defineProject = (environment: 'node' | 'happy-dom') =>
-  defineVitestProject({
+/**
+ * Create a shared Vitest project configuration for a workspace package.
+ *
+ * @param environment - Runtime environment used by this package's tests.
+ * @returns Vitest configuration with workspace source aliases and shared test
+ *   setup.
+ */
+export function defineProject(environment: 'node' | 'happy-dom') {
+  return defineVitestProject({
     resolve: {
       alias: workspaceAlias,
     },
@@ -71,3 +89,4 @@ export const defineProject = (environment: 'node' | 'happy-dom') =>
       setupFiles: [r('./vitest.setup.ts')],
     },
   })
+}

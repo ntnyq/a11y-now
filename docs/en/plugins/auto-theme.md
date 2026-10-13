@@ -13,8 +13,8 @@ following the system.
 ## Usage
 
 ```ts
-import { createA11yNow } from 'a11y-now'
 import { autoTheme } from '@a11y-now/plugin-auto-theme'
+import { createA11yNow } from 'a11y-now'
 
 // The mapped themes must be registered (the full preset includes the defaults below.)
 createA11yNow({ plugins: [autoTheme()] }).mount()

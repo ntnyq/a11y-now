@@ -6,7 +6,7 @@ it('type contracts are usable at compile time', () => {
     name: 'probe',
     setup: ctx => ({
       api: { value: () => ctx.options.step },
-      dispose: () => {},
+      dispose() {},
     }),
   }
   const theme: A11yTheme = {

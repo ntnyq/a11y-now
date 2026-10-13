@@ -53,7 +53,7 @@ it('<A11yNow /> honors a previous exit', async () => {
 
 it('re-exported provider and hook stay usable', async () => {
   const captured: { current: A11yNowInstance | null } = { current: null }
-  const Probe = (): null => {
+  function Probe(): null {
     captured.current = useA11yNow()
     return null
   }

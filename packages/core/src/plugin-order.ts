@@ -2,24 +2,45 @@ import type { A11yPlugin, A11yPluginInput } from '@a11y-now/types'
 
 /* eslint-disable typescript/no-explicit-any -- heterogeneous plugin registry */
 export interface Registered {
+  /**
+   * Plugin configuration, or undefined for a bare plugin definition.
+   */
   options: any
+  /**
+   * Plugin definition retained for dependency ordering and activation.
+   */
   plugin: A11yPlugin<any, any, any>
 }
 /* eslint-enable typescript/no-explicit-any */
 
-export const normalizeInput = (input: A11yPluginInput): Registered =>
-  'plugin' in input
+/**
+ * Normalize a bare or configured plugin into a registration record.
+ *
+ * @param input - Plugin definition or definition bundled with options.
+ * @returns The plugin and its options; bare definitions have `undefined`
+ *   options.
+ */
+export function normalizeInput(input: A11yPluginInput): Registered {
+  return 'plugin' in input
     ? { options: input.options, plugin: input.plugin }
     : { options: undefined, plugin: input }
+}
 
-/** Topological sort by `dependsOn`, keeping registration order otherwise. */
-export const sortPlugins = (registered: Registered[]): Registered[] => {
+/**
+ * Topological sort by `dependsOn`, keeping registration order otherwise.
+ *
+ * @param registered - Plugins in registration order; the input array is not
+ *   mutated.
+ * @returns A new array with each dependency before the plugin that requires it.
+ * @throws {Error} If a dependency is missing or a dependency cycle exists.
+ */
+export function sortPlugins(registered: Registered[]): Registered[] {
   const byName = new Map(registered.map(item => [item.plugin.name, item]))
   const sorted: Registered[] = []
   const visited = new Set<string>()
   const visiting = new Set<string>()
 
-  const visit = (item: Registered): void => {
+  function visit(item: Registered): void {
     const { name } = item.plugin
     if (visited.has(name)) {
       return
